@@ -16,6 +16,113 @@
             --text-muted: #7f8c8d;
             --border-radius: 14px;
             --transition: all 0.2s ease-in-out;
+
+            /* Single source of truth for food-emoji size everywhere in the
+               app. Change this one value to resize every emoji glyph - both
+               the category nav row and the picker grid scale off it. */
+            --food-emoji-size: 2.2rem;
+        }
+
+        .emoji-glyph {
+            font-size: var(--food-emoji-size);
+            line-height: 1;
+        }
+
+        .emoji-cat-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .emoji-cat-btn {
+            flex: 1 1 0;
+            min-width: 0;
+            background: var(--card-color);
+            border: 1px solid #e2e5e8;
+            border-radius: var(--border-radius);
+            padding: 6px 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+        }
+        .emoji-cat-btn:active {
+            background: var(--primary-light);
+        }
+        /* Nav row icons stay proportional to the same master size, just
+           scaled down a bit so 7 buttons fit comfortably in a row. */
+        .emoji-cat-btn .emoji-glyph {
+            font-size: calc(var(--food-emoji-size) * 0.65);
+        }
+        .emoji-cat-label {
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .emoji-picker-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 90;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .emoji-picker-card {
+            background: var(--card-color);
+            width: 100%;
+            max-width: 500px;
+            max-height: 78vh;
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            overflow-y: auto;
+        }
+        .emoji-picker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .emoji-picker-header h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        .emoji-picker-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px 8px;
+        }
+        .emoji-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .emoji-picker-item {
+            background: var(--bg-color);
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 10px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .emoji-picker-item:active {
+            background: var(--primary-light);
+        }
+        .emoji-picker-label {
+            font-size: 0.68rem;
+            color: var(--text-main);
+            text-align: center;
+            line-height: 1.15;
         }
 
         body {
@@ -391,6 +498,18 @@
         </div>
     </div>
 
+    <div id="emoji-cat-row" class="emoji-cat-row"></div>
+
+    <div id="emoji-picker-overlay" class="emoji-picker-overlay">
+        <div class="emoji-picker-card">
+            <div class="emoji-picker-header">
+                <h3 id="emoji-picker-title"></h3>
+                <button class="emoji-picker-close" onclick="closeEmojiPicker()">✕</button>
+            </div>
+            <div id="emoji-picker-grid" class="emoji-picker-grid"></div>
+        </div>
+    </div>
+
     <div class="search-container">
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan barcode with camera">📷</button>
@@ -446,9 +565,10 @@
     </ul>
 </div>
 
-<script src="zxing.min.js?v=1.14"></script>
-<script src="db.js?v=1.14"></script>
-<script src="USDA_DB_Access.js?v=1.14"></script>
+<script src="foodEmojis.js?v=1.16"></script>
+<script src="zxing.min.js?v=1.16"></script>
+<script src="db.js?v=1.16"></script>
+<script src="USDA_DB_Access.js?v=1.16"></script>
 <script>
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
@@ -456,7 +576,52 @@
     window.addEventListener('DOMContentLoaded', async () => {
         await initDB();
         refreshAppUI();
+        renderEmojiCategoryButtons();
     });
+
+    // ---- Food emoji picker ----
+    // Renders the row of category buttons from FOOD_EMOJI_CATEGORIES
+    // (defined in foodEmojis.js) rather than hardcoding them in the HTML,
+    // so adding/removing/reordering categories only requires editing that
+    // one data file.
+    function renderEmojiCategoryButtons() {
+        const container = document.getElementById('emoji-cat-row');
+        container.innerHTML = FOOD_EMOJI_CATEGORIES.map((cat, idx) => `
+            <button class="emoji-cat-btn" onclick="openEmojiCategory(${idx})">
+                <span class="emoji-glyph">${cat.icon}</span>
+                <span class="emoji-cat-label">${cat.label}</span>
+            </button>
+        `).join('');
+    }
+
+    function openEmojiCategory(catIdx) {
+        const cat = FOOD_EMOJI_CATEGORIES[catIdx];
+        document.getElementById('emoji-picker-title').innerText = cat.label;
+
+        const grid = document.getElementById('emoji-picker-grid');
+        grid.innerHTML = cat.items.map((item, itemIdx) => `
+            <button class="emoji-picker-item" onclick="selectFoodEmoji(${catIdx}, ${itemIdx})">
+                <span class="emoji-glyph">${item.emoji}</span>
+                <span class="emoji-picker-label">${item.name}</span>
+            </button>
+        `).join('');
+
+        document.getElementById('emoji-picker-overlay').style.display = 'flex';
+    }
+
+    function closeEmojiPicker() {
+        document.getElementById('emoji-picker-overlay').style.display = 'none';
+    }
+
+    // Selecting an emoji item behaves exactly like typing its name and
+    // hitting "Look Up" - same handleScan() path, so it goes through the
+    // full USDA -> Open Food Facts -> local cache flow automatically.
+    function selectFoodEmoji(catIdx, itemIdx) {
+        const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
+        closeEmojiPicker();
+        document.getElementById('upc-input').value = item.name;
+        handleScan();
+    }
 
     // ---- Camera barcode scanner (ZXing) ----
     // Requires HTTPS (or localhost) - getUserMedia is blocked on plain HTTP,
@@ -469,6 +634,25 @@
     async function openScanner() {
         if (typeof ZXing === 'undefined') {
             alert('Barcode scanner library failed to load from this site. Make sure zxing.min.js was uploaded alongside the other files.');
+            return;
+        }
+
+        // Pre-flight check: mediaDevices/getUserMedia is only exposed at all
+        // in a secure context (HTTPS, or inside a frame with camera
+        // permission delegated). If this itself is missing, every camera
+        // attempt below is doomed before it even starts, and the reason is
+        // usually either non-HTTPS hosting or (if this app is embedded in an
+        // <iframe> on another page) the iframe not being granted camera
+        // permission via allow="camera".
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            const inIframe = window.self !== window.top;
+            let msg = 'This browser has no camera API available on this page (navigator.mediaDevices is missing).';
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                msg += ' This page is not being served over HTTPS, which blocks camera access entirely.';
+            } else if (inIframe) {
+                msg += ' This page appears to be embedded in an iframe - the parent page needs to add allow="camera" to the <iframe> tag, or camera access will be blocked regardless of HTTPS.';
+            }
+            alert(msg);
             return;
         }
 
@@ -487,35 +671,51 @@
 
         zxingReader = new ZXing.BrowserMultiFormatReader(hints);
 
-        // facingMode: 'environment' asks for the rear camera directly -
-        // more reliable on mobile than enumerating devices and guessing
-        // which one is the back camera.
-        zxingReader.decodeFromConstraints(
-            { video: { facingMode: { ideal: 'environment' } } },
-            'scanner-video',
-            (result, err) => {
-                if (result) {
-                    const code = result.getText();
-                    console.log('Barcode scanned:', code);
-                    closeScanner();
-                    document.getElementById('upc-input').value = code;
-                    handleScan();
+        const onDecodeResult = (result, err) => {
+            if (result) {
+                const code = result.getText();
+                console.log('Barcode scanned:', code);
+                closeScanner();
+                document.getElementById('upc-input').value = code;
+                handleScan();
+            }
+            // err fires continuously between frames when nothing is found
+            // yet (NotFoundException) - that's expected, not a real error.
+        };
+
+        try {
+            // facingMode: 'environment' asks for the rear camera directly -
+            // more reliable on mobile than enumerating devices and guessing
+            // which one is the back camera.
+            await zxingReader.decodeFromConstraints(
+                { video: { facingMode: { ideal: 'environment' } } },
+                'scanner-video',
+                onDecodeResult
+            );
+        } catch (err1) {
+            console.warn(`facingMode constraint failed: [${err1.name}] ${err1.message}. Retrying with plain video:true...`);
+            try {
+                // Fallback: some devices/browsers throw OverconstrainedError
+                // on the facingMode hint even when a camera is available.
+                // Let the browser pick any camera as a last resort.
+                await zxingReader.decodeFromConstraints(
+                    { video: true },
+                    'scanner-video',
+                    onDecodeResult
+                );
+            } catch (err2) {
+                console.error('Camera error:', err2.name, err2.message);
+                let msg = `Could not access the camera. [${err2.name}] ${err2.message}`;
+                if (err2.name === 'NotAllowedError') msg = `Camera permission was denied. [${err2.name}] Enable camera access for this site in your browser settings (or, if this page is embedded in an iframe, ask whoever controls the embedding page to add allow="camera" to the <iframe> tag).`;
+                if (err2.name === 'NotFoundError') msg = `No camera was found on this device. [${err2.name}]`;
+                if (err2.name === 'NotReadableError') msg = `The camera is already in use by another app or tab. [${err2.name}] Close other apps using the camera and try again.`;
+                if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                    msg = `Camera access requires HTTPS. This page is being served over an insecure connection. [${err2.name}] ${err2.message}`;
                 }
-                // err fires continuously between frames when nothing is
-                // found yet (NotFoundException) - that's expected, not a
-                // real error, so it's not logged here.
+                alert(msg);
+                closeScanner();
             }
-        ).catch(err => {
-            console.error('Camera error:', err.name, err.message);
-            let msg = 'Could not access the camera.';
-            if (err.name === 'NotAllowedError') msg = 'Camera permission was denied. Enable camera access for this site in your browser settings.';
-            if (err.name === 'NotFoundError') msg = 'No camera was found on this device.';
-            if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-                msg = 'Camera access requires HTTPS. This page is being served over an insecure connection.';
-            }
-            alert(msg);
-            closeScanner();
-        });
+        }
     }
 
     function closeScanner() {
