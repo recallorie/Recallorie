@@ -9,7 +9,7 @@
 const FOOD_EMOJI_CATEGORIES = [
     {
         label: "Fruits",
-        icon: "🍓",
+        icon: "🍎",
         items: [
             { emoji: "🍇", name: "Grapes" },
             { emoji: "🍈", name: "Melon" },
@@ -29,6 +29,7 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🫐", name: "Blueberries" },
             { emoji: "🥝", name: "Kiwifruit" },
             { emoji: "🥥", name: "Coconut" },
+            { emoji: "🍅", name: "Tomato" },
             { emoji: "🥑", name: "Avocado" }
         ]
     },
@@ -36,7 +37,6 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Vegetables",
         icon: "🥕",
         items: [
-            { emoji: "🍅", name: "Tomato" },
             { emoji: "🫒", name: "Olive" },
             { emoji: "🍆", name: "Eggplant" },
             { emoji: "🥔", name: "Potato" },
@@ -65,20 +65,20 @@ const FOOD_EMOJI_CATEGORIES = [
         items: [
             { emoji: "🍞", name: "Bread" },
             { emoji: "🥐", name: "Croissant" },
-            { emoji: "🥖", name: "Baguette Bread" },
+            { emoji: "🥖", name: "Baguette" },
             { emoji: "🫓", name: "Flatbread" },
             { emoji: "🥨", name: "Pretzel" },
             { emoji: "🥯", name: "Bagel" },
             { emoji: "🥞", name: "Pancakes" },
             { emoji: "🧇", name: "Waffle" },
-            { emoji: "🧀", name: "Cheese Wedge" },
-            { emoji: "🍖", name: "Meat On Bone" },
-            { emoji: "🍗", name: "Poultry Leg" },
-            { emoji: "🥩", name: "Cut Of Meat" },
+            { emoji: "🧀", name: "Cheese" },
+            { emoji: "🍖", name: "Meat" },
+            { emoji: "🍗", name: "Poultry" },
+            { emoji: "🥩", name: "Steak" },
             { emoji: "🥓", name: "Bacon" },
             { emoji: "🍔", name: "Hamburger" },
             { emoji: "🍟", name: "French Fries" },
-            { emoji: "🍕", name: "Slice Of Pizza" },
+            { emoji: "🍕", name: "Pizza" },
             { emoji: "🌭", name: "Hot Dog" },
             { emoji: "🥪", name: "Sandwich" },
             { emoji: "🌮", name: "Taco" },
@@ -88,15 +88,15 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🧆", name: "Falafel" },
             { emoji: "🥚", name: "Egg" },
             { emoji: "🍳", name: "Fried Egg" },
-            { emoji: "🥘", name: "Shallow Pan Of Food" },
-            { emoji: "🍲", name: "Pot Of Food" },
+            { emoji: "🥘", name: "Stew" },
+            { emoji: "🍲", name: "Soup" },
             { emoji: "🫕", name: "Fondue" },
-            { emoji: "🥣", name: "Bowl With Spoon" },
-            { emoji: "🥗", name: "Green Salad" },
+            { emoji: "🥣", name: "Cereal" },
+            { emoji: "🥗", name: "Salad" },
             { emoji: "🍿", name: "Popcorn" },
             { emoji: "🧈", name: "Butter" },
             { emoji: "🧂", name: "Salt" },
-            { emoji: "🥫", name: "Canned Food" }
+            { emoji: "🥫", name: "Sauce" }
         ]
     },
     {
@@ -117,40 +117,40 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🍱", name: "Bento Box" },
             { emoji: "🍘", name: "Rice Cracker" },
             { emoji: "🍙", name: "Rice Ball" },
-            { emoji: "🍚", name: "Cooked Rice" },
+            { emoji: "🍚", name: "Rice" },
             { emoji: "🍛", name: "Curry And Rice" },
             { emoji: "🍜", name: "Ramen" },
             { emoji: "🍝", name: "Spaghetti" },
-            { emoji: "🍠", name: "Roasted Sweet Potato" },
+            { emoji: "🍠", name: "Sweet Potato" },
             { emoji: "🍢", name: "Oden" },
             { emoji: "🍣", name: "Sushi" },
             { emoji: "🍤", name: "Fried Shrimp" },
-            { emoji: "🍥", name: "Fish Cake With Swirl Design" },
+            { emoji: "🍥", name: "Fish Cake" },
             { emoji: "🥮", name: "Mooncake" },
             { emoji: "🍡", name: "Dango" },
             { emoji: "🥟", name: "Dumpling" },
             { emoji: "🥠", name: "Fortune Cookie" },
-            { emoji: "🥡", name: "Takeout Box" }
+            { emoji: "🥡", name: "Fried Rice" }
         ]
     },
     {
         label: "Sweets & Desserts",
         icon: "🍩",
         items: [
-            { emoji: "🍦", name: "Soft Ice Cream" },
+            { emoji: "🍦", name: "Ice Cream" },
             { emoji: "🍧", name: "Shaved Ice" },
-            { emoji: "🍨", name: "Ice Cream" },
+            { emoji: "🍨", name: "Hard Ice Cream" },
             { emoji: "🍩", name: "Doughnut" },
             { emoji: "🍪", name: "Cookie" },
-            { emoji: "🎂", name: "Birthday Cake" },
-            { emoji: "🍰", name: "Shortcake" },
+            { emoji: "🎂", name: "Cake" },
+            { emoji: "🍰", name: "Cheesecake" },
             { emoji: "🧁", name: "Cupcake" },
             { emoji: "🥧", name: "Pie" },
             { emoji: "🍫", name: "Chocolate Bar" },
-            { emoji: "🍬", name: "Candy" },
+            { emoji: "🍬", name: "Hard Candy" },
             { emoji: "🍭", name: "Lollipop" },
-            { emoji: "🍮", name: "Custard" },
-            { emoji: "🍯", name: "Honey Pot" }
+            { emoji: "🍮", name: "Flan" },
+            { emoji: "🍯", name: "Honey" }
         ]
     },
     {
@@ -158,25 +158,25 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🍹",
         items: [
             { emoji: "🍼", name: "Baby Bottle" },
-            { emoji: "🥛", name: "Glass Of Milk" },
-            { emoji: "☕", name: "Hot Beverage" },
-            { emoji: "🫖", name: "Teapot" },
-            { emoji: "🍵", name: "Teacup Without Handle" },
-            { emoji: "🍶", name: "Sake Bottle And Cup" },
-            { emoji: "🍾", name: "Bottle With Popping Cork" },
-            { emoji: "🍷", name: "Wine Glass" },
-            { emoji: "🍸", name: "Cocktail Glass" },
+            { emoji: "🥛", name: "Milk" },
+            { emoji: "☕",  name: "Coffee" },
+            { emoji: "🫖", name: "Tea" },
+            { emoji: "🍵", name: "Green Tea" },
+            { emoji: "🍶", name: "Sake" },
+            { emoji: "🍾", name: "Vodka" },
+            { emoji: "🍷", name: "Wine" },
+            { emoji: "🍸", name: "Martini" },
             { emoji: "🍹", name: "Tropical Drink" },
-            { emoji: "🍺", name: "Beer Mug" },
-            { emoji: "🍻", name: "Clinking Beer Mugs" },
-            { emoji: "🥂", name: "Clinking Glasses" },
-            { emoji: "🥃", name: "Tumbler Glass" },
-            { emoji: "🫗", name: "Pouring Liquid" },
-            { emoji: "🥤", name: "Cup With Straw" },
-            { emoji: "🧋", name: "Bubble Tea" },
-            { emoji: "🧃", name: "Beverage Box" },
+            { emoji: "🍺", name: "Beer" },
+            { emoji: "🍻", name: "Beers" },
+            { emoji: "🥂", name: "Champagne" },
+            { emoji: "🥃", name: "Whiskey" },
+            { emoji: "🫗", name: "Rum" },
+            { emoji: "🥤", name: "Soda" },
+            { emoji: "🧋", name: "Milkshake" },
+            { emoji: "🧃", name: "Juice" },
             { emoji: "🧉", name: "Mate" },
-            { emoji: "🧊", name: "Ice Cube" }
+            { emoji: "🧊", name: "Ice" }
         ]
     },
     {
@@ -185,10 +185,10 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🍴",
         items: [
             { emoji: "🥢", name: "Chopsticks" },
-            { emoji: "🍽️", name: "Fork And Knife With Plate" },
-            { emoji: "🍴", name: "Fork And Knife" },
+            { emoji: "🍽️", name: "Plate" },
+            { emoji: "🍴", name: "Fork & Knife" },
             { emoji: "🥄", name: "Spoon" },
-            { emoji: "🔪", name: "Kitchen Knife" },
+            { emoji: "🔪", name: "Steak Knife" },
             { emoji: "🫙", name: "Jar" },
             { emoji: "🏺", name: "Amphora" }
         ]
