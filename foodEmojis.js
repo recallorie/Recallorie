@@ -8,8 +8,8 @@
 // Box, Dumpling, Bacon).
 const FOOD_EMOJI_CATEGORIES = [
     {
-        label: "Fruits & Vegetables",
-        icon: "🍇",
+        label: "Fruits",
+        icon: "🍓",
         items: [
             { emoji: "🍇", name: "Grapes" },
             { emoji: "🍈", name: "Melon" },
@@ -28,10 +28,16 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🍓", name: "Strawberry" },
             { emoji: "🫐", name: "Blueberries" },
             { emoji: "🥝", name: "Kiwifruit" },
+            { emoji: "🥥", name: "Coconut" },
+            { emoji: "🥑", name: "Avocado" }
+        ]
+    },
+    {
+        label: "Vegetables",
+        icon: "🥕",
+        items: [
             { emoji: "🍅", name: "Tomato" },
             { emoji: "🫒", name: "Olive" },
-            { emoji: "🥥", name: "Coconut" },
-            { emoji: "🥑", name: "Avocado" },
             { emoji: "🍆", name: "Eggplant" },
             { emoji: "🥔", name: "Potato" },
             { emoji: "🥕", name: "Carrot" },
