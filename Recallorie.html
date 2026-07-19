@@ -195,15 +195,21 @@
 
         .btn-camera {
             background-color: var(--card-color);
-            color: var(--primary-color);
             border: 1.5px solid var(--primary-color);
             border-radius: var(--border-radius);
-            padding: 0 16px;
-            font-size: 1.2rem;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
         }
         .btn-camera:active {
             background-color: var(--primary-light);
+        }
+        .btn-camera-icon {
+            height: 28px;
+            width: auto;
+            display: block;
         }
 
         .scanner-overlay {
@@ -512,7 +518,9 @@
 
     <div class="search-container">
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
-        <button class="btn-camera" onclick="openScanner()" aria-label="Scan barcode with camera">📷</button>
+        <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
+            <img src="upc-icon.svg?v=1.18" alt="Scan UPC barcode" class="btn-camera-icon">
+        </button>
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
     </div>
 
@@ -565,10 +573,10 @@
     </ul>
 </div>
 
-<script src="foodEmojis.js?v=1.17"></script>
-<script src="zxing.min.js?v=1.17"></script>
-<script src="db.js?v=1.17"></script>
-<script src="USDA_DB_Access.js?v=1.17"></script>
+<script src="foodEmojis.js?v=1.18"></script>
+<script src="zxing.min.js?v=1.18"></script>
+<script src="db.js?v=1.18"></script>
+<script src="USDA_DB_Access.js?v=1.18"></script>
 <script>
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
