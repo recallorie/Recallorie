@@ -520,7 +520,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.21" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.22" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -573,10 +573,10 @@
     </ul>
 </div>
 
-<script src="foodEmojis.js?v=1.21"></script>
-<script src="zxing.min.js?v=1.21"></script>
-<script src="db.js?v=1.21"></script>
-<script src="USDA_DB_Access.js?v=1.21"></script>
+<script src="foodEmojis.js?v=1.22"></script>
+<script src="zxing.min.js?v=1.22"></script>
+<script src="db.js?v=1.22"></script>
+<script src="USDA_DB_Access.js?v=1.22"></script>
 <script>
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
@@ -631,10 +631,16 @@
     // Selecting an emoji item behaves exactly like typing its name and
     // hitting "Look Up" - same handleScan() path, so it goes through the
     // full USDA -> Open Food Facts -> local cache flow automatically.
+    // Selecting an emoji item behaves exactly like typing its search term and
+    // hitting "Look Up" - same handleScan() path, so it goes through the
+    // full USDA -> Open Food Facts -> local cache flow automatically.
+    // Uses item.searchOn (the actual lookup query) rather than item.name
+    // (the display label) - they can now differ, e.g. a more specific or
+    // differently-worded search term than what's shown in the picker.
     function selectFoodEmoji(catIdx, itemIdx) {
         const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
         closeEmojiPicker();
-        document.getElementById('upc-input').value = item.name;
+        document.getElementById('upc-input').value = item.searchOn || item.name;
         handleScan();
     }
 
