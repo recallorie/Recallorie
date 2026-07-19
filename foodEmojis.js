@@ -34,12 +34,13 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Vegetables",
+        label: "Veggies+",
         icon: "🥕",
         items: [
             { emoji: "🫒", name: "Olive" },
             { emoji: "🍆", name: "Eggplant" },
             { emoji: "🥔", name: "Potato" },
+            { emoji: "🍠", name: "Sweet Potato" },
             { emoji: "🥕", name: "Carrot" },
             { emoji: "🌽", name: "Corn" },
             { emoji: "🌶️", name: "Hot Pepper" },
@@ -74,6 +75,7 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🧀", name: "Cheese" },
             { emoji: "🍖", name: "Meat" },
             { emoji: "🍗", name: "Poultry" },
+            { emoji: "🐟", name: "Fish" },
             { emoji: "🥩", name: "Steak" },
             { emoji: "🥓", name: "Bacon" },
             { emoji: "🍔", name: "Hamburger" },
@@ -84,18 +86,15 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🌮", name: "Taco" },
             { emoji: "🌯", name: "Burrito" },
             { emoji: "🫔", name: "Tamale" },
-            { emoji: "🥙", name: "Stuffed Flatbread" },
+            { emoji: "🥙", name: "Pita" },
             { emoji: "🧆", name: "Falafel" },
             { emoji: "🥚", name: "Egg" },
-            { emoji: "🍳", name: "Fried Egg" },
             { emoji: "🥘", name: "Stew" },
-            { emoji: "🍲", name: "Soup" },
             { emoji: "🫕", name: "Fondue" },
             { emoji: "🥣", name: "Cereal" },
             { emoji: "🥗", name: "Salad" },
             { emoji: "🍿", name: "Popcorn" },
             { emoji: "🧈", name: "Butter" },
-            { emoji: "🧂", name: "Salt" },
             { emoji: "🥫", name: "Sauce" }
         ]
     },
@@ -111,7 +110,7 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Asian Cuisine & Specialty Dishes",
+        label: "Global Dishes",
         icon: "🍜",
         items: [
             { emoji: "🍱", name: "Bento Box" },
@@ -120,8 +119,8 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🍚", name: "Rice" },
             { emoji: "🍛", name: "Curry And Rice" },
             { emoji: "🍜", name: "Ramen" },
+            { emoji: "🍲", name: "Soup" },
             { emoji: "🍝", name: "Spaghetti" },
-            { emoji: "🍠", name: "Sweet Potato" },
             { emoji: "🍢", name: "Oden" },
             { emoji: "🍣", name: "Sushi" },
             { emoji: "🍤", name: "Fried Shrimp" },
@@ -154,10 +153,9 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Beverages",
+        label: "Drinks",
         icon: "🍹",
         items: [
-            { emoji: "🍼", name: "Baby Bottle" },
             { emoji: "🥛", name: "Milk" },
             { emoji: "☕",  name: "Coffee" },
             { emoji: "🫖", name: "Tea" },
@@ -180,9 +178,12 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        // Not actually food - kept available for reference per request.
-        label: "Dishware & Dining Utensils",
+        // Not actually food - kept in the data for future reference, but
+        // hidden from the category button row (see renderEmojiCategoryButtons
+        // in Recallorie.html, which filters out any category with hidden: true).
+        label: "Utensils",
         icon: "🍴",
+        hidden: true,
         items: [
             { emoji: "🥢", name: "Chopsticks" },
             { emoji: "🍽️", name: "Plate" },
