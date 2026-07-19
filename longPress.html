@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+  .icon-container {
+    position: relative;
+    display: inline-block;
+    margin: 50px;
+  }
+  
+  .main-btn {
+    font-size: 2rem;
+    padding: 10px;
+    cursor: pointer;
+    user-select: none; /* Prevents text selection during long press */
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 8px;
+  }
+
+  /* The hidden secondary menu */
+  .popup-menu {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    background: #333;
+    padding: 8px;
+    border-radius: 8px;
+    gap: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .popup-menu.show {
+    display: flex;
+  }
+
+  .popup-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="icon-container">
+  <!-- The main button -->
+  <button id="mainBtn" class="main-btn">💧</button>
+  
+  <!-- The secondary popup list -->
+  <div id="popupMenu" class="popup-menu">
+    <button class="popup-icon" data-emoji="🔥">🔥</button>
+    <button class="popup-icon" data-emoji="❄️">❄️</button>
+    <button class="popup-icon" data-emoji="⚡">⚡</button>
+  </div>
+</div>
+
+<script>
+  const mainBtn = document.getElementById('mainBtn');
+  const popupMenu = document.getElementById('popupMenu');
+  
+  let pressTimer;
+  let isLongPress = false;
+  const LONG_PRESS_DURATION = 500; // time in milliseconds
+
+  // --- 1. START THE TIMER ---
+  function startPress(e) {
+    // Optional: prevent default zoom/scroll behavior on mobile devices
+    if (e.type === 'touchstart') e.preventDefault(); 
+    
+    isLongPress = false;
+    
+    pressTimer = setTimeout(() => {
+      isLongPress = true;
+      triggerLongPress();
+    }, LONG_PRESS_DURATION);
+  }
+
+  // --- 2. CLEAR THE TIMER / HANDLE SHORT PRESS ---
+  function endPress() {
+    clearTimeout(pressTimer); // Stop the countdown
+    
+    if (!isLongPress) {
+      triggerShortPress();
+    }
+  }
+
+  // --- 3. THE ACTIONS ---
+  function triggerShortPress() {
+    console.log("Short press detected: Regular button action.");
+    // Close popup if it's open
+    popupMenu.classList.remove('show'); 
+  }
+
+  function triggerLongPress() {
+    console.log("Long press detected: Opening secondary menu.");
+    popupMenu.classList.add('show');
+  }
+
+  // --- 4. COMBINING LOGIC ---
+  // Listen for clicks on the secondary icons
+  popupMenu.addEventListener('click', (e) => {
+    if (e.target.classList.contains('popup-icon')) {
+      const selectedEmoji = e.target.getAttribute('data-emoji');
+      const currentEmoji = mainBtn.innerText;
+      
+      // Combine them!
+      mainBtn.innerText = currentEmoji + selectedEmoji;
+      
+      // Hide the menu after selection
+      popupMenu.classList.remove('show');
+    }
+  });
+
+  // --- 5. EVENT LISTENERS ---
+  // Mouse events for desktop
+  mainBtn.addEventListener('mousedown', startPress);
+  mainBtn.addEventListener('mouseup', endPress);
+  mainBtn.addEventListener('mouseleave', () => clearTimeout(pressTimer)); // Cancel if mouse leaves button
+
+  // Touch events for mobile/tablets
+  mainBtn.addEventListener('touchstart', startPress);
+  mainBtn.addEventListener('touchend', endPress);
+  mainBtn.addEventListener('touchcancel', () => clearTimeout(pressTimer));
+</script>
+
+</body>
+</html>
