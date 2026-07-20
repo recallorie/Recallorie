@@ -114,6 +114,12 @@
             align-items: center;
             gap: 4px;
             cursor: pointer;
+            /* Long-press is used for the descriptor popup - suppress the
+               native iOS/Android press-and-hold callout (copy/save image
+               menu) and text-selection so it doesn't fight with that. */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
         .emoji-picker-item:active {
             background: var(--primary-light);
@@ -123,6 +129,71 @@
             color: var(--text-main);
             text-align: center;
             line-height: 1.15;
+        }
+
+        .descriptor-picker-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 95; /* above the emoji picker (90) so it layers on top */
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .descriptor-picker-card {
+            background: var(--card-color);
+            width: 100%;
+            max-width: 500px;
+            max-height: 78vh;
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            overflow-y: auto;
+        }
+        .descriptor-picker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .descriptor-picker-header h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        .descriptor-picker-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px 8px;
+        }
+        .descriptor-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 8px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .descriptor-row:last-child {
+            border-bottom: none;
+        }
+        .descriptor-row:active {
+            background: var(--primary-light);
+        }
+        .descriptor-row .emoji-glyph {
+            font-size: calc(var(--food-emoji-size) * 0.6);
+            width: 1.4em;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .descriptor-row-label {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+        .descriptor-row.base-row .descriptor-row-label {
+            font-weight: 600;
         }
 
         body {
@@ -516,11 +587,21 @@
         </div>
     </div>
 
+    <div id="descriptor-picker-overlay" class="descriptor-picker-overlay">
+        <div class="descriptor-picker-card">
+            <div class="descriptor-picker-header">
+                <h3 id="descriptor-picker-title"></h3>
+                <button class="descriptor-picker-close" onclick="closeDescriptorPicker()">✕</button>
+            </div>
+            <div id="descriptor-picker-list"></div>
+        </div>
+    </div>
+
     <div class="search-container">
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.22" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.24" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -573,10 +654,10 @@
     </ul>
 </div>
 
-<script src="foodEmojis.js?v=1.22"></script>
-<script src="zxing.min.js?v=1.22"></script>
-<script src="db.js?v=1.22"></script>
-<script src="USDA_DB_Access.js?v=1.22"></script>
+<script src="foodEmojis.js?v=1.24"></script>
+<script src="zxing.min.js?v=1.24"></script>
+<script src="db.js?v=1.24"></script>
+<script src="USDA_DB_Access.js?v=1.24"></script>
 <script>
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
@@ -614,8 +695,15 @@
         document.getElementById('emoji-picker-title').innerText = cat.label;
 
         const grid = document.getElementById('emoji-picker-grid');
+        // Wired with pointer events (not onclick) so we can distinguish a
+        // quick tap from a >1.2s press-and-hold, which opens the descriptor
+        // popup instead. Pointer events cover touch and mouse uniformly.
         grid.innerHTML = cat.items.map((item, itemIdx) => `
-            <button class="emoji-picker-item" onclick="selectFoodEmoji(${catIdx}, ${itemIdx})">
+            <button class="emoji-picker-item"
+                onpointerdown="startLongPress(${catIdx}, ${itemIdx})"
+                onpointerup="handlePointerUp(${catIdx}, ${itemIdx})"
+                onpointerleave="cancelLongPress()"
+                oncontextmenu="return false;">
                 <span class="emoji-glyph">${item.emoji}</span>
                 <span class="emoji-picker-label">${item.name}</span>
             </button>
@@ -628,9 +716,48 @@
         document.getElementById('emoji-picker-overlay').style.display = 'none';
     }
 
-    // Selecting an emoji item behaves exactly like typing its name and
-    // hitting "Look Up" - same handleScan() path, so it goes through the
-    // full USDA -> Open Food Facts -> local cache flow automatically.
+    // ---- Long-press detection for the descriptor popup ----
+    const LONG_PRESS_MS = 1200;
+    let longPressTimer = null;
+    let longPressTriggered = false;
+
+    function startLongPress(catIdx, itemIdx) {
+        longPressTriggered = false;
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => {
+            longPressTriggered = true;
+            openDescriptorPicker(catIdx, itemIdx);
+        }, LONG_PRESS_MS);
+    }
+
+    function cancelLongPress() {
+        clearTimeout(longPressTimer);
+    }
+
+    // Fires on release regardless of press duration. If the long-press timer
+    // already fired (opening the descriptor popup), this suppresses the
+    // normal short-tap selection so both don't happen from one press.
+    function handlePointerUp(catIdx, itemIdx) {
+        cancelLongPress();
+        if (longPressTriggered) {
+            longPressTriggered = false;
+            return;
+        }
+        selectFoodEmoji(catIdx, itemIdx);
+    }
+
+    // Shared entry point for every emoji-picker-driven search (short tap,
+    // the descriptor popup's base row, or a specific descriptor row) - sets
+    // the portion weight to be pre-filled once the food card renders, then
+    // runs the exact same lookup path as typing into the search box.
+    let pendingPortionGrams = null;
+
+    function beginFoodEmojiSearch(searchTerm, gramsPortion) {
+        pendingPortionGrams = (typeof gramsPortion === 'number' && gramsPortion > 0) ? gramsPortion : null;
+        document.getElementById('upc-input').value = searchTerm;
+        handleScan();
+    }
+
     // Selecting an emoji item behaves exactly like typing its search term and
     // hitting "Look Up" - same handleScan() path, so it goes through the
     // full USDA -> Open Food Facts -> local cache flow automatically.
@@ -640,8 +767,52 @@
     function selectFoodEmoji(catIdx, itemIdx) {
         const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
         closeEmojiPicker();
-        document.getElementById('upc-input').value = item.searchOn || item.name;
-        handleScan();
+        beginFoodEmojiSearch(item.searchOn || item.name, item.gramsPortion);
+    }
+
+    // ---- Descriptor popup (long-press) ----
+    // Shows the originally-pressed item at the top (selecting it = same as a
+    // plain tap), followed by up to MAX_DESCRIPTOR_CHOICES variant labels.
+    // Selecting a descriptor searches on "<name>, <descriptor>".
+    function openDescriptorPicker(catIdx, itemIdx) {
+        const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
+        document.getElementById('descriptor-picker-title').innerText = item.name;
+
+        const descriptors = (item.descriptors || []).slice(0, MAX_DESCRIPTOR_CHOICES);
+
+        const baseRow = `
+            <div class="descriptor-row base-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, null)">
+                <span class="emoji-glyph">${item.emoji}</span>
+                <span class="descriptor-row-label">${item.name} (no descriptor)</span>
+            </div>
+        `;
+        const descriptorRows = descriptors.map((desc, descIdx) => `
+            <div class="descriptor-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, ${descIdx})">
+                <span class="descriptor-row-label">${desc}</span>
+            </div>
+        `).join('');
+
+        document.getElementById('descriptor-picker-list').innerHTML = baseRow + descriptorRows;
+        document.getElementById('descriptor-picker-overlay').style.display = 'flex';
+    }
+
+    function closeDescriptorPicker() {
+        document.getElementById('descriptor-picker-overlay').style.display = 'none';
+    }
+
+    // descIdx is null when the top "base" row was chosen (plain searchOn,
+    // same as a normal tap); otherwise it's an index into item.descriptors.
+    function selectDescriptor(catIdx, itemIdx, descIdx) {
+        const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
+        closeDescriptorPicker();
+        closeEmojiPicker();
+
+        if (descIdx === null) {
+            beginFoodEmojiSearch(item.searchOn || item.name, item.gramsPortion);
+        } else {
+            const descriptor = item.descriptors[descIdx];
+            beginFoodEmojiSearch(`${item.name}, ${descriptor}`, item.gramsPortion);
+        }
     }
 
     // ---- Camera barcode scanner (ZXing) ----
@@ -827,9 +998,19 @@
         document.getElementById('food-title').innerText = food.description;
         document.getElementById('food-brand').innerText = food.brand;
 
-        const defaultGrams = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
-            ? Math.round(food.servingSize)
-            : 100;
+        // If this lookup was triggered from the food-emoji picker (with a
+        // preset gramsPortion on that item), use that instead of the usual
+        // label-serving-size default - then clear it so a later unrelated
+        // barcode scan or typed search doesn't accidentally reuse it.
+        let defaultGrams;
+        if (pendingPortionGrams !== null) {
+            defaultGrams = pendingPortionGrams;
+            pendingPortionGrams = null;
+        } else {
+            defaultGrams = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
+                ? Math.round(food.servingSize)
+                : 100;
+        }
         document.getElementById('portion-weight').value = defaultGrams;
 
         const hintEl = document.getElementById('serving-hint');
