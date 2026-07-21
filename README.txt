@@ -15,8 +15,7 @@ x- Since all icons in place, treat first icon as 1st step but long pressing on t
     automatically looked up.  NOTE, The secondary text for each of the first food icons will be stored in an
     array of strings in the foodEmijis.js file on the same entries that the particular food icon is stored.  For
     now, the array of these strings to display in the seconary menu should be prepopulated with:
-            { "Descriptor #1", "Descriptor #2", "Descriptor #3", "Descriptor #4",
-              "Descriptor #5", "Descriptor #6", "Descriptor #7" }
+            { "Desc1", "Desc2", "Desc3", "Desc4", "Desc5", "Desc6", "Desc7" }
     I will hand edit all of these upon looking at the database as to what makes sense for each food icon.
 x- Need to incorporate a calendar into the screen so user could press a left arrow and go back a day. Pressing again
     the same left arrow would keep moving back 1 day for each press.  Obviously, all food entries from the
