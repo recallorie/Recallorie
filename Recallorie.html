@@ -506,6 +506,63 @@
             background-color: #ffebee;
         }
 
+        .btn-duplicate {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            padding: 8px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-left: 4px;
+        }
+        .btn-duplicate:active {
+            background-color: var(--primary-light);
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .date-nav-btn {
+            background: var(--bg-color);
+            border: 1px solid #e2e5e8;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .date-nav-btn:active {
+            background-color: var(--primary-light);
+        }
+        .date-nav input[type="date"] {
+            border: 1px solid #e2e5e8;
+            border-radius: 10px;
+            padding: 6px 8px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            background: var(--bg-color);
+        }
+        .date-nav-today-btn {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         .export-corner {
             position: fixed;
             top: calc(env(safe-area-inset-top) + 12px);
@@ -566,8 +623,14 @@
     </header>
 
     <div class="dashboard-card">
+        <div class="date-nav">
+            <button class="date-nav-btn" onclick="changeViewDate(-1)" aria-label="Previous day">◀</button>
+            <input type="date" id="view-date-input" onchange="onViewDateInputChange()">
+            <button class="date-nav-btn" onclick="changeViewDate(1)" aria-label="Next day">▶</button>
+            <button id="jump-to-today-btn" class="date-nav-today-btn" onclick="jumpToToday()" style="display:none;">Today</button>
+        </div>
         <div id="dash-calories" class="calories-tally">0</div>
-        <div class="calories-label">Logged Calories Today</div>
+        <div class="calories-label" id="dash-cal-label">Logged Calories Today</div>
         <div class="macro-grid" style="margin-bottom: 0;">
             <div class="macro-box"><span id="dash-protein" class="macro-val">0g</span>Prot</div>
             <div class="macro-box"><span id="dash-carbs" class="macro-val">0g</span>Carb</div>
@@ -601,7 +664,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.24" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.27" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -619,7 +682,23 @@
         <small id="food-brand" style="color: var(--text-muted); display: block; margin-bottom: 12px;"></small>
 
         <div class="portion-row">
-            <label for="portion-weight">Portion (g):</label>
+            <label for="portion-amount">Portion:</label>
+            <input type="number" id="portion-amount" min="0" step="any" style="width: 70px;" oninput="recalcGramsFromUnitAmount()">
+            <select id="portion-unit" onchange="recalcGramsFromUnitAmount()">
+                <option value="g">g</option>
+                <option value="kg">kg</option>
+                <option value="oz">oz (wt)</option>
+                <option value="lb">lb</option>
+                <option value="ml">mL</option>
+                <option value="l">L</option>
+                <option value="fl oz">fl oz</option>
+                <option value="cup">cup</option>
+                <option value="tbsp">tbsp</option>
+                <option value="tsp">tsp</option>
+            </select>
+        </div>
+        <div class="portion-row">
+            <label for="portion-weight">= Grams:</label>
             <input type="number" id="portion-weight" min="0" step="1" oninput="onPortionChange()">
         </div>
         <div id="serving-hint" class="serving-hint"></div>
@@ -640,7 +719,7 @@
     </div>
 
     <div class="section-header">
-        <h3>Eaten Today</h3>
+        <h3 id="log-section-title">Eaten Today</h3>
     </div>
     <ul id="log-container" class="item-list">
     </ul>
@@ -654,13 +733,15 @@
     </ul>
 </div>
 
-<script src="foodEmojis.js?v=1.24"></script>
-<script src="zxing.min.js?v=1.24"></script>
-<script src="db.js?v=1.24"></script>
-<script src="USDA_DB_Access.js?v=1.24"></script>
+<script src="foodEmojis.js?v=1.27"></script>
+<script src="zxing.min.js?v=1.27"></script>
+<script src="db.js?v=1.27"></script>
+<script src="USDA_DB_Access.js?v=1.27"></script>
 <script>
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
+    let currentViewDateStr = null; // YYYY-MM-DD of the day currently shown in the dashboard/log
+    let currentViewLogs = []; // Raw log entries for currentViewDateStr, so duplicate/delete can look up by id without a re-fetch
 
     window.addEventListener('DOMContentLoaded', async () => {
         await initDB();
@@ -748,12 +829,26 @@
 
     // Shared entry point for every emoji-picker-driven search (short tap,
     // the descriptor popup's base row, or a specific descriptor row) - sets
-    // the portion weight to be pre-filled once the food card renders, then
-    // runs the exact same lookup path as typing into the search box.
-    let pendingPortionGrams = null;
+    // the portion amount/unit (and, for count-based units, the food-specific
+    // unitGrams) to be pre-filled once the food card renders, then runs the
+    // exact same lookup path as typing into the search box.
+    let pendingPortionAmount = null;
+    let pendingPortionUnit = null;
+    let pendingUnitGrams = null;
 
-    function beginFoodEmojiSearch(searchTerm, gramsPortion) {
-        pendingPortionGrams = (typeof gramsPortion === 'number' && gramsPortion > 0) ? gramsPortion : null;
+    function beginFoodEmojiSearch(searchTerm, portionAmount, portionUnit, unitGrams) {
+        const hasStandardUnit = portionUnit && UNIT_TO_GRAMS[portionUnit];
+        const hasCustomUnit = portionUnit && typeof unitGrams === 'number' && unitGrams > 0;
+
+        if (typeof portionAmount === 'number' && portionAmount > 0 && (hasStandardUnit || hasCustomUnit)) {
+            pendingPortionAmount = portionAmount;
+            pendingPortionUnit = portionUnit;
+            pendingUnitGrams = hasCustomUnit ? unitGrams : null;
+        } else {
+            pendingPortionAmount = null;
+            pendingPortionUnit = null;
+            pendingUnitGrams = null;
+        }
         document.getElementById('upc-input').value = searchTerm;
         handleScan();
     }
@@ -767,13 +862,17 @@
     function selectFoodEmoji(catIdx, itemIdx) {
         const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
         closeEmojiPicker();
-        beginFoodEmojiSearch(item.searchOn || item.name, item.gramsPortion);
+        beginFoodEmojiSearch(item.searchOn || item.name, item.portionAmount, item.portionUnit, item.unitGrams);
     }
 
     // ---- Descriptor popup (long-press) ----
     // Shows the originally-pressed item at the top (selecting it = same as a
-    // plain tap), followed by up to MAX_DESCRIPTOR_CHOICES variant labels.
-    // Selecting a descriptor searches on "<name>, <descriptor>".
+    // plain tap), followed by up to MAX_DESCRIPTOR_CHOICES descriptor
+    // entries. Each descriptor is its own full { label, searchOn,
+    // portionAmount, portionUnit } object (not just a modifier string), so
+    // selecting one searches directly on its own searchOn and pre-fills its
+    // own portion - e.g. picking "Milk, evaporated, whole" under Milk
+    // doesn't just append text to "Milk", it's a distinct lookup entry.
     function openDescriptorPicker(catIdx, itemIdx) {
         const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
         document.getElementById('descriptor-picker-title').innerText = item.name;
@@ -788,7 +887,7 @@
         `;
         const descriptorRows = descriptors.map((desc, descIdx) => `
             <div class="descriptor-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, ${descIdx})">
-                <span class="descriptor-row-label">${desc}</span>
+                <span class="descriptor-row-label">${desc.label}</span>
             </div>
         `).join('');
 
@@ -808,10 +907,10 @@
         closeEmojiPicker();
 
         if (descIdx === null) {
-            beginFoodEmojiSearch(item.searchOn || item.name, item.gramsPortion);
+            beginFoodEmojiSearch(item.searchOn || item.name, item.portionAmount, item.portionUnit, item.unitGrams);
         } else {
             const descriptor = item.descriptors[descIdx];
-            beginFoodEmojiSearch(`${item.name}, ${descriptor}`, item.gramsPortion);
+            beginFoodEmojiSearch(descriptor.searchOn || descriptor.label, descriptor.portionAmount, descriptor.portionUnit, descriptor.unitGrams);
         }
     }
 
@@ -992,34 +1091,50 @@
 
     // Displays targeted food item in the active container card. Foods are
     // cached per-100g (USDA's own reporting basis), so we scale to the
-    // portion weight in the "Portion (g)" box rather than showing raw values.
+    // portion amount/unit selector rather than showing raw values.
     function displayFood(food) {
         currentActiveFood = food;
         document.getElementById('food-title').innerText = food.description;
         document.getElementById('food-brand').innerText = food.brand;
 
         // If this lookup was triggered from the food-emoji picker (with a
-        // preset gramsPortion on that item), use that instead of the usual
-        // label-serving-size default - then clear it so a later unrelated
-        // barcode scan or typed search doesn't accidentally reuse it.
-        let defaultGrams;
-        if (pendingPortionGrams !== null) {
-            defaultGrams = pendingPortionGrams;
-            pendingPortionGrams = null;
+        // preset portionAmount/portionUnit on that item or descriptor), use
+        // that instead of the usual label-serving-size default - then clear
+        // it so a later unrelated barcode scan or typed search doesn't
+        // accidentally reuse it.
+        let amount, unit, unitGrams;
+        if (pendingPortionAmount !== null && pendingPortionUnit !== null) {
+            amount = pendingPortionAmount;
+            unit = pendingPortionUnit;
+            unitGrams = pendingUnitGrams;
+            pendingPortionAmount = null;
+            pendingPortionUnit = null;
+            pendingUnitGrams = null;
         } else {
-            defaultGrams = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
+            unit = 'g';
+            unitGrams = null;
+            amount = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
                 ? Math.round(food.servingSize)
                 : 100;
         }
-        document.getElementById('portion-weight').value = defaultGrams;
+
+        // Rebuild the unit dropdown from scratch every time: the standard
+        // measurable units are always present, plus one extra option for
+        // this food's own count-based unit (e.g. "each" for Egg) when it has
+        // one - stored via a data attribute since its grams-per-unit is
+        // specific to this food, not a global conversion factor.
+        rebuildPortionUnitOptions(unit === 'g' || UNIT_TO_GRAMS[unit] ? null : { unit, unitGrams });
+
+        document.getElementById('portion-amount').value = amount;
+        document.getElementById('portion-unit').value = unit;
+        recalcGramsFromUnitAmount();
 
         const hintEl = document.getElementById('serving-hint');
         hintEl.innerText = food.householdServingText
             ? `Label serving: ${food.householdServingText}`
             : (food.servingSize ? `Label serving: ${food.servingSize}${food.servingSizeUnit || ''}` : '');
 
-        renderMacrosForCurrentPortion();
-        setLoggedTimeToNow();
+        setLoggedTimeDefault();
 
         // Ensure UI displays card and scrolls to it
         const card = document.getElementById('food-display');
@@ -1089,6 +1204,22 @@
         document.getElementById('logged-datetime').value = formatForDatetimeLocal(new Date());
     }
 
+    // Used when a food card first renders (not the explicit "Now" button):
+    // defaults "Eaten at" to the CURRENTLY VIEWED date, combined with the
+    // current time-of-day - so looking up a new food while browsing last
+    // Thursday defaults to logging it onto Thursday, not silently onto
+    // today. The "Now" button still always means the actual current moment.
+    function setLoggedTimeDefault() {
+        const now = new Date();
+        if (currentViewDateStr) {
+            const [y, m, d] = currentViewDateStr.split('-').map(Number);
+            const combined = new Date(y, m - 1, d, now.getHours(), now.getMinutes());
+            document.getElementById('logged-datetime').value = formatForDatetimeLocal(combined);
+        } else {
+            document.getElementById('logged-datetime').value = formatForDatetimeLocal(now);
+        }
+    }
+
     // Recomputes displayed macros from the per-100g baseline whenever the
     // portion weight changes - no network call needed.
     function renderMacrosForCurrentPortion() {
@@ -1103,6 +1234,53 @@
     }
 
     function onPortionChange() {
+        renderMacrosForCurrentPortion();
+    }
+
+    // Rebuilds the "Portion: <amount> <unit>" dropdown: the standard
+    // measurable units are always present, plus one extra option for a
+    // count-based unit specific to the current food (e.g. "each" for Egg,
+    // with grams-per-unit stashed in data-grams-per-unit since it isn't a
+    // universal conversion factor like the standard units are).
+    function rebuildPortionUnitOptions(customUnit) {
+        const STANDARD_UNITS = ['g', 'kg', 'oz', 'lb', 'ml', 'l', 'fl oz', 'cup', 'tbsp', 'tsp'];
+        const unitLabels = { 'g': 'g', 'kg': 'kg', 'oz': 'oz (wt)', 'lb': 'lb', 'ml': 'mL', 'l': 'L', 'fl oz': 'fl oz', 'cup': 'cup', 'tbsp': 'tbsp', 'tsp': 'tsp' };
+
+        let optionsHtml = STANDARD_UNITS.map(u => `<option value="${u}">${unitLabels[u]}</option>`).join('');
+
+        if (customUnit && customUnit.unit && typeof customUnit.unitGrams === 'number' && customUnit.unitGrams > 0) {
+            optionsHtml += `<option value="${customUnit.unit}" data-grams-per-unit="${customUnit.unitGrams}">${customUnit.unit}</option>`;
+        }
+
+        document.getElementById('portion-unit').innerHTML = optionsHtml;
+    }
+
+    // Computes grams from the "Portion: <amount> <unit>" selector. Standard
+    // units use UNIT_TO_GRAMS (defined in foodEmojis.js); a custom count-based
+    // unit (e.g. "each") instead reads its food-specific grams-per-unit off
+    // the selected <option>'s data attribute, set up in rebuildPortionUnitOptions().
+    // Writes the result into the existing "= Grams" field and re-renders
+    // macros off that - this is the bridge between the user-facing
+    // amount/unit picker and the existing grams-based scaling logic in
+    // renderMacrosForCurrentPortion(). Directly editing "= Grams" by hand
+    // still works exactly as before; this is just an alternate, friendlier
+    // way to arrive at the same number.
+    function recalcGramsFromUnitAmount() {
+        const amount = parseFloat(document.getElementById('portion-amount').value) || 0;
+        const unitSelect = document.getElementById('portion-unit');
+        const unit = unitSelect.value;
+
+        let gramsPerUnit;
+        if (UNIT_TO_GRAMS[unit]) {
+            gramsPerUnit = UNIT_TO_GRAMS[unit];
+        } else {
+            const selectedOption = unitSelect.selectedOptions[0];
+            const customGrams = selectedOption ? parseFloat(selectedOption.dataset.gramsPerUnit) : NaN;
+            gramsPerUnit = !isNaN(customGrams) && customGrams > 0 ? customGrams : 1;
+        }
+
+        const grams = amount * gramsPerUnit;
+        document.getElementById('portion-weight').value = Math.round(grams * 100) / 100;
         renderMacrosForCurrentPortion();
     }
 
@@ -1176,43 +1354,117 @@
         refreshAppUI();
     }
 
+    // Re-logs a past entry as a brand-new log entry timestamped "now", onto
+    // TODAY's date specifically (regardless of which date is currently being
+    // viewed) - e.g. viewing last Thursday's lunch and duplicating it adds
+    // it to today's log, not Thursday's. The original entry is untouched.
+    async function duplicateMealToToday(id) {
+        const item = currentViewLogs.find(l => l.id === id);
+        if (!item) return;
+
+        await logMealToDB({
+            description: item.description,
+            brand: item.brand,
+            calories: item.calories,
+            protein: item.protein,
+            carbs: item.carbs,
+            fat: item.fat,
+            portionGrams: item.portionGrams,
+            loggedAtMs: Date.now()
+        });
+
+        alert(`Added "${item.description}" to today's log.`);
+        refreshAppUI();
+    }
+
+    // Formats a YYYY-MM-DD string as e.g. "Thu, Jul 17" for display. Parses
+    // the pieces manually (not `new Date(dateStr)`) so it's built as a LOCAL
+    // date - passing a bare "YYYY-MM-DD" to the Date constructor is parsed
+    // as UTC midnight, which can display as the previous day in US timezones.
+    function formatDateForDisplay(dateStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        return dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    // Nudges currentViewDateStr forward/back by a number of days, staying in
+    // LOCAL date arithmetic throughout (same reasoning as formatDateForDisplay).
+    function changeViewDate(deltaDays) {
+        const [y, m, d] = currentViewDateStr.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() + deltaDays);
+        currentViewDateStr = toLocalDateStr(dt);
+        document.getElementById('view-date-input').value = currentViewDateStr;
+        refreshAppUI();
+    }
+
+    function onViewDateInputChange() {
+        const val = document.getElementById('view-date-input').value;
+        if (!val) return;
+        currentViewDateStr = val;
+        refreshAppUI();
+    }
+
+    function jumpToToday() {
+        currentViewDateStr = toLocalDateStr(new Date());
+        document.getElementById('view-date-input').value = currentViewDateStr;
+        refreshAppUI();
+    }
+
     // Core UI Coordinator
     async function refreshAppUI() {
-        // Use LOCAL date, matching how db.js now stores dateStr. toISOString()
-        // converts to UTC, which runs ahead of US local time in the evening -
-        // that mismatch was making "today" look for tomorrow's entries.
-        const todayStr = toLocalDateStr(new Date());
+        // Defaults to today on first run. Use LOCAL date, matching how db.js
+        // stores dateStr - toISOString() converts to UTC, which runs ahead
+        // of US local time in the evening and would show the wrong day.
+        if (!currentViewDateStr) {
+            currentViewDateStr = toLocalDateStr(new Date());
+        }
+        document.getElementById('view-date-input').value = currentViewDateStr;
 
-        // 1. Populate Daily Log and Tally
-        const logs = await getMealsLoggedForDate(todayStr);
+        const isToday = currentViewDateStr === toLocalDateStr(new Date());
+        document.getElementById('jump-to-today-btn').style.display = isToday ? 'none' : 'inline-block';
+
+        const dateLabel = formatDateForDisplay(currentViewDateStr);
+        document.getElementById('log-section-title').innerText = isToday ? 'Eaten Today' : `Eaten — ${dateLabel}`;
+        document.getElementById('dash-cal-label').innerText = isToday ? 'Logged Calories Today' : `Logged Calories — ${dateLabel}`;
+
+        // 1. Populate Daily Log and Tally for the viewed date
+        const logs = await getMealsLoggedForDate(currentViewDateStr);
+        currentViewLogs = logs; // stashed so duplicate/delete can look up by id without a re-fetch
         let totalCals = 0, totalProt = 0, totalCarbs = 0, totalFat = 0;
 
         const logContainer = document.getElementById('log-container');
         if (logs.length === 0) {
-            logContainer.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No meals logged yet today.</li>`;
+            logContainer.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No meals logged ${isToday ? 'yet today' : 'on this date'}.</li>`;
         } else {
+            // getMealsLoggedForDate already sorts ascending by timestamp, so
+            // this is naturally chronological - early morning first, latest
+            // entries (up to just before midnight) last.
             logContainer.innerHTML = logs.map(item => {
                 totalCals += item.calories;
                 totalProt += item.protein;
                 totalCarbs += item.carbs;
                 totalFat += item.fat;
 
+                const timeLabel = new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
                 return `
                     <li class="item-row logged">
                         <div class="item-details">
                             <span class="item-title">${item.description}</span>
-                            <span class="item-brand">${item.brand}</span>
+                            <span class="item-brand">${timeLabel} &middot; ${item.brand}</span>
                         </div>
                         <div style="display: flex; align-items: center;">
                             <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
-                            <button class="btn-delete" onclick="deleteLoggedMeal(${item.id})">🗑️</button>
+                            <button class="btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
+                            <button class="btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
                         </div>
                     </li>
                 `;
             }).join('');
         }
 
-        // Update dashboard numbers
+        // Update dashboard numbers (totals for the viewed date, not always "today")
         document.getElementById('dash-calories').innerText = Math.round(totalCals);
         document.getElementById('dash-protein').innerText = Math.round(totalProt) + 'g';
         document.getElementById('dash-carbs').innerText = Math.round(totalCarbs) + 'g';
