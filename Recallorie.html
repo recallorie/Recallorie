@@ -377,6 +377,28 @@
             margin-bottom: 20px;
             border-top: 5px solid var(--primary-color);
             animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        .food-card-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--bg-color);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 1rem;
+            line-height: 1;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .food-card-close:active {
+            background-color: var(--primary-light);
         }
 
         @keyframes slideIn {
@@ -664,7 +686,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.27" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.28" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -678,6 +700,7 @@
     <ul id="search-results-container" class="item-list"></ul>
 
     <div id="food-display" class="food-card" style="display: none;">
+        <button class="food-card-close" onclick="closeFoodCard()" aria-label="Close">✕</button>
         <h3 id="food-title" style="margin: 0 0 4px 0; font-size: 1.15rem;"></h3>
         <small id="food-brand" style="color: var(--text-muted); display: block; margin-bottom: 12px;"></small>
 
@@ -733,10 +756,10 @@
     </ul>
 </div>
 
-<script src="foodEmojis.js?v=1.27"></script>
-<script src="zxing.min.js?v=1.27"></script>
-<script src="db.js?v=1.27"></script>
-<script src="USDA_DB_Access.js?v=1.27"></script>
+<script src="foodEmojis.js?v=1.28"></script>
+<script src="zxing.min.js?v=1.28"></script>
+<script src="db.js?v=1.28"></script>
+<script src="USDA_DB_Access.js?v=1.28"></script>
 <script>
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
@@ -1314,6 +1337,13 @@
         saveFoodToLocalCache(upc, newFood);
         displayFood(newFood);
         refreshAppUI();
+    }
+
+    // Dismisses the food card without logging anything, so a different item
+    // can be picked from the lists below without it staying pinned open.
+    function closeFoodCard() {
+        document.getElementById('food-display').style.display = 'none';
+        currentActiveFood = null;
     }
 
     // Log the active meal to running daily timeline, using the actual scaled
