@@ -1,4 +1,4 @@
-TODO - 1.23
+TODO - 1.27
 
 x- Add the exact portion (in grams) to the foodEojis.js file as a 4th couln and prepopulate the grams after the
     lookup completes but before the user presses the "Log this meal" button
@@ -18,7 +18,7 @@ x- Since all icons in place, treat first icon as 1st step but long pressing on t
             { "Descriptor #1", "Descriptor #2", "Descriptor #3", "Descriptor #4",
               "Descriptor #5", "Descriptor #6", "Descriptor #7" }
     I will hand edit all of these upon looking at the database as to what makes sense for each food icon.
-- Need to incorporate a calendar into the screen so user could press a left arrow and go back a day. Pressing again
+x- Need to incorporate a calendar into the screen so user could press a left arrow and go back a day. Pressing again
     the same left arrow would keep moving back 1 day for each press.  Obviously, all food entries from the
     particular day would be shown below in chronological order for that day.
 - Come up with a way for the user to save a whole meal and reuse it with a click of an icon
