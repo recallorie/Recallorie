@@ -852,12 +852,14 @@
 
     // Shared entry point for every emoji-picker-driven search (short tap,
     // the descriptor popup's base row, or a specific descriptor row) - sets
-    // the portion amount/unit (and, for count-based units, the food-specific
-    // unitGrams) to be pre-filled once the food card renders, then runs the
-    // exact same lookup path as typing into the search box.
+    // the portion amount/unit to be pre-filled once the food card renders,
+    // plus any food-specific gram overrides (pendingUnitOverrides), to be
+    // baked directly onto the resulting food record in displayFood() so
+    // they persist to the cache and still apply next time this food is
+    // recalled - not just on this one initial display.
     let pendingPortionAmount = null;
     let pendingPortionUnit = null;
-    let pendingUnitGrams = null;
+    let pendingUnitOverrides = null;
 
     function beginFoodEmojiSearch(searchTerm, portionAmount, portionUnit, unitGrams) {
         const hasStandardUnit = portionUnit && UNIT_TO_GRAMS[portionUnit];
@@ -866,11 +868,11 @@
         if (typeof portionAmount === 'number' && portionAmount > 0 && (hasStandardUnit || hasCustomUnit)) {
             pendingPortionAmount = portionAmount;
             pendingPortionUnit = portionUnit;
-            pendingUnitGrams = hasCustomUnit ? unitGrams : null;
+            pendingUnitOverrides = hasCustomUnit ? { [portionUnit]: unitGrams } : null;
         } else {
             pendingPortionAmount = null;
             pendingPortionUnit = null;
-            pendingUnitGrams = null;
+            pendingUnitOverrides = null;
         }
         document.getElementById('upc-input').value = searchTerm;
         handleScan();
@@ -1125,6 +1127,20 @@
     // cached per-100g (USDA's own reporting basis), so we scale to the
     // portion amount/unit selector rather than showing raw values.
     function displayFood(food) {
+        // If this lookup was triggered from the food-emoji picker with
+        // food-specific gram overrides pending (e.g. grapes' cup = 152g),
+        // bake them permanently onto the food record itself (rather than
+        // just applying them once) and re-save to the local cache. That
+        // way the override still applies the next time this exact food is
+        // recalled - from the "recent items" list, a repeat search, etc -
+        // not just on this one initial display.
+        if (pendingUnitOverrides) {
+            food.unitOverrides = { ...(food.unitOverrides || {}), ...pendingUnitOverrides };
+            if (food.upc) {
+                saveFoodToLocalCache(food.upc, food);
+            }
+        }
+
         currentActiveFood = food;
         document.getElementById('food-title').innerText = food.description;
         document.getElementById('food-brand').innerText = food.brand;
@@ -1134,28 +1150,27 @@
         // that instead of the usual label-serving-size default - then clear
         // it so a later unrelated barcode scan or typed search doesn't
         // accidentally reuse it.
-        let amount, unit, unitGrams;
+        let amount, unit;
         if (pendingPortionAmount !== null && pendingPortionUnit !== null) {
             amount = pendingPortionAmount;
             unit = pendingPortionUnit;
-            unitGrams = pendingUnitGrams;
-            pendingPortionAmount = null;
-            pendingPortionUnit = null;
-            pendingUnitGrams = null;
         } else {
             unit = 'g';
-            unitGrams = null;
             amount = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
                 ? Math.round(food.servingSize)
                 : 100;
         }
+        pendingPortionAmount = null;
+        pendingPortionUnit = null;
+        pendingUnitOverrides = null;
 
-        // Rebuild the unit dropdown from scratch every time: the standard
-        // measurable units are always present. If this food supplies its own
-        // unitGrams (either a count-based unit like "each" for Egg, or a
-        // food-specific override of a standard unit like grapes' "cup"),
-        // pass it through so rebuildPortionUnitOptions can stamp it on.
-        rebuildPortionUnitOptions(typeof unitGrams === 'number' && unitGrams > 0 ? { unit, unitGrams } : null);
+        // Rebuild the unit dropdown from scratch every time, reading
+        // overrides straight off the food record (food.unitOverrides) -
+        // not off the one-shot pending flags - so a food's gram overrides
+        // (count-based units like Egg's "each", or density corrections like
+        // Grapes' "cup") apply every time this food is displayed, including
+        // when it's recalled from history rather than freshly looked up.
+        rebuildPortionUnitOptions(food.unitOverrides || null);
 
         document.getElementById('portion-amount').value = amount;
         document.getElementById('portion-unit').value = unit;
@@ -1270,34 +1285,32 @@
     }
 
     // Rebuilds the "Portion: <amount> <unit>" dropdown: the standard
-    // measurable units are always present, plus one extra option for a
-    // count-based unit specific to the current food (e.g. "each" for Egg,
-    // with grams-per-unit stashed in data-grams-per-unit since it isn't a
-    // universal conversion factor like the standard units are).
-    function rebuildPortionUnitOptions(customUnit) {
+    // measurable units are always present. unitOverrides is the food's own
+    // { unit: gramsPerUnit } map (persisted on the food record - see
+    // displayFood()), covering two cases: a count-based unit specific to
+    // this food with no universal conversion factor (e.g. "each" for Egg,
+    // added as an extra option), and a density correction for a unit that
+    // IS one of the standard ones (e.g. grapes' "cup" = 152g, overriding
+    // the generic water-density 236.588g stamped as a data attribute on
+    // that existing option instead of a confusing duplicate).
+    function rebuildPortionUnitOptions(unitOverrides) {
         const STANDARD_UNITS = ['g', 'kg', 'oz', 'lb', 'ml', 'l', 'fl oz', 'cup', 'tbsp', 'tsp'];
         const unitLabels = { 'g': 'g', 'kg': 'kg', 'oz': 'oz (wt)', 'lb': 'lb', 'ml': 'mL', 'l': 'L', 'fl oz': 'fl oz', 'cup': 'cup', 'tbsp': 'tbsp', 'tsp': 'tsp' };
+        const overrides = unitOverrides || {};
 
-        const hasOverride = customUnit && customUnit.unit && typeof customUnit.unitGrams === 'number' && customUnit.unitGrams > 0;
-        const overridesStandardUnit = hasOverride && STANDARD_UNITS.includes(customUnit.unit);
-
-        // For a "standard" volume unit like "cup", the generic UNIT_TO_GRAMS
-        // conversion assumes water-like density - fine for milk, wrong for
-        // something like grapes (1 cup ≈ 152g, not 236.588g). When a food
-        // supplies its own unitGrams for one of these units, stamp it as a
-        // data attribute directly on that existing <option> instead of the
-        // generic value, rather than adding a confusing duplicate option.
         let optionsHtml = STANDARD_UNITS.map(u => {
-            const gramsAttr = (overridesStandardUnit && u === customUnit.unit)
-                ? ` data-grams-per-unit="${customUnit.unitGrams}"`
+            const gramsAttr = (typeof overrides[u] === 'number' && overrides[u] > 0)
+                ? ` data-grams-per-unit="${overrides[u]}"`
                 : '';
             return `<option value="${u}"${gramsAttr}>${unitLabels[u]}</option>`;
         }).join('');
 
-        // Count-based unit with no universal conversion factor (e.g. "each"
-        // for Egg) - add as an extra option, same as before.
-        if (hasOverride && !overridesStandardUnit) {
-            optionsHtml += `<option value="${customUnit.unit}" data-grams-per-unit="${customUnit.unitGrams}">${customUnit.unit}</option>`;
+        // Any override unit that ISN'T one of the standard units (e.g. "each"
+        // for Egg) gets added as an extra option.
+        for (const u of Object.keys(overrides)) {
+            if (!STANDARD_UNITS.includes(u) && typeof overrides[u] === 'number' && overrides[u] > 0) {
+                optionsHtml += `<option value="${u}" data-grams-per-unit="${overrides[u]}">${u}</option>`;
+            }
         }
 
         document.getElementById('portion-unit').innerHTML = optionsHtml;

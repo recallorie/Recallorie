@@ -92,6 +92,7 @@ async function lookupFoodByUPC(upc) {
     if (foundFood) {
         console.log("Success! Found item: ", foundFood.description);
         const parsedFood = extractNutritionData(foundFood);
+        parsedFood.upc = cleanUPC; // so displayFood() can re-save if it needs to bake in a unit override
 
         // Save to our local IndexedDB using the barcode
         saveFoodToLocalCache(cleanUPC, parsedFood);
@@ -110,6 +111,7 @@ async function lookupFoodByUPC(upc) {
     const offFood = await lookupFoodOnOpenFoodFacts(cleanUPC);
     if (offFood) {
         console.log("Success via Open Food Facts! Found item: ", offFood.description);
+        offFood.upc = cleanUPC; // so displayFood() can re-save if it needs to bake in a unit override
         saveFoodToLocalCache(cleanUPC, offFood);
         populateFormWithData(offFood);
         return;
