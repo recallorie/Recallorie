@@ -67,23 +67,22 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Fruits",
         icon: "🍎",
         items: [
-            { emoji: "🍇", name: "Grapes", searchOn: "Grapes", portionAmount: 100, portionUnit: "g", descriptors: [
-                { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc4", searchOn: "Desc4", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc5", searchOn: "Desc5", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
+            { emoji: "🍇", name: "Grapes", searchOn: "Grapes", portionAmount: 152, portionUnit: "cup", descriptors: [
+                { label: "Green Grapes", searchOn: "Grapes, green", portionAmount: 152, portionUnit: "cup" },
+                { label: "Red Grapes", searchOn: "Grapes, red", portionAmount: 152, portionUnit: "cup" },
+                { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" },
+                { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" },
+                { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
             { emoji: "🍈", name: "Melon", searchOn: "Melon", portionAmount: 100, portionUnit: "g", descriptors: [
-                { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc4", searchOn: "Desc4", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc5", searchOn: "Desc5", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
+                { label: "Honeydew melon", searchOn: "Honeydew melon", portionAmount: 4, portionUnit: "oz" },
+                { label: "Melons, cantaloupe", searchOn: "Melons, cantaloupe", portionAmount: 4, portionUnit: "oz" },
+                { label: "Melons, casaba", searchOn: "Melons, casaba", portionAmount: 4, portionUnit: "oz" },
+                { label: "Horned melon (Kiwano)", searchOn: "Horned melon", portionAmount: 4, portionUnit: "oz" },
+                { label: "", searchOn: "", portionAmount: 100, portionUnit: "g" },
+                { label: "", searchOn: "", portionAmount: 100, portionUnit: "g" },
+                { label: "", searchOn: "", portionAmount: 100, portionUnit: "g" }
             ] },
             { emoji: "🍉", name: "Watermelon", searchOn: "Watermelon", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
@@ -1093,14 +1092,14 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Drinks",
         icon: "🍹",
         items: [
-            { emoji: "🥛", name: "Milk", searchOn: "Milk, whole", portionAmount: 340, portionUnit: "g", descriptors: [
-                { label: "Milk, whole", searchOn: "Milk, whole", portionAmount: 340, portionUnit: "g" },
-                { label: "Milk, reduced fat (2%)", searchOn: "Milk, reduced fat (2%)", portionAmount: 340, portionUnit: "g" },
-                { label: "Milk, low fat (1%)", searchOn: "Milk, low fat (1%)", portionAmount: 340, portionUnit: "g" },
-                { label: "Milk, fat free (skim)", searchOn: "Milk, fat free (skim)", portionAmount: 340, portionUnit: "g" },
-                { label: "Chocolate milk, low fat (1%)", searchOn: "Chocolate milk, low fat (1%)", portionAmount: 340, portionUnit: "g" },
-                { label: "Strawberry Milk", searchOn: "Strawberry Milk", portionAmount: 340, portionUnit: "g" },
-                { label: "Milk, evaporated, whole", searchOn: "Milk, evaporated, whole", portionAmount: 340, portionUnit: "g" }
+            { emoji: "🥛", name: "Milk", searchOn: "Milk, whole", portionAmount: 12, portionUnit: "fl oz", descriptors: [
+                { label: "Milk, whole", searchOn: "Milk, whole", portionAmount: 12, portionUnit: "g" },
+                { label: "Milk, reduced fat (2%)", searchOn: "Milk, 2%", portionAmount: 12, portionUnit: "g" },
+                { label: "Milk, low fat (1%)", searchOn: "Milk, 1%", portionAmount: 12, portionUnit: "g" },
+                { label: "Milk, fat free (skim)", searchOn: "Milk, skim", portionAmount: 12, portionUnit: "g" },
+                { label: "Chocolate milk", searchOn: "Chocolate milk", portionAmount: 12, portionUnit: "g" },
+                { label: "Strawberry Milk", searchOn: "Strawberry Milk", portionAmount: 12, portionUnit: "g" },
+                { label: "Milk, evaporated", searchOn: "Milk, evaporated", portionAmount: 12, portionUnit: "g" }
             ] },
             { emoji: "☕", name: "Coffee", searchOn: "Coffee", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
