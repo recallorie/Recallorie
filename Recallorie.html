@@ -442,6 +442,41 @@
             font-weight: 700;
         }
 
+        /* Collapsible-section toggle (e.g. "Eaten Today") */
+        .section-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 8px;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        .toggle-triangle {
+            display: inline-block;
+            font-size: 0.75rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        /* Points right when collapsed, rotates to point down when expanded -
+           same visual convention as a native dropdown/disclosure triangle. */
+        .toggle-triangle.expanded {
+            transform: rotate(90deg);
+        }
+
+        /* Wraps the "Eaten Today" list. Capped height + vertical scroll so a
+           long day's entries get a scrollbar (the "vertical bar") instead of
+           pushing the rest of the page down indefinitely. */
+        .scroll-wrapper {
+            max-height: 60vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         /* Interactive Filter Input */
         .filter-input {
             margin-bottom: 12px;
@@ -686,7 +721,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.29" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.28" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -743,9 +778,14 @@
 
     <div class="section-header">
         <h3 id="log-section-title">Eaten Today</h3>
+        <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleEatenTodayList()" aria-expanded="false" aria-label="Show or hide today's logged entries">
+            <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
+        </button>
     </div>
-    <ul id="log-container" class="item-list">
-    </ul>
+    <div id="log-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+        <ul id="log-container" class="item-list">
+        </ul>
+    </div>
 
     <div class="section-header">
         <h3>Quick Recall</h3>
@@ -756,10 +796,10 @@
     </ul>
 </div>
 
-<script src="foodEmojis.js?v=1.29"></script>
-<script src="zxing.min.js?v=1.29"></script>
-<script src="db.js?v=1.29"></script>
-<script src="USDA_DB_Access.js?v=1.29"></script>
+<script src="foodEmojis.js?v=1.28"></script>
+<script src="zxing.min.js?v=1.28"></script>
+<script src="db.js?v=1.28"></script>
+<script src="USDA_DB_Access.js?v=1.28"></script>
 <script>
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
@@ -1478,6 +1518,24 @@
         if (!val) return;
         currentViewDateStr = val;
         refreshAppUI();
+    }
+
+    // Toggles the collapsible "Eaten Today" list open/closed. Collapsed by
+    // default (see the inline style="display: none" on log-scroll-wrapper);
+    // this just flips visibility and rotates the triangle to match, like a
+    // native dropdown disclosure arrow. The list itself keeps rendering into
+    // log-container regardless of collapsed state, so whatever was scrolled
+    // to stays put when reopened, and there's nothing extra to wire up when
+    // refreshAppUI() re-renders the entries.
+    function toggleEatenTodayList() {
+        const wrapper = document.getElementById('log-scroll-wrapper');
+        const triangle = document.getElementById('log-toggle-triangle');
+        const btn = document.getElementById('log-toggle-btn');
+        const willExpand = wrapper.style.display === 'none';
+
+        wrapper.style.display = willExpand ? 'block' : 'none';
+        triangle.classList.toggle('expanded', willExpand);
+        btn.setAttribute('aria-expanded', willExpand ? 'true' : 'false');
     }
 
     function jumpToToday() {
