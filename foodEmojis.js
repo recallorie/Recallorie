@@ -12,16 +12,22 @@
 //     picker in the food card, and the "Portion (g)" field gets computed
 //     from them automatically (portionAmount * UNIT_TO_GRAMS[portionUnit]),
 //     overriding the usual label-serving-size default.
-//   - "unitGrams" (optional) is only needed when portionUnit is a COUNT-based
-//     unit with no universal conversion factor - "each", "slice", "cookie",
-//     etc. There's no single "grams per slice" that works for every food, so
-//     for these, unitGrams gives the grams-per-1-unit specific to THIS food
-//     (e.g. Egg uses portionUnit: "each", unitGrams: 50 - one large egg is
-//     about 50g). When portionUnit is one of the standard measurable units
-//     in UNIT_TO_GRAMS (g/kg/oz/lb/ml/l/fl oz/cup/tbsp/tsp), unitGrams is
-//     ignored/unnecessary. The portion-unit dropdown in the food card adds
-//     this custom unit as an extra option (alongside the standard ones)
-//     whenever the active food has one.
+//   - "unitGrams" (optional) covers two cases:
+//     1) portionUnit is a COUNT-based unit with no universal conversion
+//        factor - "each", "slice", "cookie", etc. There's no single "grams
+//        per slice" that works for every food, so unitGrams gives the
+//        grams-per-1-unit specific to THIS food (e.g. Egg uses portionUnit:
+//        "each", unitGrams: 50 - one large egg is about 50g). The
+//        portion-unit dropdown adds this as an extra option alongside the
+//        standard ones.
+//     2) portionUnit IS one of the standard measurable units in
+//        UNIT_TO_GRAMS, but that unit's generic conversion is wrong for this
+//        food. UNIT_TO_GRAMS's volume units (cup/tbsp/tsp/ml/l/fl oz) assume
+//        water-like density, which is a bad assumption for something like
+//        Grapes (1 cup of grapes is ~152g, not water's 236.588g/cup). In
+//        this case unitGrams overrides that one standard option's
+//        grams-per-unit for this food specifically, rather than adding a
+//        new option.
 //   - "descriptors" is a list of { label, searchOn, portionAmount,
 //     portionUnit } variant entries (e.g. Milk's "Milk, whole" / "Milk,
 //     reduced fat (2%)" / etc.) shown in the long-press popup for more
@@ -67,13 +73,13 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Fruits",
         icon: "🍎",
         items: [
-            { emoji: "🍇", name: "Grapes", searchOn: "Grapes", portionAmount: 152, portionUnit: "cup", descriptors: [
-                { label: "Green Grapes", searchOn: "Grapes, green", portionAmount: 152, portionUnit: "cup" },
-                { label: "Red Grapes", searchOn: "Grapes, red", portionAmount: 152, portionUnit: "cup" },
+            { emoji: "🍇", name: "Grapes", searchOn: "Grapes", portionAmount: 1, portionUnit: "cup", unitGrams: 152, descriptors: [
+                { label: "Green Grapes", searchOn: "Grapes, green", portionAmount: 1, portionUnit: "cup", unitGrams: 152 },
+                { label: "Red Grapes", searchOn: "Grapes, red", portionAmount: 1, portionUnit: "cup", unitGrams: 152 },
                 { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" },
                 { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" },
                 { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" },
-                { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
+                { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" }
             ] },
             { emoji: "🍈", name: "Melon", searchOn: "Melon", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Honeydew melon", searchOn: "Honeydew melon", portionAmount: 4, portionUnit: "oz" },

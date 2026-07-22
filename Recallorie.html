@@ -821,7 +821,7 @@
     }
 
     // ---- Long-press detection for the descriptor popup ----
-    const LONG_PRESS_MS = 1200;
+    const LONG_PRESS_MS = 1000;
     let longPressTimer = null;
     let longPressTriggered = false;
 
@@ -900,7 +900,16 @@
         const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
         document.getElementById('descriptor-picker-title').innerText = item.name;
 
-        const descriptors = (item.descriptors || []).slice(0, MAX_DESCRIPTOR_CHOICES);
+        // Skip any descriptor slot that's empty/unfilled (blank label, e.g.
+        // the placeholder padding entries some items still have) rather
+        // than showing a blank row - a food with only 2 real descriptors
+        // should show a 2-row list, not 2 real rows plus 5 blank ones.
+        // Original indices are kept (via _origIdx) so selectDescriptor()
+        // still looks up the right entry in item.descriptors after filtering.
+        const descriptors = (item.descriptors || [])
+            .map((d, origIdx) => ({ ...d, _origIdx: origIdx }))
+            .filter(d => d && d.label && d.label.trim() !== '')
+            .slice(0, MAX_DESCRIPTOR_CHOICES);
 
         const baseRow = `
             <div class="descriptor-row base-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, null)">
@@ -908,8 +917,8 @@
                 <span class="descriptor-row-label">${item.name} (no descriptor)</span>
             </div>
         `;
-        const descriptorRows = descriptors.map((desc, descIdx) => `
-            <div class="descriptor-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, ${descIdx})">
+        const descriptorRows = descriptors.map(desc => `
+            <div class="descriptor-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, ${desc._origIdx})">
                 <span class="descriptor-row-label">${desc.label}</span>
             </div>
         `).join('');
@@ -1142,11 +1151,11 @@
         }
 
         // Rebuild the unit dropdown from scratch every time: the standard
-        // measurable units are always present, plus one extra option for
-        // this food's own count-based unit (e.g. "each" for Egg) when it has
-        // one - stored via a data attribute since its grams-per-unit is
-        // specific to this food, not a global conversion factor.
-        rebuildPortionUnitOptions(unit === 'g' || UNIT_TO_GRAMS[unit] ? null : { unit, unitGrams });
+        // measurable units are always present. If this food supplies its own
+        // unitGrams (either a count-based unit like "each" for Egg, or a
+        // food-specific override of a standard unit like grapes' "cup"),
+        // pass it through so rebuildPortionUnitOptions can stamp it on.
+        rebuildPortionUnitOptions(typeof unitGrams === 'number' && unitGrams > 0 ? { unit, unitGrams } : null);
 
         document.getElementById('portion-amount').value = amount;
         document.getElementById('portion-unit').value = unit;
@@ -1269,9 +1278,25 @@
         const STANDARD_UNITS = ['g', 'kg', 'oz', 'lb', 'ml', 'l', 'fl oz', 'cup', 'tbsp', 'tsp'];
         const unitLabels = { 'g': 'g', 'kg': 'kg', 'oz': 'oz (wt)', 'lb': 'lb', 'ml': 'mL', 'l': 'L', 'fl oz': 'fl oz', 'cup': 'cup', 'tbsp': 'tbsp', 'tsp': 'tsp' };
 
-        let optionsHtml = STANDARD_UNITS.map(u => `<option value="${u}">${unitLabels[u]}</option>`).join('');
+        const hasOverride = customUnit && customUnit.unit && typeof customUnit.unitGrams === 'number' && customUnit.unitGrams > 0;
+        const overridesStandardUnit = hasOverride && STANDARD_UNITS.includes(customUnit.unit);
 
-        if (customUnit && customUnit.unit && typeof customUnit.unitGrams === 'number' && customUnit.unitGrams > 0) {
+        // For a "standard" volume unit like "cup", the generic UNIT_TO_GRAMS
+        // conversion assumes water-like density - fine for milk, wrong for
+        // something like grapes (1 cup ≈ 152g, not 236.588g). When a food
+        // supplies its own unitGrams for one of these units, stamp it as a
+        // data attribute directly on that existing <option> instead of the
+        // generic value, rather than adding a confusing duplicate option.
+        let optionsHtml = STANDARD_UNITS.map(u => {
+            const gramsAttr = (overridesStandardUnit && u === customUnit.unit)
+                ? ` data-grams-per-unit="${customUnit.unitGrams}"`
+                : '';
+            return `<option value="${u}"${gramsAttr}>${unitLabels[u]}</option>`;
+        }).join('');
+
+        // Count-based unit with no universal conversion factor (e.g. "each"
+        // for Egg) - add as an extra option, same as before.
+        if (hasOverride && !overridesStandardUnit) {
             optionsHtml += `<option value="${customUnit.unit}" data-grams-per-unit="${customUnit.unitGrams}">${customUnit.unit}</option>`;
         }
 
@@ -1293,13 +1318,20 @@
         const unitSelect = document.getElementById('portion-unit');
         const unit = unitSelect.value;
 
+        // A food-specific override (data-grams-per-unit, e.g. grapes' cup =
+        // 152g) always wins over the generic UNIT_TO_GRAMS conversion -
+        // checked first so it isn't shadowed just because the unit also
+        // happens to be one of the standard measurable units.
+        const selectedOption = unitSelect.selectedOptions[0];
+        const overrideGrams = selectedOption ? parseFloat(selectedOption.dataset.gramsPerUnit) : NaN;
+
         let gramsPerUnit;
-        if (UNIT_TO_GRAMS[unit]) {
+        if (!isNaN(overrideGrams) && overrideGrams > 0) {
+            gramsPerUnit = overrideGrams;
+        } else if (UNIT_TO_GRAMS[unit]) {
             gramsPerUnit = UNIT_TO_GRAMS[unit];
         } else {
-            const selectedOption = unitSelect.selectedOptions[0];
-            const customGrams = selectedOption ? parseFloat(selectedOption.dataset.gramsPerUnit) : NaN;
-            gramsPerUnit = !isNaN(customGrams) && customGrams > 0 ? customGrams : 1;
+            gramsPerUnit = 1;
         }
 
         const grams = amount * gramsPerUnit;
