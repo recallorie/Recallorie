@@ -824,7 +824,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.29" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.30" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -904,17 +904,17 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.29"></script>
-<script src="zxing.min.js?v=1.29"></script>
-<script src="db.js?v=1.29"></script>
-<script src="USDA_DB_Access.js?v=1.29"></script>
+<script src="foodEmojis.js?v=1.30"></script>
+<script src="zxing.min.js?v=1.30"></script>
+<script src="db.js?v=1.30"></script>
+<script src="USDA_DB_Access.js?v=1.30"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
     // above). Logged to the console on every load so it's immediately
     // obvious in the browser debugger whether a fresh copy of the page was
     // actually served versus a stale cached one.
-    const APP_VERSION = '1.29';
+    const APP_VERSION = '1.30';
     console.log(`Recallorie ${APP_VERSION}`);
 
     let currentActiveFood = null;
@@ -1843,8 +1843,16 @@
 
         editingLogId = id;
         document.getElementById('edit-log-food-name').innerText = entry.description;
-        document.getElementById('edit-log-grams-input').value = Math.round(entry.portionGrams);
+
+        const gramsInput = document.getElementById('edit-log-grams-input');
+        gramsInput.value = Math.round(entry.portionGrams);
         document.getElementById('edit-log-overlay').style.display = 'flex';
+
+        // Auto-select the pre-filled old value so typing a new number
+        // immediately replaces it instead of appending to it (e.g. typing
+        // "200" after an unselected "152" silently becoming "152200").
+        gramsInput.focus();
+        gramsInput.select();
     }
 
     function closeEditLogOverlay() {
@@ -1862,7 +1870,16 @@
             return;
         }
 
+        // Sanity check against accidentally-garbled input (e.g. typing a new
+        // number without clearing the old one first, so "152" + "200"
+        // becomes "152200") - a >8x jump either direction is implausible for
+        // an intentional portion correction, so double-check before saving.
         const ratio = newGrams / entry.portionGrams;
+        if (ratio > 8 || ratio < 1 / 8) {
+            const confirmed = confirm(`Change "${entry.description}" from ${Math.round(entry.portionGrams)}g to ${Math.round(newGrams)}g? That's a big jump - just confirming this isn't a typo.`);
+            if (!confirmed) return;
+        }
+
         const updated = {
             ...entry,
             portionGrams: newGrams,
