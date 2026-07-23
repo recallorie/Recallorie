@@ -778,7 +778,7 @@
 
     <div class="section-header">
         <h3 id="log-section-title">Eaten Today</h3>
-        <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleEatenTodayList()" aria-expanded="false" aria-label="Show or hide today's logged entries">
+        <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
             <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
         </button>
     </div>
@@ -789,11 +789,16 @@
 
     <div class="section-header">
         <h3>Quick Recall</h3>
+        <button id="history-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn')" aria-expanded="false" aria-label="Show or hide quick recall entries">
+            <span id="history-toggle-triangle" class="toggle-triangle">▶</span>
+        </button>
     </div>
-    <input type="text" id="filter-input" class="filter-input" placeholder="Search saved items by name..." oninput="filterRecallList()">
+    <input type="text" id="filter-input" class="filter-input" placeholder="Search saved items by name..." oninput="onRecallFilterInput()">
 
-    <ul id="history-container" class="item-list">
-    </ul>
+    <div id="history-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+        <ul id="history-container" class="item-list">
+        </ul>
+    </div>
 </div>
 
 <script src="foodEmojis.js?v=1.28"></script>
@@ -1520,22 +1525,33 @@
         refreshAppUI();
     }
 
-    // Toggles the collapsible "Eaten Today" list open/closed. Collapsed by
-    // default (see the inline style="display: none" on log-scroll-wrapper);
-    // this just flips visibility and rotates the triangle to match, like a
-    // native dropdown disclosure arrow. The list itself keeps rendering into
-    // log-container regardless of collapsed state, so whatever was scrolled
-    // to stays put when reopened, and there's nothing extra to wire up when
-    // refreshAppUI() re-renders the entries.
-    function toggleEatenTodayList() {
-        const wrapper = document.getElementById('log-scroll-wrapper');
-        const triangle = document.getElementById('log-toggle-triangle');
-        const btn = document.getElementById('log-toggle-btn');
+    // Toggles any collapsible section (currently "Eaten Today" and "Quick
+    // Recall") open/closed. Collapsed by default (see each wrapper's inline
+    // style="display: none"); this just flips visibility and rotates the
+    // triangle to match, like a native dropdown disclosure arrow. Each
+    // section's list keeps rendering into its container regardless of
+    // collapsed state, so scroll position is preserved when reopened, and
+    // there's nothing extra to wire up when the lists re-render.
+    function toggleCollapsibleSection(wrapperId, triangleId, btnId) {
+        const wrapper = document.getElementById(wrapperId);
+        const triangle = document.getElementById(triangleId);
+        const btn = document.getElementById(btnId);
         const willExpand = wrapper.style.display === 'none';
 
         wrapper.style.display = willExpand ? 'block' : 'none';
         triangle.classList.toggle('expanded', willExpand);
         btn.setAttribute('aria-expanded', willExpand ? 'true' : 'false');
+    }
+
+    // Typing into the Quick Recall search box only makes sense if the list
+    // underneath is actually visible - auto-expand it the first time the
+    // user types, rather than leaving them searching into a collapsed list.
+    function onRecallFilterInput() {
+        const wrapper = document.getElementById('history-scroll-wrapper');
+        if (wrapper.style.display === 'none') {
+            toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn');
+        }
+        filterRecallList();
     }
 
     function jumpToToday() {
