@@ -36,6 +36,19 @@ function initDB() {
 
         request.onsuccess = (event) => {
             db = event.target.result;
+
+            // If a NEWER tab (e.g. after this app gets updated again) tries
+            // to open a higher DB version while this tab is still open, this
+            // fires here first - close this tab's connection right away so
+            // the new tab's upgrade can proceed immediately instead of
+            // hanging in onblocked the way it just did. This is the standard
+            // fix for the exact stuck-startup problem you just hit.
+            db.onversionchange = () => {
+                db.close();
+                db = null;
+                alert('Recallorie was updated in another tab. Please reload this page to keep using it.');
+            };
+
             resolve(db);
         };
 
