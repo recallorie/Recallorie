@@ -548,6 +548,18 @@
             color: var(--accent-color);
         }
 
+        /* Usage tally shown on the far left of each Quick Recall entry -
+           how many times this food has actually been logged. */
+        .item-badge.tally {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
         .btn-delete {
             background: none;
             border: none;
@@ -1460,11 +1472,55 @@
             loggedAtMs: loggedAtMs
         });
 
+        // Bump this food's Quick Recall usage tally - "used" means actually
+        // logged, not just looked up/viewed.
+        if (currentActiveFood.upc) {
+            await incrementFoodUseCount(currentActiveFood.upc);
+        }
+
         // Clean form and focus
         document.getElementById('food-display').style.display = 'none';
         document.getElementById('upc-input').value = '';
         currentActiveFood = null;
 
+        refreshAppUI();
+    }
+
+    // "Duplicate to today" for a Quick Recall entry: since these are cached
+    // per-100g food records (not already-scaled log entries like the Eaten
+    // Today list), logs it to TODAY using a default portion - the label
+    // serving size in grams if there is one, else 100g, same fallback
+    // displayFood() uses - then bumps its usage tally exactly as if it had
+    // been looked up and logged the normal way.
+    async function duplicateCachedFoodToToday(upc) {
+        const food = cachedFoodsList.find(f => f.upc === upc);
+        if (!food) return;
+
+        const grams = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
+            ? Math.round(food.servingSize)
+            : 100;
+        const scaled = scaleFoodToGrams(food, grams);
+
+        await logMealToDB({
+            description: food.description,
+            brand: food.brand,
+            calories: scaled.calories,
+            protein: scaled.protein,
+            carbs: scaled.carbs,
+            fat: scaled.fat,
+            portionGrams: grams,
+            loggedAtMs: Date.now()
+        });
+        await incrementFoodUseCount(upc);
+
+        alert(`Added "${food.description}" (${grams}g) to today's log.`);
+        refreshAppUI();
+    }
+
+    // Removes a food from Quick Recall entirely (does not touch any past
+    // logged meals under "Eaten Today" - those are a separate history).
+    async function deleteCachedFood(upc) {
+        await deleteCachedFoodFromDB(upc);
         refreshAppUI();
     }
 
@@ -1620,8 +1676,41 @@
         document.getElementById('dash-fat').innerText = Math.round(totalFat) + 'g';
 
         // 2. Fetch all cached barcode foods for the Quick Recall timeline
-        cachedFoodsList = await getAllCachedFoods();
+        cachedFoodsList = dedupeAndSortCachedFoods(await getAllCachedFoods());
         filterRecallList(); // Populates list based on search bar string
+    }
+
+    // Quick Recall can end up with more than one cache entry for what's
+    // really the "same" food - e.g. searching "Grapes" by name and picking a
+    // different USDA candidate on different occasions caches each pick under
+    // its own fdcId-based key, even though they'd read as duplicates in the
+    // list. Collapse entries down to one per unique (trimmed,
+    // case-insensitive) description, combining their usage tallies rather
+    // than losing that history, then sort most-used first so frequently
+    // logged foods rise to the top.
+    function dedupeAndSortCachedFoods(foods) {
+        const groups = new Map();
+
+        for (const food of foods) {
+            const key = (food.description || '').trim().toLowerCase();
+            const existing = groups.get(key);
+
+            if (!existing) {
+                groups.set(key, { ...food, useCount: food.useCount || 0 });
+            } else {
+                const combinedUseCount = existing.useCount + (food.useCount || 0);
+                // Keep whichever underlying record was cached most recently
+                // as the representative entry (freshest nutrition data),
+                // carrying the combined tally forward either way.
+                const representative = (food.timestamp || 0) > (existing.timestamp || 0) ? food : existing;
+                groups.set(key, { ...representative, useCount: combinedUseCount });
+            }
+        }
+
+        return Array.from(groups.values()).sort((a, b) => {
+            if (b.useCount !== a.useCount) return b.useCount - a.useCount;
+            return (b.timestamp || 0) - (a.timestamp || 0); // tie-break: most recently cached first
+        });
     }
 
     // Dynamically filters and displays Quick Recall list using the filter input
@@ -1640,12 +1729,19 @@
         }
 
         container.innerHTML = filtered.map(item => `
-            <li class="item-row recall" onclick='displayFood(${JSON.stringify(item)})'>
-                <div class="item-details">
-                    <span class="item-title">${item.description}</span>
-                    <span class="item-brand">${item.brand}</span>
+            <li class="item-row recall">
+                <div style="display: flex; align-items: center; min-width: 0; cursor: pointer;" onclick='displayFood(${JSON.stringify(item)})'>
+                    <span class="item-badge tally" title="Times logged">${item.useCount || 0}&times;</span>
+                    <div class="item-details">
+                        <span class="item-title">${item.description}</span>
+                        <span class="item-brand">${item.brand}</span>
+                    </div>
                 </div>
-                <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
+                <div style="display: flex; align-items: center;">
+                    <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
+                    <button class="btn-duplicate" onclick="duplicateCachedFoodToToday('${item.upc}')" title="Duplicate to today">📋</button>
+                    <button class="btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
+                </div>
             </li>
         `).join('');
     }

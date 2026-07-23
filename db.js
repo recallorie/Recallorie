@@ -55,6 +55,47 @@ function saveFoodToLocalCache(upc, foodData) {
     store.put(itemToSave);
 }
 
+// Bumps a cached food's usage tally by 1 - called every time that food is
+// actually logged (not just viewed), so the Quick Recall list can show and
+// sort by "how often is this actually eaten" rather than just recency.
+function incrementFoodUseCount(upc) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const getRequest = store.get(upc);
+
+        getRequest.onsuccess = () => {
+            const existing = getRequest.result;
+            if (!existing) {
+                // Nothing cached under this key (e.g. a manual-entry food
+                // that was never barcode/name-cached) - nothing to tally.
+                resolve(0);
+                return;
+            }
+            const newCount = (existing.useCount || 0) + 1;
+            const putRequest = store.put({ ...existing, useCount: newCount });
+            putRequest.onsuccess = () => resolve(newCount);
+            putRequest.onerror = () => reject(putRequest.error);
+        };
+        getRequest.onerror = () => reject(getRequest.error);
+    });
+}
+
+// Removes a food from the local Quick Recall cache (does not touch any past
+// logged meals - those live in a separate object store).
+function deleteCachedFoodFromDB(upc) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.delete(upc);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
 // Retrieve all barcode-cached foods
 function getAllCachedFoods() {
     return new Promise((resolve, reject) => {
