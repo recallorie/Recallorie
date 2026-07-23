@@ -172,6 +172,21 @@ function logMealToDB(mealData) {
     });
 }
 
+// Overwrites an existing logged entry in place (same id) - used when editing
+// a portion size after the fact, e.g. changing "1 cup rice" to "200g" for
+// something already logged today.
+function updateLoggedMealInDB(entry) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([LOG_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(LOG_STORE_NAME);
+        const request = store.put(entry);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
 // Get log entries for a specific day
 function getMealsLoggedForDate(dateStr) {
     return new Promise((resolve, reject) => {
