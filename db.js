@@ -1,7 +1,8 @@
 const DB_NAME = 'RecallorieDB';
-const DB_VERSION = 2; // Upgraded version to support logging
+const DB_VERSION = 3; // Upgraded version to support saved meals
 const STORE_NAME = 'food_history';
 const LOG_STORE_NAME = 'daily_log';
+const MEALS_STORE_NAME = 'saved_meals';
 
 let db = null;
 
@@ -23,6 +24,13 @@ function initDB() {
             if (!database.objectStoreNames.contains(LOG_STORE_NAME)) {
                 const logStore = database.createObjectStore(LOG_STORE_NAME, { keyPath: 'id', autoIncrement: true });
                 logStore.createIndex('dateStr', 'dateStr', { unique: false }); // Index by YYYY-MM-DD
+            }
+
+            // 3. Saved "meals" - a named bundle of already-scaled food entries
+            // (same shape as a daily_log entry, minus the date) that can be
+            // logged all at once with one tap, instead of one food at a time.
+            if (!database.objectStoreNames.contains(MEALS_STORE_NAME)) {
+                database.createObjectStore(MEALS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
             }
         };
 
@@ -180,6 +188,52 @@ function deleteLoggedMealFromDB(id) {
         if (!db) return reject();
         const transaction = db.transaction([LOG_STORE_NAME], 'readwrite');
         const store = transaction.objectStore(LOG_STORE_NAME);
+        const request = store.delete(id);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Saves a named bundle of food items (each already in the same
+// {description, brand, calories, protein, carbs, fat, portionGrams} shape as
+// a daily_log entry) as a reusable "meal" - e.g. "Breakfast" = eggs + toast +
+// coffee, logged all together with one tap instead of one food at a time.
+function saveMealToDB(name, items) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([MEALS_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(MEALS_STORE_NAME);
+        const request = store.add({ name, items, createdAt: Date.now() });
+
+        request.onsuccess = () => resolve(request.result); // new meal's id
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Retrieve all saved meals, most-recently-created first.
+function getAllSavedMeals() {
+    return new Promise((resolve, reject) => {
+        if (!db) return resolve([]);
+        const transaction = db.transaction([MEALS_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(MEALS_STORE_NAME);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const sorted = request.result.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            resolve(sorted);
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Deletes a saved meal (does not touch any past logged meals created from
+// it - those already live independently in daily_log).
+function deleteMealFromDB(id) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject();
+        const transaction = db.transaction([MEALS_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(MEALS_STORE_NAME);
         const request = store.delete(id);
 
         request.onsuccess = () => resolve();
