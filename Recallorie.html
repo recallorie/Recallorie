@@ -1554,21 +1554,30 @@
         // constructor interprets that as local time, which is what we want.
         const loggedAtMs = datetimeVal ? new Date(datetimeVal).getTime() : Date.now();
 
-        await logMealToDB({
-            description: currentActiveFood.description,
-            brand: currentActiveFood.brand,
-            calories: scaled.calories,
-            protein: scaled.protein,
-            carbs: scaled.carbs,
-            fat: scaled.fat,
-            portionGrams: grams,
-            loggedAtMs: loggedAtMs
-        });
+        try {
+            await logMealToDB({
+                description: currentActiveFood.description,
+                brand: currentActiveFood.brand,
+                calories: scaled.calories,
+                protein: scaled.protein,
+                carbs: scaled.carbs,
+                fat: scaled.fat,
+                portionGrams: grams,
+                loggedAtMs: loggedAtMs
+            });
 
-        // Bump this food's Quick Recall usage tally - "used" means actually
-        // logged, not just looked up/viewed.
-        if (currentActiveFood.upc) {
-            await incrementFoodUseCount(currentActiveFood.upc);
+            // Bump this food's Quick Recall usage tally - "used" means actually
+            // logged, not just looked up/viewed.
+            if (currentActiveFood.upc) {
+                await incrementFoodUseCount(currentActiveFood.upc);
+            }
+        } catch (error) {
+            // Without this, a failed write here used to fail completely
+            // silently - the button just appeared to do nothing, with no
+            // clue why. Surface the real error so it's actually diagnosable.
+            console.error('logCurrentMeal failed:', error);
+            alert(`Couldn't save this entry: ${error && error.message ? error.message : error}`);
+            return;
         }
 
         // Clean form and focus

@@ -40,6 +40,17 @@ function initDB() {
         };
 
         request.onerror = (event) => reject(event.target.error);
+
+        // Fires if another tab/window has this same site open on an older
+        // DB version - that connection has to close before this one can
+        // upgrade, so without this handler the request just hangs forever
+        // with no error and no success, meaning nothing ever loads or saves
+        // and there's no indication why. Surfacing it lets the person know
+        // to close other tabs instead of just seeing everything fail.
+        request.onblocked = () => {
+            console.warn('IndexedDB upgrade blocked - another tab has this app open on an older version.');
+            alert('Recallorie needs to update its local database, but another open tab/window of this app is blocking it. Please close any other tabs with this app open, then reload this page.');
+        };
     });
 }
 
