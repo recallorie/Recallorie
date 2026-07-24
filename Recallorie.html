@@ -805,8 +805,8 @@
     </div>
 
     <!-- Edit an already-logged entry's portion (e.g. change "1 cup rice" to
-         "200g") - rescales its macros proportionally rather than needing to
-         re-look-up the original food. -->
+         "8 oz" or "200g") - rescales its macros proportionally rather than
+         needing to re-look-up the original food. -->
     <div id="edit-log-overlay" class="emoji-picker-overlay">
         <div class="emoji-picker-card">
             <div class="emoji-picker-header">
@@ -814,9 +814,18 @@
                 <button class="emoji-picker-close" onclick="closeEditLogOverlay()">✕</button>
             </div>
             <p id="edit-log-food-name" style="font-weight: 600; margin: 0 0 14px 0;"></p>
-            <label for="edit-log-grams-input" style="font-size: 0.85rem; color: var(--text-muted);">Portion (grams)</label>
-            <input type="number" id="edit-log-grams-input" step="1" min="0" style="width: 100%; padding: 8px; box-sizing: border-box; margin: 6px 0 16px 0; border: 1px solid #ddd; border-radius: 8px;">
-            <button class="btn-primary" style="width: 100%;" onclick="saveEditedLogPortion()">Save</button>
+
+            <div class="portion-row">
+                <label for="edit-log-amount">Portion:</label>
+                <input type="number" id="edit-log-amount" min="0" step="any" style="width: 70px;" oninput="recalcEditLogGrams()">
+                <select id="edit-log-unit" onchange="recalcEditLogGrams()"></select>
+            </div>
+            <div class="portion-row">
+                <label for="edit-log-grams-input">= Grams:</label>
+                <input type="number" id="edit-log-grams-input" step="1" min="0">
+            </div>
+
+            <button class="btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveEditedLogPortion()">Save</button>
         </div>
     </div>
 
@@ -824,7 +833,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.30" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.31" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -904,17 +913,17 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.30"></script>
-<script src="zxing.min.js?v=1.30"></script>
-<script src="db.js?v=1.30"></script>
-<script src="USDA_DB_Access.js?v=1.30"></script>
+<script src="foodEmojis.js?v=1.31"></script>
+<script src="zxing.min.js?v=1.31"></script>
+<script src="db.js?v=1.31"></script>
+<script src="USDA_DB_Access.js?v=1.31"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
     // above). Logged to the console on every load so it's immediately
     // obvious in the browser debugger whether a fresh copy of the page was
     // actually served versus a stale cached one.
-    const APP_VERSION = '1.30';
+    const APP_VERSION = '1.31';
     console.log(`Recallorie ${APP_VERSION}`);
 
     let currentActiveFood = null;
@@ -1473,7 +1482,17 @@
     // IS one of the standard ones (e.g. grapes' "cup" = 152g, overriding
     // the generic water-density 236.588g stamped as a data attribute on
     // that existing option instead of a confusing duplicate).
-    function rebuildPortionUnitOptions(unitOverrides) {
+    // DOM-independent version of the same grams-per-unit lookup used by
+    // rebuildPortionUnitOptions()/recalcGramsFromUnitAmount() - a food's own
+    // override always wins, else fall back to the universal conversion.
+    function gramsPerUnitFor(unit, overrides) {
+        if (overrides && typeof overrides[unit] === 'number' && overrides[unit] > 0) {
+            return overrides[unit];
+        }
+        return UNIT_TO_GRAMS[unit] || 1;
+    }
+
+    function rebuildPortionUnitOptions(unitOverrides, targetSelectId = 'portion-unit') {
         const STANDARD_UNITS = ['g', 'kg', 'oz', 'lb', 'ml', 'l', 'fl oz', 'cup', 'tbsp', 'tsp'];
         const unitLabels = { 'g': 'g', 'kg': 'kg', 'oz': 'oz (wt)', 'lb': 'lb', 'ml': 'mL', 'l': 'L', 'fl oz': 'fl oz', 'cup': 'cup', 'tbsp': 'tbsp', 'tsp': 'tsp' };
         const overrides = unitOverrides || {};
@@ -1493,7 +1512,7 @@
             }
         }
 
-        document.getElementById('portion-unit').innerHTML = optionsHtml;
+        document.getElementById(targetSelectId).innerHTML = optionsHtml;
     }
 
     // Computes grams from the "Portion: <amount> <unit>" selector. Standard
@@ -1593,6 +1612,8 @@
                 carbs: scaled.carbs,
                 fat: scaled.fat,
                 portionGrams: grams,
+                unit: document.getElementById('portion-unit').value,
+                unitOverrides: currentActiveFood.unitOverrides || null,
                 loggedAtMs: loggedAtMs
             });
 
@@ -1655,6 +1676,8 @@
             carbs: scaled.carbs,
             fat: scaled.fat,
             portionGrams: grams,
+            unit: 'g', // logged directly in grams here; unitOverrides below still lets a later edit offer e.g. cup/each
+            unitOverrides: food.unitOverrides || null,
             loggedAtMs: loggedAtMs
         });
         await incrementFoodUseCount(upc);
@@ -1751,7 +1774,9 @@
                 protein: log.protein,
                 carbs: log.carbs,
                 fat: log.fat,
-                portionGrams: log.portionGrams
+                portionGrams: log.portionGrams,
+                unit: log.unit,
+                unitOverrides: log.unitOverrides
             }));
 
         await saveMealToDB(name, items);
@@ -1823,6 +1848,8 @@
             carbs: item.carbs,
             fat: item.fat,
             portionGrams: item.portionGrams,
+            unit: item.unit,
+            unitOverrides: item.unitOverrides,
             loggedAtMs: Date.now()
         });
 
@@ -1844,15 +1871,41 @@
         editingLogId = id;
         document.getElementById('edit-log-food-name').innerText = entry.description;
 
-        const gramsInput = document.getElementById('edit-log-grams-input');
-        gramsInput.value = Math.round(entry.portionGrams);
+        // Entries logged before this feature existed won't have a stored
+        // unit/unitOverrides - fall back to plain grams for those, same as
+        // a food with no special units ever would.
+        const unit = entry.unit || 'g';
+        const overrides = entry.unitOverrides || null;
+
+        rebuildPortionUnitOptions(overrides, 'edit-log-unit');
+        document.getElementById('edit-log-unit').value = unit;
+
+        const amount = entry.portionGrams / gramsPerUnitFor(unit, overrides);
+        document.getElementById('edit-log-amount').value = Math.round(amount * 100) / 100;
+        document.getElementById('edit-log-grams-input').value = Math.round(entry.portionGrams);
+
         document.getElementById('edit-log-overlay').style.display = 'flex';
 
-        // Auto-select the pre-filled old value so typing a new number
-        // immediately replaces it instead of appending to it (e.g. typing
-        // "200" after an unselected "152" silently becoming "152200").
+        // Auto-select the grams field's pre-filled value so typing a new
+        // number replaces it instead of appending to it.
+        const gramsInput = document.getElementById('edit-log-grams-input');
         gramsInput.focus();
         gramsInput.select();
+    }
+
+    // Recomputes "= Grams" from the edit dialog's own amount/unit picker,
+    // same bridge pattern as recalcGramsFromUnitAmount() on the main food
+    // card - a food-specific override (e.g. grapes' cup, egg's each) wins
+    // over the universal UNIT_TO_GRAMS conversion when present.
+    function recalcEditLogGrams() {
+        const amount = parseFloat(document.getElementById('edit-log-amount').value) || 0;
+        const unitSelect = document.getElementById('edit-log-unit');
+        const unit = unitSelect.value;
+        const selectedOption = unitSelect.selectedOptions[0];
+        const overrideGrams = selectedOption ? parseFloat(selectedOption.dataset.gramsPerUnit) : NaN;
+
+        const gramsPerUnit = (!isNaN(overrideGrams) && overrideGrams > 0) ? overrideGrams : (UNIT_TO_GRAMS[unit] || 1);
+        document.getElementById('edit-log-grams-input').value = Math.round(amount * gramsPerUnit * 100) / 100;
     }
 
     function closeEditLogOverlay() {
@@ -1882,6 +1935,7 @@
 
         const updated = {
             ...entry,
+            unit: document.getElementById('edit-log-unit').value,
             portionGrams: newGrams,
             calories: entry.calories * ratio,
             protein: entry.protein * ratio,
