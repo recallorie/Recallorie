@@ -68,15 +68,17 @@
             inset: 0;
             background: rgba(0,0,0,0.5);
             z-index: 90;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .emoji-picker-card {
             background: var(--card-color);
             width: 100%;
             max-width: 500px;
             max-height: 78vh;
-            border-radius: 16px 16px 0 0;
+            border-radius: 16px;
             padding: 16px;
             overflow-y: auto;
         }
@@ -137,15 +139,17 @@
             inset: 0;
             background: rgba(0,0,0,0.5);
             z-index: 95; /* above the emoji picker (90) so it layers on top */
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .descriptor-picker-card {
             background: var(--card-color);
             width: 100%;
             max-width: 500px;
             max-height: 78vh;
-            border-radius: 16px 16px 0 0;
+            border-radius: 16px;
             padding: 16px;
             overflow-y: auto;
         }
@@ -538,6 +542,16 @@
             color: var(--text-muted);
         }
 
+        /* Prot/Carb/Fat breakdown shown bottom-right on each Eaten Today /
+           Quick Recall entry - same size/color as item-brand (the time-and-
+           source line) so they read as a matched pair, one per side. */
+        .item-macros {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            margin-top: 4px;
+        }
+
         .item-badge {
             font-weight: 700;
             color: var(--primary-color);
@@ -638,6 +652,20 @@
             cursor: pointer;
         }
 
+        /* Small, unobtrusive build stamp bottom-left - lets you confirm in
+           the browser debugger whether a fresh copy of the page actually
+           loaded vs. a stale cached one. */
+        .build-version-corner {
+            position: fixed;
+            bottom: 6px;
+            left: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.6;
+            z-index: 5;
+            pointer-events: none;
+        }
+
         .profile-corner {
             position: fixed;
             top: calc(env(safe-area-inset-top) + 12px);
@@ -725,6 +753,8 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
     </div>
 </div>
+
+<div id="build-version-corner" class="build-version-corner"></div>
 
 <div class="container">
     <header>
@@ -829,11 +859,65 @@
         </div>
     </div>
 
+    <!-- Log a health metric (weight, blood pressure, or a user-defined
+         custom measurement) for whatever day is currently being viewed. -->
+    <div id="log-metric-overlay" class="emoji-picker-overlay">
+        <div class="emoji-picker-card">
+            <div class="emoji-picker-header">
+                <h3>Log Health Metric</h3>
+                <button class="emoji-picker-close" onclick="closeLogMetricOverlay()">✕</button>
+            </div>
+
+            <div class="portion-row" style="margin-bottom: 14px;">
+                <label for="metric-type-select">Type:</label>
+                <select id="metric-type-select" onchange="onMetricTypeChange()">
+                    <option value="weight">Weight</option>
+                    <option value="blood_pressure">Blood Pressure</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+
+            <div id="metric-weight-fields">
+                <div class="portion-row">
+                    <label for="metric-weight-value">Weight:</label>
+                    <input type="number" id="metric-weight-value" min="0" step="any" style="width: 90px;">
+                    <select id="metric-weight-unit">
+                        <option value="lb">lb</option>
+                        <option value="kg">kg</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="metric-bp-fields" style="display: none;">
+                <div class="portion-row">
+                    <label for="metric-bp-systolic">Systolic:</label>
+                    <input type="number" id="metric-bp-systolic" min="0" step="1" style="width: 70px;">
+                    <label for="metric-bp-diastolic">Diastolic:</label>
+                    <input type="number" id="metric-bp-diastolic" min="0" step="1" style="width: 70px;">
+                </div>
+            </div>
+
+            <div id="metric-custom-fields" style="display: none;">
+                <div class="portion-row">
+                    <label for="metric-custom-label">Label:</label>
+                    <input type="text" id="metric-custom-label" placeholder="e.g. Resting HR" style="flex: 1;">
+                </div>
+                <div class="portion-row">
+                    <label for="metric-custom-value">Value:</label>
+                    <input type="number" id="metric-custom-value" step="any" style="width: 90px;">
+                    <input type="text" id="metric-custom-unit" placeholder="unit (optional)" style="width: 110px;">
+                </div>
+            </div>
+
+            <button class="btn-primary" style="width: 100%; margin-top: 14px;" onclick="saveMetricEntry()">Save</button>
+        </div>
+    </div>
+
     <div class="search-container">
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.31" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.32" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -889,7 +973,7 @@
     </div>
 
     <div class="section-header">
-        <h3 id="log-section-title">Eaten Today</h3>
+        <h3 id="log-section-title">⚖️ Eaten Today</h3>
         <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
             <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
         </button>
@@ -900,7 +984,19 @@
     </div>
 
     <div class="section-header">
-        <h3>Quick Recall</h3>
+        <h3 id="metrics-section-title">📏 Health Metrics</h3>
+        <button id="metrics-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('metrics-scroll-wrapper', 'metrics-toggle-triangle', 'metrics-toggle-btn')" aria-expanded="false" aria-label="Show or hide health metrics">
+            <span id="metrics-toggle-triangle" class="toggle-triangle">▶</span>
+        </button>
+    </div>
+    <div id="metrics-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+        <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogMetricOverlay()">+ Log Weight / Blood Pressure / Custom</button>
+        <ul id="metrics-container" class="item-list">
+        </ul>
+    </div>
+
+    <div class="section-header">
+        <h3>⚖️ Quick Recall</h3>
         <button id="history-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn')" aria-expanded="false" aria-label="Show or hide quick recall entries">
             <span id="history-toggle-triangle" class="toggle-triangle">▶</span>
         </button>
@@ -913,18 +1009,24 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.31"></script>
-<script src="zxing.min.js?v=1.31"></script>
-<script src="db.js?v=1.31"></script>
-<script src="USDA_DB_Access.js?v=1.31"></script>
+<script src="foodEmojis.js?v=1.32"></script>
+<script src="zxing.min.js?v=1.32"></script>
+<script src="db.js?v=1.32"></script>
+<script src="USDA_DB_Access.js?v=1.32"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
     // above). Logged to the console on every load so it's immediately
     // obvious in the browser debugger whether a fresh copy of the page was
-    // actually served versus a stale cached one.
-    const APP_VERSION = '1.31';
-    console.log(`Recallorie ${APP_VERSION}`);
+    // actually served versus a stale cached one. BUILD_DATE is set by hand
+    // to the actual date/time this specific copy was generated - update
+    // both together with each new version.
+    const APP_VERSION = '1.32';
+    const BUILD_DATE = '2026-07-24 03:42:19';
+    console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE})`);
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('build-version-corner').innerText = `Build v${APP_VERSION} ${BUILD_DATE}`;
+    });
 
     let currentActiveFood = null;
     let cachedFoodsList = []; // Global holder for local recall filtering
@@ -937,6 +1039,24 @@
         await initDB();
         refreshAppUI();
         await refreshSavedMealsList();
+
+        // Ask the browser to mark this site's storage as "persistent," so
+        // it's excluded from automatic eviction under disk-space pressure
+        // (the main way a browser can silently clear IndexedDB without the
+        // user ever choosing to). This can't prevent someone from manually
+        // running "Clear browsing data" - no website can override that, by
+        // design - but it does stop the quieter, unintentional kind of loss.
+        if (navigator.storage && navigator.storage.persist) {
+            try {
+                const alreadyPersisted = await navigator.storage.persisted();
+                if (!alreadyPersisted) {
+                    const granted = await navigator.storage.persist();
+                    console.log(granted ? 'Persistent storage granted.' : 'Persistent storage request was declined by the browser.');
+                }
+            } catch (error) {
+                console.warn('Could not request persistent storage:', error);
+            }
+        }
     });
 
     // Re-fetches saved meals and re-renders the category row so the "My
@@ -1955,6 +2075,129 @@
         refreshAppUI();
     }
 
+    // ---- Health metrics (weight / blood pressure / custom) ----
+    function openLogMetricOverlay() {
+        document.getElementById('metric-type-select').value = 'weight';
+        document.getElementById('metric-weight-value').value = '';
+        document.getElementById('metric-bp-systolic').value = '';
+        document.getElementById('metric-bp-diastolic').value = '';
+        document.getElementById('metric-custom-label').value = '';
+        document.getElementById('metric-custom-value').value = '';
+        document.getElementById('metric-custom-unit').value = '';
+        onMetricTypeChange();
+        document.getElementById('log-metric-overlay').style.display = 'flex';
+    }
+
+    function closeLogMetricOverlay() {
+        document.getElementById('log-metric-overlay').style.display = 'none';
+    }
+
+    // Shows only the field group relevant to the selected metric type.
+    function onMetricTypeChange() {
+        const type = document.getElementById('metric-type-select').value;
+        document.getElementById('metric-weight-fields').style.display = type === 'weight' ? 'block' : 'none';
+        document.getElementById('metric-bp-fields').style.display = type === 'blood_pressure' ? 'block' : 'none';
+        document.getElementById('metric-custom-fields').style.display = type === 'custom' ? 'block' : 'none';
+    }
+
+    async function saveMetricEntry() {
+        const type = document.getElementById('metric-type-select').value;
+        // Logged onto whichever day is currently selected in the date bar,
+        // same convention as food entries - timestamped "now" (time-of-day)
+        // combined with that day's date.
+        const now = new Date();
+        const [y, m, d] = currentViewDateStr.split('-').map(Number);
+        const timestamp = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
+
+        let entry = { type, dateStr: currentViewDateStr, timestamp };
+
+        if (type === 'weight') {
+            const value = parseFloat(document.getElementById('metric-weight-value').value);
+            if (!value || value <= 0) {
+                alert('Enter a weight greater than 0.');
+                return;
+            }
+            entry.value = value;
+            entry.unit = document.getElementById('metric-weight-unit').value;
+        } else if (type === 'blood_pressure') {
+            const systolic = parseInt(document.getElementById('metric-bp-systolic').value, 10);
+            const diastolic = parseInt(document.getElementById('metric-bp-diastolic').value, 10);
+            if (!systolic || !diastolic || systolic <= 0 || diastolic <= 0) {
+                alert('Enter both systolic and diastolic readings.');
+                return;
+            }
+            entry.systolic = systolic;
+            entry.diastolic = diastolic;
+        } else {
+            const label = document.getElementById('metric-custom-label').value.trim();
+            const value = parseFloat(document.getElementById('metric-custom-value').value);
+            if (!label) {
+                alert('Give this custom metric a label (e.g. "Resting HR").');
+                return;
+            }
+            if (isNaN(value)) {
+                alert('Enter a numeric value.');
+                return;
+            }
+            entry.label = label;
+            entry.value = value;
+            entry.unit = document.getElementById('metric-custom-unit').value.trim();
+        }
+
+        try {
+            await saveMetricToDB(entry);
+        } catch (error) {
+            console.error('saveMetricEntry failed:', error);
+            alert(`Couldn't save this entry: ${error && error.message ? error.message : error}`);
+            return;
+        }
+
+        closeLogMetricOverlay();
+        await renderMetricsList();
+    }
+
+    // Formats a single metric entry for display, e.g. "185.2 lb",
+    // "120/80 mmHg", or "Resting HR: 58 bpm".
+    function formatMetricValue(entry) {
+        if (entry.type === 'weight') {
+            return `${entry.value} ${entry.unit}`;
+        }
+        if (entry.type === 'blood_pressure') {
+            return `${entry.systolic}/${entry.diastolic} mmHg`;
+        }
+        return `${entry.label}: ${entry.value}${entry.unit ? ' ' + entry.unit : ''}`;
+    }
+
+    const METRIC_ICONS = { weight: '⚖️', blood_pressure: '❤️', custom: '📌' };
+
+    async function renderMetricsList() {
+        const entries = await getMetricsForDate(currentViewDateStr);
+        const container = document.getElementById('metrics-container');
+
+        if (entries.length === 0) {
+            container.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No metrics logged on this date.</li>`;
+            return;
+        }
+
+        container.innerHTML = entries.map(entry => {
+            const timeLabel = new Date(entry.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            return `
+                <li class="item-row logged">
+                    <div class="item-details">
+                        <span class="item-title">${METRIC_ICONS[entry.type] || '📌'} ${formatMetricValue(entry)}</span>
+                        <span class="item-brand">${timeLabel}</span>
+                    </div>
+                    <button class="icon-btn btn-delete" onclick="deleteMetricEntry(${entry.id})" title="Delete">🗑️</button>
+                </li>
+            `;
+        }).join('');
+    }
+
+    async function deleteMetricEntry(id) {
+        await deleteMetricFromDB(id);
+        await renderMetricsList();
+    }
+
     // Formats a YYYY-MM-DD string as e.g. "Thu, Jul 17" for display. Parses
     // the pieces manually (not `new Date(dateStr)`) so it's built as a LOCAL
     // date - passing a bare "YYYY-MM-DD" to the Date constructor is parsed
@@ -2055,8 +2298,10 @@
         document.getElementById('jump-to-today-btn').style.display = isToday ? 'none' : 'inline-block';
 
         const dateLabel = formatDateForDisplay(currentViewDateStr);
-        document.getElementById('log-section-title').innerText = isToday ? 'Eaten Today' : `Eaten — ${dateLabel}`;
+        document.getElementById('log-section-title').innerText = isToday ? '⚖️ Eaten Today' : `⚖️ Eaten — ${dateLabel}`;
         document.getElementById('dash-cal-label').innerText = isToday ? 'Logged Calories Today' : `Logged Calories — ${dateLabel}`;
+        document.getElementById('metrics-section-title').innerText = isToday ? '📏 Health Metrics' : `📏 Health Metrics — ${dateLabel}`;
+        await renderMetricsList();
 
         // 1. Populate Daily Log and Tally for the viewed date
         const logs = await getMealsLoggedForDate(currentViewDateStr);
@@ -2084,11 +2329,14 @@
                             <span class="item-title">${item.description}</span>
                             <span class="item-brand">${timeLabel} &middot; ${item.brand}</span>
                         </div>
-                        <div style="display: flex; align-items: center;">
-                            <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
-                            <button class="icon-btn btn-edit" onclick="openEditLogOverlay(${item.id})" title="Edit portion">✏️</button>
-                            <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
-                            <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <div style="display: flex; align-items: center;">
+                                <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
+                                <button class="icon-btn btn-edit" onclick="openEditLogOverlay(${item.id})" title="Edit portion">✏️</button>
+                                <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
+                                <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
+                            </div>
+                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:${Math.round(item.carbs)}g,Fat:${Math.round(item.fat)}g</span>
                         </div>
                     </li>
                 `;
@@ -2169,10 +2417,13 @@
                         <span class="item-brand">${item.brand}</span>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center;">
-                    <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
-                    <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📋</button>
-                    <button class="icon-btn btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
+                <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <div style="display: flex; align-items: center;">
+                        <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
+                        <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📋</button>
+                        <button class="icon-btn btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
+                    </div>
+                    <span class="item-macros">Prot:${Math.round(item.proteinPer100g || 0)}g,Carb:${Math.round(item.carbsPer100g || 0)}g,Fat:${Math.round(item.fatPer100g || 0)}g</span>
                 </div>
             </li>
         `).join('');

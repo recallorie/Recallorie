@@ -1,8 +1,9 @@
 const DB_NAME = 'RecallorieDB';
-const DB_VERSION = 3; // Upgraded version to support saved meals
+const DB_VERSION = 4; // Upgraded version to support health metrics (weight/BP/custom)
 const STORE_NAME = 'food_history';
 const LOG_STORE_NAME = 'daily_log';
 const MEALS_STORE_NAME = 'saved_meals';
+const METRICS_STORE_NAME = 'health_metrics';
 
 let db = null;
 
@@ -31,6 +32,13 @@ function initDB() {
             // logged all at once with one tap, instead of one food at a time.
             if (!database.objectStoreNames.contains(MEALS_STORE_NAME)) {
                 database.createObjectStore(MEALS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+            }
+
+            // 4. Health metrics - weight, blood pressure, or a user-defined
+            // custom metric, tracked per day alongside food.
+            if (!database.objectStoreNames.contains(METRICS_STORE_NAME)) {
+                const metricsStore = database.createObjectStore(METRICS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                metricsStore.createIndex('dateStr', 'dateStr', { unique: false });
             }
         };
 
@@ -273,6 +281,54 @@ function deleteMealFromDB(id) {
         if (!db) return reject();
         const transaction = db.transaction([MEALS_STORE_NAME], 'readwrite');
         const store = transaction.objectStore(MEALS_STORE_NAME);
+        const request = store.delete(id);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Saves a health metric entry - weight, blood pressure, or a user-defined
+// custom metric. Shape varies by type:
+//   weight:         { type: 'weight', value, unit ('lb'|'kg') }
+//   blood_pressure: { type: 'blood_pressure', systolic, diastolic }
+//   custom:         { type: 'custom', label, value, unit (optional) }
+// plus dateStr/timestamp on all of them, same convention as daily_log.
+function saveMetricToDB(entry) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([METRICS_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(METRICS_STORE_NAME);
+        const request = store.add(entry);
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Retrieve health metrics logged on a specific day, chronological.
+function getMetricsForDate(dateStr) {
+    return new Promise((resolve, reject) => {
+        if (!db) return resolve([]);
+        const transaction = db.transaction([METRICS_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(METRICS_STORE_NAME);
+        const index = store.index('dateStr');
+        const request = index.getAll(IDBKeyRange.only(dateStr));
+
+        request.onsuccess = () => {
+            const sorted = request.result.sort((a, b) => a.timestamp - b.timestamp);
+            resolve(sorted);
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Deletes a single health metric entry.
+function deleteMetricFromDB(id) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject();
+        const transaction = db.transaction([METRICS_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(METRICS_STORE_NAME);
         const request = store.delete(id);
 
         request.onsuccess = () => resolve();
