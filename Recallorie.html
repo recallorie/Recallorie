@@ -834,17 +834,22 @@
         </div>
     </div>
 
-    <!-- Edit an already-logged entry's portion (e.g. change "1 cup rice" to
-         "8 oz" or "200g") - rescales its macros proportionally rather than
-         needing to re-look-up the original food. -->
+    <!-- Edit an already-logged entry: its portion (e.g. "1 cup rice" -> "8 oz"
+         or "200g") and/or when it was eaten - rescales macros proportionally
+         for a portion change, and re-files the entry under a different day
+         if the date portion of "Eaten at" is changed. -->
     <div id="edit-log-overlay" class="emoji-picker-overlay">
         <div class="emoji-picker-card">
             <div class="emoji-picker-header">
-                <h3>Edit Portion</h3>
+                <h3>Edit Entry</h3>
                 <button class="emoji-picker-close" onclick="closeEditLogOverlay()">✕</button>
             </div>
             <p id="edit-log-food-name" style="font-weight: 600; margin: 0 0 14px 0;"></p>
 
+            <div class="portion-row">
+                <label for="edit-log-datetime">Eaten at:</label>
+                <input type="datetime-local" id="edit-log-datetime" step="60">
+            </div>
             <div class="portion-row">
                 <label for="edit-log-amount">Portion:</label>
                 <input type="number" id="edit-log-amount" min="0" step="any" style="width: 70px;" oninput="recalcEditLogGrams()">
@@ -855,7 +860,7 @@
                 <input type="number" id="edit-log-grams-input" step="1" min="0">
             </div>
 
-            <button class="btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveEditedLogPortion()">Save</button>
+            <button class="btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveEditedLogEntry()">Save</button>
         </div>
     </div>
 
@@ -917,7 +922,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.32" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.33" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1009,10 +1014,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.32"></script>
-<script src="zxing.min.js?v=1.32"></script>
-<script src="db.js?v=1.32"></script>
-<script src="USDA_DB_Access.js?v=1.32"></script>
+<script src="foodEmojis.js?v=1.33"></script>
+<script src="zxing.min.js?v=1.33"></script>
+<script src="db.js?v=1.33"></script>
+<script src="USDA_DB_Access.js?v=1.33"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1021,8 +1026,8 @@
     // actually served versus a stale cached one. BUILD_DATE is set by hand
     // to the actual date/time this specific copy was generated - update
     // both together with each new version.
-    const APP_VERSION = '1.32';
-    const BUILD_DATE = '2026-07-24 03:42:19';
+    const APP_VERSION = '1.33';
+    const BUILD_DATE = '2026-07-24 10:00:03';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE})`);
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('build-version-corner').innerText = `Build v${APP_VERSION} ${BUILD_DATE}`;
@@ -1990,6 +1995,7 @@
 
         editingLogId = id;
         document.getElementById('edit-log-food-name').innerText = entry.description;
+        document.getElementById('edit-log-datetime').value = formatForDatetimeLocal(new Date(entry.timestamp));
 
         // Entries logged before this feature existed won't have a stored
         // unit/unitOverrides - fall back to plain grams for those, same as
@@ -2033,7 +2039,7 @@
         editingLogId = null;
     }
 
-    async function saveEditedLogPortion() {
+    async function saveEditedLogEntry() {
         const entry = currentViewLogs.find(l => l.id === editingLogId);
         if (!entry) return;
 
@@ -2042,6 +2048,16 @@
             alert('Enter a portion weight greater than 0.');
             return;
         }
+
+        const datetimeVal = document.getElementById('edit-log-datetime').value;
+        if (!datetimeVal) {
+            alert('Enter a valid date/time.');
+            return;
+        }
+        // datetime-local gives "YYYY-MM-DDTHH:mm" with no timezone - the Date
+        // constructor interprets that as local time, which is what we want.
+        const newTimestamp = new Date(datetimeVal).getTime();
+        const newDateStr = toLocalDateStr(new Date(newTimestamp));
 
         // Sanity check against accidentally-garbled input (e.g. typing a new
         // number without clearing the old one first, so "152" + "200"
@@ -2053,6 +2069,14 @@
             if (!confirmed) return;
         }
 
+        // Moving an entry to a different day is a bigger deal than a portion
+        // tweak (it'll disappear from the day you're currently viewing) -
+        // confirm before doing that specifically.
+        if (newDateStr !== entry.dateStr) {
+            const confirmed = confirm(`Move "${entry.description}" from ${formatDateForDisplay(entry.dateStr)} to ${formatDateForDisplay(newDateStr)}?`);
+            if (!confirmed) return;
+        }
+
         const updated = {
             ...entry,
             unit: document.getElementById('edit-log-unit').value,
@@ -2060,13 +2084,15 @@
             calories: entry.calories * ratio,
             protein: entry.protein * ratio,
             carbs: entry.carbs * ratio,
-            fat: entry.fat * ratio
+            fat: entry.fat * ratio,
+            timestamp: newTimestamp,
+            dateStr: newDateStr
         };
 
         try {
             await updateLoggedMealInDB(updated);
         } catch (error) {
-            console.error('saveEditedLogPortion failed:', error);
+            console.error('saveEditedLogEntry failed:', error);
             alert(`Couldn't save this change: ${error && error.message ? error.message : error}`);
             return;
         }
@@ -2332,7 +2358,7 @@
                         <div style="display: flex; flex-direction: column; align-items: flex-end;">
                             <div style="display: flex; align-items: center;">
                                 <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
-                                <button class="icon-btn btn-edit" onclick="openEditLogOverlay(${item.id})" title="Edit portion">✏️</button>
+                                <button class="icon-btn btn-edit" onclick="openEditLogOverlay(${item.id})" title="Edit entry">✏️</button>
                                 <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
                                 <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
                             </div>
