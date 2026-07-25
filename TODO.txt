@@ -46,21 +46,78 @@ x- Change the version internally in the Recallorie.html so I can see in the brow
     read from the website and not just cached. Start incrementing this with every new Recallorie.html code generation
     starting with version 1.29 and then incrementing by .01 for each new version.
 X- I want to be able to add bread to last Friday's breakfast, so will need to be able to add a new entry to a past day.
-- When editing the "Eaten Today" food entry, I need portion type change ability also.
-- Center the popups so that they look like they are not getting cut off.  The way they are now without the rounded
+x- When editing the "Eaten Today" food entry, I need portion type change ability also.
+x- Modify the code to display the version number at the bottom left on the screen.  It should be in the
+    format: "Build v1.31 YYYY-MM-DD HH:MM:SS"
+x- Center the popups so that they look like they are not getting cut off.  The way they are now without the rounded
     edges at the bottom makes the user think that there is more that they need to scroll down but there is nothing
     else. So round the bottom edges and/or center the popup on the screen.
-- Add in logging for weight and BP (and maybe a user defined "something" that they wish to track.
-- For all individual food items in the "Eaten Today" and "Quick Recall" dropdowns, I want these food listings to be
+x- Add in logging for weight and Blood Pressure (and maybe a user defined "something" that they wish to track.
+x- For all individual food items in the "Eaten Today" and "Quick Recall" dropdowns, I want these food listings to be
     the same. ie, Right now they display "48 Cal" in "Eaten Today" and "48 Cal/100g" in the "Quick Recall."  I also want
     to see these records contain the Protein, Carbs, and Fat. An example is Corn. Inside its record, it should
     read: at "Prot:3g,Carb:27g,Fat:17g" in the bottom right in small text (the same size as it has for the time and
     food source). I think the user may want to see which food item may have caused his total carb intake to be high.
-- I want to use the Balance Scale Unicode Character ⚖️ (U+2696) in the headers of "Eaten Today" and "Quick Recall"
+x- I want to use the Balance Scale Unicode Character ⚖️ (U+2696) in the headers of "Eaten Today" and "Quick Recall"
     dropdowns.
-- Modify the code to protect the user from accidentally deleting the database.
-- Modify the code to display the version number at the bottom left on the screen.  It should be in the
-    format: "Build v1.31 YYYY-MM-DD HH:MM:SS"
+x- Modify the code to protect the user from accidentally deleting the database.
+
+
+TODO for 260724:
+- When I requested: Modify the code to display the version number at the bottom left on the screen.  It should be in the
+    format: "Build v1.31 YYYY-MM-DD HH:MM:SS", I wanted the date and time in my current time zone, NOT the UTC time!
+- Icon and section changes:
+    x- For "Eaten Today", use icon: 😋	U+1F60B or  🍽️	U+1F37D
+    x- For the existing section "Health Metrics", use this icon: ⚕️	U+2695
+    x- Change the "Quick Recall" section to use 🎗️ U+1F397
+    x- Add an "Exercise" section and use this: ⏱️ U+23F1 for its icon. Then add these 16 icons and entry names under
+        this section:
+            🏊	U+1F3CA	Swimming
+            🚴	U+1F6B4	Cycling / Stationary Bike
+            🏃	U+1F3C3	Running / Jogging / Cardio
+            🚶	U+1F6B6	Walking / Hiking
+            🚵	U+1F6B5	Mountain Biking / Trail cycling
+            🤸	U+1F938	Gymnastics / Calisthenics
+            🏋️	U+1F3CB	Weightlifting
+            💪	U+1F4AA Strength training, Gym workout
+            🚣	U+1F6A3 Rowing / BoatRowing machine
+            🏄	U+1F3C4 Surfing
+            ⛷️	U+26F7  Downhill Skiing
+            🎿	U+1F3BF Cross-country Skiing, Nordic workout
+            🏂	U+1F3C2 Snowboarding
+            ⛸️	U+26F8Ice Ice Skating
+            🥋	U+1F94B	Martial Arts /Judo, Karate, Brazilian Jiu-Jitsu, Taekwondo
+            🤼	U+1F93C	Wrestling
+    x- Include a "Daily Notes" section with icon: 🗒️ U+1F4D2 . This will open with a small edit box so the user can
+        type their notes or make quick additions they wanted to document.
+x- There is still too much space between the Edit, Duplicate to today, & Delete buttons.
+
+x- Be able to fully customize the "Eaten Today" and "Quick Recall" food entries. This should open the food entry to how
+    it looked before adding it since I may want to see what the carbs ar for an oz or something like that includes
+    changing what time the food was eaten and what portion was eaten.
+x- In the food description when I type something and press the Enter key, it should automatically do the lookup and not
+    wait until I press the "Lookup" button.
+x- If I navigate to yesterday's date and lookup a food item to add, it should populate the date with yesterday's
+    date at noon and not today's present date and time.
+- When I do a lookup of a food item, I prefer to have a generic food entry that has a portion size of 1. and what the
+    number of grams, oz, or whatever the portion size is to help describe the recommended portion. What I am also
+    looking for here is to add to type of portions: each, slices, etc.
+x- Under the "Quick Recall" section, only show the number of times the food entry has been used if it is > 1.
+x- For the list of exercises, figure out how many calories are burned per hour.
+
+
+- In manage meals, we should be choosing from all the foods from the chosen day in the main selector and not today.
+- Make a new section to track Water usage. Use this for the section: Water Intake / Hydration, and use the
+    icon: 💧 (U+1F4A1)
+- Move the "Search saved items by" section to the top of the "Quick Recall" section (perhaps into its header).
+- Make a list of the sections and put this list of these sections into the profile with switches to turn off and on
+    each section. This would make it possible for someone who doesn't want to track their water intake to trun that
+    section off. This list of sections should also be to move all the sections around below the "Lookup" button.
+    This would make it easier to find the section you want to turn on or off while also letting the user display
+    the order they would like to see their sections while not cluttering up the main screen with these choices.
+- I want to remove the subtitle "Effortless Diet Memory" since I want to save the space (for when I view this
+    webpage on an iphone or other mobile device).
+
 
 FUTURE:
 - Log weight.
