@@ -821,7 +821,8 @@
             </div>
 
             <div style="margin-bottom: 22px;">
-                <h4 style="margin: 0 0 8px 0; font-size: 0.95rem;">Save Today's Entries as a Meal</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 0.95rem;">Build a Meal from Your Foods</h4>
+                <input type="text" id="meal-builder-filter" placeholder="Search your foods..." oninput="renderMealBuilderList()" style="width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px;">
                 <div id="meal-builder-list" style="max-height: 220px; overflow-y: auto; margin-bottom: 10px;"></div>
                 <input type="text" id="meal-name-input" placeholder="Meal name (e.g. Breakfast)" style="width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px;">
                 <button class="btn-primary" style="width: 100%;" onclick="saveSelectedMeal()">Save Meal</button>
@@ -831,36 +832,6 @@
                 <h4 style="margin: 0 0 8px 0; font-size: 0.95rem;">Your Saved Meals</h4>
                 <ul id="saved-meals-list" class="item-list"></ul>
             </div>
-        </div>
-    </div>
-
-    <!-- Edit an already-logged entry: its portion (e.g. "1 cup rice" -> "8 oz"
-         or "200g") and/or when it was eaten - rescales macros proportionally
-         for a portion change, and re-files the entry under a different day
-         if the date portion of "Eaten at" is changed. -->
-    <div id="edit-log-overlay" class="emoji-picker-overlay">
-        <div class="emoji-picker-card">
-            <div class="emoji-picker-header">
-                <h3>Edit Entry</h3>
-                <button class="emoji-picker-close" onclick="closeEditLogOverlay()">✕</button>
-            </div>
-            <p id="edit-log-food-name" style="font-weight: 600; margin: 0 0 14px 0;"></p>
-
-            <div class="portion-row">
-                <label for="edit-log-datetime">Eaten at:</label>
-                <input type="datetime-local" id="edit-log-datetime" step="60">
-            </div>
-            <div class="portion-row">
-                <label for="edit-log-amount">Portion:</label>
-                <input type="number" id="edit-log-amount" min="0" step="any" style="width: 70px;" oninput="recalcEditLogGrams()">
-                <select id="edit-log-unit" onchange="recalcEditLogGrams()"></select>
-            </div>
-            <div class="portion-row">
-                <label for="edit-log-grams-input">= Grams:</label>
-                <input type="number" id="edit-log-grams-input" step="1" min="0">
-            </div>
-
-            <button class="btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveEditedLogEntry()">Save</button>
         </div>
     </div>
 
@@ -934,11 +905,11 @@
                 <p id="exercise-selected-label" style="font-weight: 600; margin: 0 0 12px 0;"></p>
                 <div class="portion-row">
                     <label for="exercise-duration">Duration (min):</label>
-                    <input type="number" id="exercise-duration" min="0" step="1" style="width: 80px;">
+                    <input type="number" id="exercise-duration" min="0" step="1" style="width: 80px;" oninput="onExerciseDurationChange()">
                 </div>
                 <div class="portion-row">
                     <label for="exercise-calories">Calories burned:</label>
-                    <input type="number" id="exercise-calories" min="0" step="1" style="width: 80px;" placeholder="optional">
+                    <input type="number" id="exercise-calories" min="0" step="1" style="width: 80px;" placeholder="auto-estimated">
                 </div>
                 <button class="btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveExerciseEntry()">Save</button>
             </div>
@@ -946,10 +917,10 @@
     </div>
 
     <div class="search-container">
-        <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
+        <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.34" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.35" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1001,7 +972,7 @@
             <div class="macro-box"><span class="macro-val" id="val-carbs">0g</span>Carb</div>
             <div class="macro-box"><span class="macro-val" id="val-fat">0g</span>Fat</div>
         </div>
-        <button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="logCurrentMeal()">Log This Meal</button>
+        <button id="log-meal-btn" class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="logCurrentMeal()">Log This Meal</button>
     </div>
 
     <div class="section-header">
@@ -1064,10 +1035,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.34"></script>
-<script src="zxing.min.js?v=1.34"></script>
-<script src="db.js?v=1.34"></script>
-<script src="USDA_DB_Access.js?v=1.34"></script>
+<script src="foodEmojis.js?v=1.35"></script>
+<script src="zxing.min.js?v=1.35"></script>
+<script src="db.js?v=1.35"></script>
+<script src="USDA_DB_Access.js?v=1.35"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1077,8 +1048,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.34';
-    const BUILD_DATE_UTC = '2026-07-24T20:14:44Z';
+    const APP_VERSION = '1.35';
+    const BUILD_DATE_UTC = '2026-07-25T02:43:24Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1094,7 +1065,8 @@
     let currentViewDateStr = null; // YYYY-MM-DD of the day currently shown in the dashboard/log
     let currentViewLogs = []; // Raw log entries for currentViewDateStr, so duplicate/delete can look up by id without a re-fetch
     let savedMealsList = []; // Saved meals, kept in sync via refreshSavedMealsList()
-    let todaysLogsForMealBuilder = []; // Today's raw log entries while the Manage Meals overlay is open
+    let mealBuilderCandidates = []; // All cached (Quick Recall) foods available while the Manage Meals overlay is open
+    let mealBuilderSelectedUpcs = new Set(); // Which of those are currently checked, tracked separately so it survives filter re-renders
 
     window.addEventListener('DOMContentLoaded', async () => {
         await initDB();
@@ -1230,6 +1202,18 @@
     let pendingPortionAmount = null;
     let pendingPortionUnit = null;
     let pendingUnitOverrides = null;
+
+    // Set when editing an existing Eaten Today entry via editLoggedEntry() -
+    // the full food card is reused for editing (so you can see the same
+    // per-100g/per-oz breakdown as when you first added it), rather than a
+    // separate cut-down edit form. logCurrentMeal() checks this to decide
+    // whether to update that existing entry in place or log a new one.
+    let editingExistingLogId = null;
+    // Forces the "Eaten at" field to a specific moment (the entry's
+    // original logged time) instead of the usual "now"/noon default -
+    // consumed once by displayFood(), same one-shot pattern as the other
+    // pending* flags above.
+    let pendingEatenAtOverrideMs = null;
 
     function beginFoodEmojiSearch(searchTerm, portionAmount, portionUnit, unitGrams) {
         const hasStandardUnit = portionUnit && UNIT_TO_GRAMS[portionUnit];
@@ -1496,6 +1480,38 @@
     // Displays targeted food item in the active container card. Foods are
     // cached per-100g (USDA's own reporting basis), so we scale to the
     // portion amount/unit selector rather than showing raw values.
+    // Parses a label's household serving text (e.g. "1 slice", "2 cookies",
+    // "1 egg") to detect a simple countable unit this food should default
+    // to, mapped onto our two generic count-based dropdown options ("slice"
+    // or the catch-all "each"). Returns { unit, gramsPerUnit } or null if
+    // the text doesn't describe a simple single-noun count (e.g. "1 cup",
+    // which is already one of the standard measurable units and doesn't
+    // need this).
+    function parseHouseholdServingUnit(householdServingText, servingSizeGrams) {
+        if (!householdServingText || !servingSizeGrams) return null;
+
+        const match = householdServingText.match(/^(\d+(?:\.\d+)?)\s+([a-zA-Z]+)/);
+        if (!match) return null;
+
+        const count = parseFloat(match[1]);
+        if (!count || count <= 0) return null;
+
+        const noun = match[2].toLowerCase().replace(/s$/, ''); // crude singularize: "slices"->"slice", "cookies"->"cookie"
+        const gramsPerUnit = servingSizeGrams / count;
+
+        if (noun === 'slice') {
+            return { unit: 'slice', gramsPerUnit };
+        }
+        // Catch-all: any other simple countable noun (cookie, egg, bar,
+        // piece, cracker, etc.) maps onto the generic "each" option, rather
+        // than trying to give every possible food noun its own dropdown slot.
+        const countableNouns = ['each', 'piece', 'cookie', 'egg', 'bar', 'cracker', 'patty', 'link', 'wafer', 'item'];
+        if (countableNouns.includes(noun)) {
+            return { unit: 'each', gramsPerUnit };
+        }
+        return null;
+    }
+
     function displayFood(food) {
         // If this lookup was triggered from the food-emoji picker with
         // food-specific gram overrides pending (e.g. grapes' cup = 152g),
@@ -1525,10 +1541,23 @@
             amount = pendingPortionAmount;
             unit = pendingPortionUnit;
         } else {
-            unit = 'g';
-            amount = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
-                ? Math.round(food.servingSize)
-                : 100;
+            // Prefer a natural "1 slice" / "1 each" default over a raw gram
+            // number whenever the label's serving text describes one -
+            // "1 slice (28g)" is a more useful starting point than "28g".
+            const parsedUnit = parseHouseholdServingUnit(food.householdServingText, food.servingSize);
+            if (parsedUnit) {
+                unit = parsedUnit.unit;
+                amount = 1;
+                food.unitOverrides = { ...(food.unitOverrides || {}), [parsedUnit.unit]: parsedUnit.gramsPerUnit };
+                if (food.upc) {
+                    saveFoodToLocalCache(food.upc, food); // remember it for next time too
+                }
+            } else {
+                unit = 'g';
+                amount = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
+                    ? Math.round(food.servingSize)
+                    : 100;
+            }
         }
         pendingPortionAmount = null;
         pendingPortionUnit = null;
@@ -1551,7 +1580,16 @@
             ? `Label serving: ${food.householdServingText}`
             : (food.servingSize ? `Label serving: ${food.servingSize}${food.servingSizeUnit || ''}` : '');
 
-        setLoggedTimeDefault();
+        if (pendingEatenAtOverrideMs !== null) {
+            document.getElementById('logged-datetime').value = formatForDatetimeLocal(new Date(pendingEatenAtOverrideMs));
+            pendingEatenAtOverrideMs = null;
+        } else {
+            setLoggedTimeDefault();
+        }
+
+        // Reflect edit vs. add mode on the action button, so it's clear
+        // whether this will update the entry you opened or create a new one.
+        document.getElementById('log-meal-btn').innerText = editingExistingLogId !== null ? 'Save Changes' : 'Log This Meal';
 
         // Ensure UI displays card and scrolls to it
         const card = document.getElementById('food-display');
@@ -1626,11 +1664,20 @@
     // current time-of-day - so looking up a new food while browsing last
     // Thursday defaults to logging it onto Thursday, not silently onto
     // today. The "Now" button still always means the actual current moment.
+    // Used when a food card first renders (not the explicit "Now" button):
+    // defaults "Eaten at" to the CURRENTLY VIEWED date. If that's today, use
+    // the actual current time-of-day; if it's a past (or future) date,
+    // default to noon instead - "now" doesn't mean anything meaningful for
+    // a day that isn't today. The "Now" button still always means the
+    // actual current moment, regardless of which day is being viewed.
     function setLoggedTimeDefault() {
         const now = new Date();
         if (currentViewDateStr) {
             const [y, m, d] = currentViewDateStr.split('-').map(Number);
-            const combined = new Date(y, m - 1, d, now.getHours(), now.getMinutes());
+            const isToday = currentViewDateStr === toLocalDateStr(now);
+            const combined = isToday
+                ? new Date(y, m - 1, d, now.getHours(), now.getMinutes())
+                : new Date(y, m - 1, d, 12, 0);
             document.getElementById('logged-datetime').value = formatForDatetimeLocal(combined);
         } else {
             document.getElementById('logged-datetime').value = formatForDatetimeLocal(now);
@@ -1674,8 +1721,14 @@
     }
 
     function rebuildPortionUnitOptions(unitOverrides, targetSelectId = 'portion-unit') {
-        const STANDARD_UNITS = ['g', 'kg', 'oz', 'lb', 'ml', 'l', 'fl oz', 'cup', 'tbsp', 'tsp'];
-        const unitLabels = { 'g': 'g', 'kg': 'kg', 'oz': 'oz (wt)', 'lb': 'lb', 'ml': 'mL', 'l': 'L', 'fl oz': 'fl oz', 'cup': 'cup', 'tbsp': 'tbsp', 'tsp': 'tsp' };
+        // "each" and "slice" are always available - unlike the physical
+        // units above them, they have no universal conversion factor (a
+        // "slice" means something different for bread vs. cheese), so
+        // without a food-specific override (see gramsPerUnitFor()) they
+        // fall back to a plain 1-gram-per-unit placeholder, same as any
+        // other unrecognized custom unit.
+        const STANDARD_UNITS = ['g', 'kg', 'oz', 'lb', 'ml', 'l', 'fl oz', 'cup', 'tbsp', 'tsp', 'each', 'slice'];
+        const unitLabels = { 'g': 'g', 'kg': 'kg', 'oz': 'oz (wt)', 'lb': 'lb', 'ml': 'mL', 'l': 'L', 'fl oz': 'fl oz', 'cup': 'cup', 'tbsp': 'tbsp', 'tsp': 'tsp', 'each': 'each', 'slice': 'slice' };
         const overrides = unitOverrides || {};
 
         let optionsHtml = STANDARD_UNITS.map(u => {
@@ -1769,10 +1822,13 @@
     function closeFoodCard() {
         document.getElementById('food-display').style.display = 'none';
         currentActiveFood = null;
+        editingExistingLogId = null; // cancel any in-progress edit rather than leaving it dangling
     }
 
     // Log the active meal to running daily timeline, using the actual scaled
     // portion (grams entered) and the date/time chosen in the "Eaten at" field.
+    // If editingExistingLogId is set (opened via editLoggedEntry()), this
+    // updates that existing entry in place instead of creating a new one.
     async function logCurrentMeal() {
         if (!currentActiveFood) return;
 
@@ -1783,6 +1839,38 @@
         // datetime-local gives "YYYY-MM-DDTHH:mm" with no timezone - the Date
         // constructor interprets that as local time, which is what we want.
         const loggedAtMs = datetimeVal ? new Date(datetimeVal).getTime() : Date.now();
+
+        if (editingExistingLogId !== null) {
+            const updated = {
+                id: editingExistingLogId,
+                description: currentActiveFood.description,
+                brand: currentActiveFood.brand,
+                calories: scaled.calories,
+                protein: scaled.protein,
+                carbs: scaled.carbs,
+                fat: scaled.fat,
+                portionGrams: grams,
+                unit: document.getElementById('portion-unit').value,
+                unitOverrides: currentActiveFood.unitOverrides || null,
+                timestamp: loggedAtMs,
+                dateStr: toLocalDateStr(new Date(loggedAtMs))
+            };
+
+            try {
+                await updateLoggedMealInDB(updated);
+            } catch (error) {
+                console.error('logCurrentMeal (edit) failed:', error);
+                alert(`Couldn't save this change: ${error && error.message ? error.message : error}`);
+                return;
+            }
+
+            editingExistingLogId = null;
+            document.getElementById('food-display').style.display = 'none';
+            document.getElementById('upc-input').value = '';
+            currentActiveFood = null;
+            refreshAppUI();
+            return;
+        }
 
         try {
             await logMealToDB({
@@ -1882,27 +1970,55 @@
     // together with one tap from the "My Meals" button on the main screen.
 
     async function openManageMeals() {
-        // Building a meal always pulls from TODAY's entries specifically,
-        // regardless of which date is currently being viewed elsewhere in
-        // the app - keeps "what am I bundling into this meal" unambiguous.
-        const todayStr = toLocalDateStr(new Date());
-        todaysLogsForMealBuilder = await getMealsLoggedForDate(todayStr);
-
-        const builderContainer = document.getElementById('meal-builder-list');
-        if (todaysLogsForMealBuilder.length === 0) {
-            builderContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Log some foods today first, then come back here to bundle them into a meal.</p>`;
-        } else {
-            builderContainer.innerHTML = todaysLogsForMealBuilder.map(item => `
-                <label class="descriptor-row" style="cursor: pointer;">
-                    <input type="checkbox" class="meal-builder-checkbox" value="${item.id}" style="margin-right: 10px; flex-shrink: 0;">
-                    <span class="descriptor-row-label">${item.description} &middot; ${Math.round(item.calories)} Cal</span>
-                </label>
-            `).join('');
-        }
+        // Building a meal now pulls from your whole Quick Recall food
+        // library, not just what's been logged today - lets you assemble a
+        // meal (e.g. "Breakfast") out of foods you've looked up before, even
+        // ones you haven't eaten yet today.
+        mealBuilderCandidates = dedupeAndSortCachedFoods(await getAllCachedFoods());
+        mealBuilderSelectedUpcs = new Set();
+        document.getElementById('meal-builder-filter').value = '';
+        renderMealBuilderList();
         document.getElementById('meal-name-input').value = '';
 
         await renderSavedMealsList();
         document.getElementById('manage-meals-overlay').style.display = 'flex';
+    }
+
+    function renderMealBuilderList() {
+        const builderContainer = document.getElementById('meal-builder-list');
+
+        if (mealBuilderCandidates.length === 0) {
+            builderContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Look up some foods first (they'll show up under Quick Recall), then come back here to bundle them into a meal.</p>`;
+            return;
+        }
+
+        const query = document.getElementById('meal-builder-filter').value.toLowerCase();
+        const filtered = mealBuilderCandidates.filter(item =>
+            item.description.toLowerCase().includes(query) || item.brand.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) {
+            builderContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No matching foods.</p>`;
+            return;
+        }
+
+        // Checked state is tracked separately in mealBuilderSelectedUpcs
+        // (not just read off the DOM) so it survives re-rendering this list
+        // when the search filter changes.
+        builderContainer.innerHTML = filtered.map(item => `
+            <label class="descriptor-row" style="cursor: pointer;">
+                <input type="checkbox" class="meal-builder-checkbox" style="margin-right: 10px; flex-shrink: 0;" ${mealBuilderSelectedUpcs.has(item.upc) ? 'checked' : ''} onchange="onMealBuilderCheckboxChange('${item.upc}', this.checked)">
+                <span class="descriptor-row-label">${item.description} &middot; ${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
+            </label>
+        `).join('');
+    }
+
+    function onMealBuilderCheckboxChange(upc, checked) {
+        if (checked) {
+            mealBuilderSelectedUpcs.add(upc);
+        } else {
+            mealBuilderSelectedUpcs.delete(upc);
+        }
     }
 
     function closeManageMeals() {
@@ -1932,39 +2048,46 @@
 
     async function saveSelectedMeal() {
         const name = document.getElementById('meal-name-input').value.trim();
-        const checkedIds = Array.from(document.querySelectorAll('.meal-builder-checkbox:checked')).map(cb => Number(cb.value));
 
         if (!name) {
             alert('Give this meal a name first.');
             return;
         }
-        if (checkedIds.length === 0) {
+        if (mealBuilderSelectedUpcs.size === 0) {
             alert('Check at least one food to include in this meal.');
             return;
         }
 
-        // Snapshot just the fields needed to re-log each food later - not a
-        // live reference to today's log entries, so deleting those later
-        // doesn't break the saved meal.
-        const items = todaysLogsForMealBuilder
-            .filter(log => checkedIds.includes(log.id))
-            .map(log => ({
-                description: log.description,
-                brand: log.brand,
-                calories: log.calories,
-                protein: log.protein,
-                carbs: log.carbs,
-                fat: log.fat,
-                portionGrams: log.portionGrams,
-                unit: log.unit,
-                unitOverrides: log.unitOverrides
-            }));
+        // Snapshot each selected food at its default portion (label serving
+        // size in grams if known, else 100g - same fallback used elsewhere
+        // in the app), not a live reference to the Quick Recall cache, so
+        // later edits or deletions there don't affect this saved meal.
+        const items = mealBuilderCandidates
+            .filter(food => mealBuilderSelectedUpcs.has(food.upc))
+            .map(food => {
+                const grams = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
+                    ? Math.round(food.servingSize)
+                    : 100;
+                const scaled = scaleFoodToGrams(food, grams);
+                return {
+                    description: food.description,
+                    brand: food.brand,
+                    calories: scaled.calories,
+                    protein: scaled.protein,
+                    carbs: scaled.carbs,
+                    fat: scaled.fat,
+                    portionGrams: grams,
+                    unit: 'g',
+                    unitOverrides: food.unitOverrides || null
+                };
+            });
 
         await saveMealToDB(name, items);
         alert(`Saved "${name}" as a meal (${items.length} item${items.length === 1 ? '' : 's'}).`);
 
         document.getElementById('meal-name-input').value = '';
-        document.querySelectorAll('.meal-builder-checkbox:checked').forEach(cb => cb.checked = false);
+        mealBuilderSelectedUpcs = new Set();
+        renderMealBuilderList();
         await renderSavedMealsList();
     }
 
@@ -2039,122 +2162,42 @@
     }
 
     // ---- Editing an already-logged entry's portion ----
-    // Logged entries store already-scaled macros for whatever portion was
-    // originally used (not a per-100g baseline), so editing just rescales
-    // those existing values by the ratio of new-to-old grams - no need to
-    // re-look-up the original food.
-    let editingLogId = null;
-
-    function openEditLogOverlay(id) {
+    // Reopens the FULL food card (the same view used when a food is first
+    // looked up) for an already-logged "Eaten Today" entry, instead of a
+    // separate cut-down edit form - so you can see the same per-100g/per-oz
+    // breakdown you saw originally (handy for "what's this per oz again?"),
+    // and pick any portion unit, not just re-scale the one you used before.
+    // The log entry itself only stores already-scaled absolute macros (not
+    // a per-100g baseline), so those are derived back out here by dividing
+    // by the portion that was actually used.
+    function editLoggedEntry(id) {
         const entry = currentViewLogs.find(l => l.id === id);
-        if (!entry) return;
+        if (!entry || !entry.portionGrams) return;
 
-        editingLogId = id;
-        document.getElementById('edit-log-food-name').innerText = entry.description;
-        document.getElementById('edit-log-datetime').value = formatForDatetimeLocal(new Date(entry.timestamp));
-
-        // Entries logged before this feature existed won't have a stored
-        // unit/unitOverrides - fall back to plain grams for those, same as
-        // a food with no special units ever would.
-        const unit = entry.unit || 'g';
-        const overrides = entry.unitOverrides || null;
-
-        rebuildPortionUnitOptions(overrides, 'edit-log-unit');
-        document.getElementById('edit-log-unit').value = unit;
-
-        const amount = entry.portionGrams / gramsPerUnitFor(unit, overrides);
-        document.getElementById('edit-log-amount').value = Math.round(amount * 100) / 100;
-        document.getElementById('edit-log-grams-input').value = Math.round(entry.portionGrams);
-
-        document.getElementById('edit-log-overlay').style.display = 'flex';
-
-        // Auto-select the grams field's pre-filled value so typing a new
-        // number replaces it instead of appending to it.
-        const gramsInput = document.getElementById('edit-log-grams-input');
-        gramsInput.focus();
-        gramsInput.select();
-    }
-
-    // Recomputes "= Grams" from the edit dialog's own amount/unit picker,
-    // same bridge pattern as recalcGramsFromUnitAmount() on the main food
-    // card - a food-specific override (e.g. grapes' cup, egg's each) wins
-    // over the universal UNIT_TO_GRAMS conversion when present.
-    function recalcEditLogGrams() {
-        const amount = parseFloat(document.getElementById('edit-log-amount').value) || 0;
-        const unitSelect = document.getElementById('edit-log-unit');
-        const unit = unitSelect.value;
-        const selectedOption = unitSelect.selectedOptions[0];
-        const overrideGrams = selectedOption ? parseFloat(selectedOption.dataset.gramsPerUnit) : NaN;
-
-        const gramsPerUnit = (!isNaN(overrideGrams) && overrideGrams > 0) ? overrideGrams : (UNIT_TO_GRAMS[unit] || 1);
-        document.getElementById('edit-log-grams-input').value = Math.round(amount * gramsPerUnit * 100) / 100;
-    }
-
-    function closeEditLogOverlay() {
-        document.getElementById('edit-log-overlay').style.display = 'none';
-        editingLogId = null;
-    }
-
-    async function saveEditedLogEntry() {
-        const entry = currentViewLogs.find(l => l.id === editingLogId);
-        if (!entry) return;
-
-        const newGrams = parseFloat(document.getElementById('edit-log-grams-input').value);
-        if (!newGrams || newGrams <= 0) {
-            alert('Enter a portion weight greater than 0.');
-            return;
-        }
-
-        const datetimeVal = document.getElementById('edit-log-datetime').value;
-        if (!datetimeVal) {
-            alert('Enter a valid date/time.');
-            return;
-        }
-        // datetime-local gives "YYYY-MM-DDTHH:mm" with no timezone - the Date
-        // constructor interprets that as local time, which is what we want.
-        const newTimestamp = new Date(datetimeVal).getTime();
-        const newDateStr = toLocalDateStr(new Date(newTimestamp));
-
-        // Sanity check against accidentally-garbled input (e.g. typing a new
-        // number without clearing the old one first, so "152" + "200"
-        // becomes "152200") - a >8x jump either direction is implausible for
-        // an intentional portion correction, so double-check before saving.
-        const ratio = newGrams / entry.portionGrams;
-        if (ratio > 8 || ratio < 1 / 8) {
-            const confirmed = confirm(`Change "${entry.description}" from ${Math.round(entry.portionGrams)}g to ${Math.round(newGrams)}g? That's a big jump - just confirming this isn't a typo.`);
-            if (!confirmed) return;
-        }
-
-        // Moving an entry to a different day is a bigger deal than a portion
-        // tweak (it'll disappear from the day you're currently viewing) -
-        // confirm before doing that specifically.
-        if (newDateStr !== entry.dateStr) {
-            const confirmed = confirm(`Move "${entry.description}" from ${formatDateForDisplay(entry.dateStr)} to ${formatDateForDisplay(newDateStr)}?`);
-            if (!confirmed) return;
-        }
-
-        const updated = {
-            ...entry,
-            unit: document.getElementById('edit-log-unit').value,
-            portionGrams: newGrams,
-            calories: entry.calories * ratio,
-            protein: entry.protein * ratio,
-            carbs: entry.carbs * ratio,
-            fat: entry.fat * ratio,
-            timestamp: newTimestamp,
-            dateStr: newDateStr
+        const reconstructedFood = {
+            description: entry.description,
+            brand: entry.brand,
+            caloriesPer100g: entry.calories / entry.portionGrams * 100,
+            proteinPer100g: entry.protein / entry.portionGrams * 100,
+            carbsPer100g: entry.carbs / entry.portionGrams * 100,
+            fatPer100g: entry.fat / entry.portionGrams * 100,
+            servingSize: null,
+            servingSizeUnit: null,
+            householdServingText: null,
+            unitOverrides: entry.unitOverrides || null,
+            upc: null // not re-caching this reconstruction as a Quick Recall entry
         };
 
-        try {
-            await updateLoggedMealInDB(updated);
-        } catch (error) {
-            console.error('saveEditedLogEntry failed:', error);
-            alert(`Couldn't save this change: ${error && error.message ? error.message : error}`);
-            return;
-        }
+        editingExistingLogId = id;
+        // Entries logged before unit-tracking existed won't have a stored
+        // unit/unitOverrides - fall back to plain grams for those, same as
+        // a food with no special units ever would.
+        pendingPortionUnit = entry.unit || 'g';
+        pendingPortionAmount = entry.portionGrams / gramsPerUnitFor(pendingPortionUnit, entry.unitOverrides || null);
+        pendingUnitOverrides = null; // overrides are already on reconstructedFood.unitOverrides directly
+        pendingEatenAtOverrideMs = entry.timestamp; // show its actual original time, not "now"/noon
 
-        closeEditLogOverlay();
-        refreshAppUI();
+        displayFood(reconstructedFood);
     }
 
     // ---- Health metrics (weight / blood pressure / custom) ----
@@ -2281,23 +2324,29 @@
     }
 
     // ---- Exercise logging ----
+    // caloriesPerHour figures are rough averages for a ~155lb (70kg) adult
+    // at moderate-to-vigorous intensity, based on commonly published MET
+    // (Metabolic Equivalent of Task) estimates - not personalized to any
+    // individual's actual weight or effort level. They're used to prefill a
+    // starting estimate in the "Calories burned" field, which can always be
+    // overridden manually.
     const EXERCISE_TYPES = [
-        { emoji: '🏊', name: 'Swimming' },
-        { emoji: '🚴', name: 'Cycling / Stationary Bike' },
-        { emoji: '🏃', name: 'Running / Jogging / Cardio' },
-        { emoji: '🚶', name: 'Walking / Hiking' },
-        { emoji: '🚵', name: 'Mountain Biking / Trail Cycling' },
-        { emoji: '🤸', name: 'Gymnastics / Calisthenics' },
-        { emoji: '🏋️', name: 'Weightlifting' },
-        { emoji: '💪', name: 'Strength Training / Gym Workout' },
-        { emoji: '🚣', name: 'Rowing / Rowing Machine' },
-        { emoji: '🏄', name: 'Surfing' },
-        { emoji: '⛷️', name: 'Skiing / Downhill Skiing' },
-        { emoji: '🎿', name: 'Cross-country Skiing / Nordic Workout' },
-        { emoji: '🏂', name: 'Snowboarding' },
-        { emoji: '⛸️', name: 'Ice Skating' },
-        { emoji: '🥋', name: 'Martial Arts / Judo, Karate, Jiu-Jitsu, Taekwondo' },
-        { emoji: '🤼', name: 'Wrestling' }
+        { emoji: '🏊', name: 'Swimming', caloriesPerHour: 600 },
+        { emoji: '🚴', name: 'Cycling / Stationary Bike', caloriesPerHour: 520 },
+        { emoji: '🏃', name: 'Running / Jogging / Cardio', caloriesPerHour: 600 },
+        { emoji: '🚶', name: 'Walking / Hiking', caloriesPerHour: 350 },
+        { emoji: '🚵', name: 'Mountain Biking / Trail Cycling', caloriesPerHour: 600 },
+        { emoji: '🤸', name: 'Gymnastics / Calisthenics', caloriesPerHour: 350 },
+        { emoji: '🏋️', name: 'Weightlifting', caloriesPerHour: 250 },
+        { emoji: '💪', name: 'Strength Training / Gym Workout', caloriesPerHour: 350 },
+        { emoji: '🚣', name: 'Rowing / Rowing Machine', caloriesPerHour: 550 },
+        { emoji: '🏄', name: 'Surfing', caloriesPerHour: 450 },
+        { emoji: '⛷️', name: 'Skiing / Downhill Skiing', caloriesPerHour: 450 },
+        { emoji: '🎿', name: 'Cross-country Skiing / Nordic Workout', caloriesPerHour: 650 },
+        { emoji: '🏂', name: 'Snowboarding', caloriesPerHour: 420 },
+        { emoji: '⛸️', name: 'Ice Skating', caloriesPerHour: 420 },
+        { emoji: '🥋', name: 'Martial Arts / Judo, Karate, Jiu-Jitsu, Taekwondo', caloriesPerHour: 650 },
+        { emoji: '🤼', name: 'Wrestling', caloriesPerHour: 650 }
     ];
 
     let selectedExerciseType = null;
@@ -2328,6 +2377,19 @@
         document.getElementById('exercise-selected-label').innerText = `${selectedExerciseType.emoji} ${selectedExerciseType.name}`;
         document.getElementById('exercise-details-fields').style.display = 'block';
         document.getElementById('exercise-duration').focus();
+    }
+
+    // Prefills "Calories burned" with a rough estimate as duration is
+    // entered (caloriesPerHour * hours), using this activity's average
+    // figure - still fully editable afterward if the person wants to enter
+    // a more accurate number.
+    function onExerciseDurationChange() {
+        if (!selectedExerciseType) return;
+        const duration = parseFloat(document.getElementById('exercise-duration').value);
+        if (!duration || duration <= 0) return;
+
+        const estimate = Math.round(selectedExerciseType.caloriesPerHour * (duration / 60));
+        document.getElementById('exercise-calories').value = estimate;
     }
 
     async function saveExerciseEntry() {
@@ -2553,7 +2615,7 @@
                         <div style="display: flex; flex-direction: column; align-items: flex-end;">
                             <div style="display: flex; align-items: center;">
                                 <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
-                                <button class="icon-btn btn-edit" onclick="openEditLogOverlay(${item.id})" title="Edit entry">✏️</button>
+                                <button class="icon-btn btn-edit" onclick="editLoggedEntry(${item.id})" title="Edit entry">✏️</button>
                                 <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
                                 <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
                             </div>
@@ -2632,7 +2694,7 @@
         container.innerHTML = filtered.map(item => `
             <li class="item-row recall">
                 <div style="display: flex; align-items: center; min-width: 0; cursor: pointer;" onclick='displayFood(${JSON.stringify(item)})'>
-                    <span class="item-badge tally" title="Times logged">${item.useCount || 0}&times;</span>
+                    ${(item.useCount || 0) > 1 ? `<span class="item-badge tally" title="Times logged">${item.useCount}&times;</span>` : ''}
                     <div class="item-details">
                         <span class="item-title">${item.description}</span>
                         <span class="item-brand">${item.brand}</span>
