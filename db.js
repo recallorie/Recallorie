@@ -1,9 +1,11 @@
 const DB_NAME = 'RecallorieDB';
-const DB_VERSION = 4; // Upgraded version to support health metrics (weight/BP/custom)
+const DB_VERSION = 5; // Upgraded version to support exercise logging and daily notes
 const STORE_NAME = 'food_history';
 const LOG_STORE_NAME = 'daily_log';
 const MEALS_STORE_NAME = 'saved_meals';
 const METRICS_STORE_NAME = 'health_metrics';
+const EXERCISE_STORE_NAME = 'exercise_log';
+const NOTES_STORE_NAME = 'daily_notes';
 
 let db = null;
 
@@ -39,6 +41,18 @@ function initDB() {
             if (!database.objectStoreNames.contains(METRICS_STORE_NAME)) {
                 const metricsStore = database.createObjectStore(METRICS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
                 metricsStore.createIndex('dateStr', 'dateStr', { unique: false });
+            }
+
+            // 5. Exercise log - one entry per workout, tracked per day.
+            if (!database.objectStoreNames.contains(EXERCISE_STORE_NAME)) {
+                const exerciseStore = database.createObjectStore(EXERCISE_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                exerciseStore.createIndex('dateStr', 'dateStr', { unique: false });
+            }
+
+            // 6. Daily notes - free-text notes, exactly one per day, so this
+            // is keyed directly by the date string rather than autoIncrement.
+            if (!database.objectStoreNames.contains(NOTES_STORE_NAME)) {
+                database.createObjectStore(NOTES_STORE_NAME, { keyPath: 'dateStr' });
             }
         };
 
@@ -332,6 +346,81 @@ function deleteMetricFromDB(id) {
         const request = store.delete(id);
 
         request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Saves an exercise log entry: { activity, emoji, durationMinutes,
+// caloriesBurned (optional), dateStr, timestamp }.
+function saveExerciseToDB(entry) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([EXERCISE_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(EXERCISE_STORE_NAME);
+        const request = store.add(entry);
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Retrieve exercise entries logged on a specific day, chronological.
+function getExerciseForDate(dateStr) {
+    return new Promise((resolve, reject) => {
+        if (!db) return resolve([]);
+        const transaction = db.transaction([EXERCISE_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(EXERCISE_STORE_NAME);
+        const index = store.index('dateStr');
+        const request = index.getAll(IDBKeyRange.only(dateStr));
+
+        request.onsuccess = () => {
+            const sorted = request.result.sort((a, b) => a.timestamp - b.timestamp);
+            resolve(sorted);
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Deletes a single exercise log entry.
+function deleteExerciseFromDB(id) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject();
+        const transaction = db.transaction([EXERCISE_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(EXERCISE_STORE_NAME);
+        const request = store.delete(id);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Daily notes - exactly one free-text note per day, keyed directly by
+// dateStr (no separate id needed, unlike the list-style stores above).
+function saveNoteForDate(dateStr, text) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([NOTES_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(NOTES_STORE_NAME);
+        // Empty note text just deletes the record rather than storing an
+        // empty string, so a day with no notes has nothing to clean up.
+        const request = text && text.trim() !== ''
+            ? store.put({ dateStr, text })
+            : store.delete(dateStr);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Retrieve the note for a specific day, or null if there isn't one.
+function getNoteForDate(dateStr) {
+    return new Promise((resolve, reject) => {
+        if (!db) return resolve(null);
+        const transaction = db.transaction([NOTES_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(NOTES_STORE_NAME);
+        const request = store.get(dateStr);
+
+        request.onsuccess = () => resolve(request.result ? request.result.text : '');
         request.onerror = () => reject(request.error);
     });
 }

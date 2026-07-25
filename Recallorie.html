@@ -580,12 +580,12 @@
         .icon-btn {
             background: none;
             border: none;
-            padding: 6px;
+            padding: 4px;
             font-size: 1.05rem;
             line-height: 1;
             cursor: pointer;
             border-radius: 50%;
-            margin-left: 2px;
+            margin-left: 0;
         }
 
         .btn-edit {
@@ -918,11 +918,38 @@
         </div>
     </div>
 
+    <!-- Log an exercise entry: pick an activity icon, then enter duration
+         and (optionally) calories burned, for whichever day is currently
+         being viewed. -->
+    <div id="log-exercise-overlay" class="emoji-picker-overlay">
+        <div class="emoji-picker-card">
+            <div class="emoji-picker-header">
+                <h3>Log Exercise</h3>
+                <button class="emoji-picker-close" onclick="closeLogExerciseOverlay()">✕</button>
+            </div>
+
+            <div id="exercise-type-grid" class="emoji-picker-grid"></div>
+
+            <div id="exercise-details-fields" style="display: none; margin-top: 16px;">
+                <p id="exercise-selected-label" style="font-weight: 600; margin: 0 0 12px 0;"></p>
+                <div class="portion-row">
+                    <label for="exercise-duration">Duration (min):</label>
+                    <input type="number" id="exercise-duration" min="0" step="1" style="width: 80px;">
+                </div>
+                <div class="portion-row">
+                    <label for="exercise-calories">Calories burned:</label>
+                    <input type="number" id="exercise-calories" min="0" step="1" style="width: 80px;" placeholder="optional">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveExerciseEntry()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <div class="search-container">
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.33" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.34" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -978,7 +1005,7 @@
     </div>
 
     <div class="section-header">
-        <h3 id="log-section-title">⚖️ Eaten Today</h3>
+        <h3 id="log-section-title">😋 Eaten Today</h3>
         <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
             <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
         </button>
@@ -989,7 +1016,7 @@
     </div>
 
     <div class="section-header">
-        <h3 id="metrics-section-title">📏 Health Metrics</h3>
+        <h3 id="metrics-section-title">⚕️ Health Metrics</h3>
         <button id="metrics-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('metrics-scroll-wrapper', 'metrics-toggle-triangle', 'metrics-toggle-btn')" aria-expanded="false" aria-label="Show or hide health metrics">
             <span id="metrics-toggle-triangle" class="toggle-triangle">▶</span>
         </button>
@@ -1001,7 +1028,30 @@
     </div>
 
     <div class="section-header">
-        <h3>⚖️ Quick Recall</h3>
+        <h3 id="exercise-section-title">⏱️ Exercise</h3>
+        <button id="exercise-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('exercise-scroll-wrapper', 'exercise-toggle-triangle', 'exercise-toggle-btn')" aria-expanded="false" aria-label="Show or hide exercise log">
+            <span id="exercise-toggle-triangle" class="toggle-triangle">▶</span>
+        </button>
+    </div>
+    <div id="exercise-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+        <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogExerciseOverlay()">+ Log Exercise</button>
+        <ul id="exercise-container" class="item-list">
+        </ul>
+    </div>
+
+    <div class="section-header">
+        <h3 id="notes-section-title">🗒️ Daily Notes</h3>
+        <button id="notes-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('notes-scroll-wrapper', 'notes-toggle-triangle', 'notes-toggle-btn')" aria-expanded="false" aria-label="Show or hide daily notes">
+            <span id="notes-toggle-triangle" class="toggle-triangle">▶</span>
+        </button>
+    </div>
+    <div id="notes-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+        <textarea id="daily-notes-textarea" placeholder="Notes for this day..." style="width: 100%; min-height: 90px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+        <button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="saveDailyNote()">Save Note</button>
+    </div>
+
+    <div class="section-header">
+        <h3>🎗️ Quick Recall</h3>
         <button id="history-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn')" aria-expanded="false" aria-label="Show or hide quick recall entries">
             <span id="history-toggle-triangle" class="toggle-triangle">▶</span>
         </button>
@@ -1014,23 +1064,29 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.33"></script>
-<script src="zxing.min.js?v=1.33"></script>
-<script src="db.js?v=1.33"></script>
-<script src="USDA_DB_Access.js?v=1.33"></script>
+<script src="foodEmojis.js?v=1.34"></script>
+<script src="zxing.min.js?v=1.34"></script>
+<script src="db.js?v=1.34"></script>
+<script src="USDA_DB_Access.js?v=1.34"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
-    // above). Logged to the console on every load so it's immediately
-    // obvious in the browser debugger whether a fresh copy of the page was
-    // actually served versus a stale cached one. BUILD_DATE is set by hand
-    // to the actual date/time this specific copy was generated - update
-    // both together with each new version.
-    const APP_VERSION = '1.33';
-    const BUILD_DATE = '2026-07-24 10:00:03';
-    console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE})`);
+    // above). BUILD_DATE_UTC is set by hand to the actual moment this copy
+    // was generated, stored as an unambiguous UTC ISO timestamp - update
+    // both together with each new version. It's converted to whoever is
+    // actually viewing the page's own local timezone below, rather than
+    // baking in one hardcoded timezone, so the bottom-left stamp always
+    // reads correctly regardless of where the page was built vs. viewed.
+    const APP_VERSION = '1.34';
+    const BUILD_DATE_UTC = '2026-07-24T20:14:44Z';
+    console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('build-version-corner').innerText = `Build v${APP_VERSION} ${BUILD_DATE}`;
+        const d = new Date(BUILD_DATE_UTC);
+        const pad = n => String(n).padStart(2, '0');
+        // Using the LOCAL getters (not getUTC*) here is exactly what
+        // converts this into the viewer's own timezone automatically.
+        const localStamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        document.getElementById('build-version-corner').innerText = `Build v${APP_VERSION} ${localStamp}`;
     });
 
     let currentActiveFood = null;
@@ -2224,6 +2280,141 @@
         await renderMetricsList();
     }
 
+    // ---- Exercise logging ----
+    const EXERCISE_TYPES = [
+        { emoji: '🏊', name: 'Swimming' },
+        { emoji: '🚴', name: 'Cycling / Stationary Bike' },
+        { emoji: '🏃', name: 'Running / Jogging / Cardio' },
+        { emoji: '🚶', name: 'Walking / Hiking' },
+        { emoji: '🚵', name: 'Mountain Biking / Trail Cycling' },
+        { emoji: '🤸', name: 'Gymnastics / Calisthenics' },
+        { emoji: '🏋️', name: 'Weightlifting' },
+        { emoji: '💪', name: 'Strength Training / Gym Workout' },
+        { emoji: '🚣', name: 'Rowing / Rowing Machine' },
+        { emoji: '🏄', name: 'Surfing' },
+        { emoji: '⛷️', name: 'Skiing / Downhill Skiing' },
+        { emoji: '🎿', name: 'Cross-country Skiing / Nordic Workout' },
+        { emoji: '🏂', name: 'Snowboarding' },
+        { emoji: '⛸️', name: 'Ice Skating' },
+        { emoji: '🥋', name: 'Martial Arts / Judo, Karate, Jiu-Jitsu, Taekwondo' },
+        { emoji: '🤼', name: 'Wrestling' }
+    ];
+
+    let selectedExerciseType = null;
+
+    function openLogExerciseOverlay() {
+        selectedExerciseType = null;
+        document.getElementById('exercise-details-fields').style.display = 'none';
+        document.getElementById('exercise-duration').value = '';
+        document.getElementById('exercise-calories').value = '';
+
+        const grid = document.getElementById('exercise-type-grid');
+        grid.innerHTML = EXERCISE_TYPES.map((ex, idx) => `
+            <button class="emoji-picker-item" onclick="selectExerciseType(${idx})">
+                <span class="emoji-glyph">${ex.emoji}</span>
+                <span class="emoji-picker-label">${ex.name}</span>
+            </button>
+        `).join('');
+
+        document.getElementById('log-exercise-overlay').style.display = 'flex';
+    }
+
+    function closeLogExerciseOverlay() {
+        document.getElementById('log-exercise-overlay').style.display = 'none';
+    }
+
+    function selectExerciseType(idx) {
+        selectedExerciseType = EXERCISE_TYPES[idx];
+        document.getElementById('exercise-selected-label').innerText = `${selectedExerciseType.emoji} ${selectedExerciseType.name}`;
+        document.getElementById('exercise-details-fields').style.display = 'block';
+        document.getElementById('exercise-duration').focus();
+    }
+
+    async function saveExerciseEntry() {
+        if (!selectedExerciseType) return;
+
+        const duration = parseFloat(document.getElementById('exercise-duration').value);
+        if (!duration || duration <= 0) {
+            alert('Enter a duration greater than 0 minutes.');
+            return;
+        }
+        const caloriesVal = document.getElementById('exercise-calories').value;
+        const calories = caloriesVal ? parseFloat(caloriesVal) : null;
+
+        // Logged onto whichever day is currently selected in the date bar,
+        // same convention as food and health metric entries.
+        const now = new Date();
+        const [y, m, d] = currentViewDateStr.split('-').map(Number);
+        const timestamp = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
+
+        const entry = {
+            activity: selectedExerciseType.name,
+            emoji: selectedExerciseType.emoji,
+            durationMinutes: duration,
+            caloriesBurned: calories,
+            dateStr: currentViewDateStr,
+            timestamp
+        };
+
+        try {
+            await saveExerciseToDB(entry);
+        } catch (error) {
+            console.error('saveExerciseEntry failed:', error);
+            alert(`Couldn't save this entry: ${error && error.message ? error.message : error}`);
+            return;
+        }
+
+        closeLogExerciseOverlay();
+        await renderExerciseList();
+    }
+
+    async function renderExerciseList() {
+        const entries = await getExerciseForDate(currentViewDateStr);
+        const container = document.getElementById('exercise-container');
+
+        if (entries.length === 0) {
+            container.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No exercise logged on this date.</li>`;
+            return;
+        }
+
+        container.innerHTML = entries.map(entry => {
+            const timeLabel = new Date(entry.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            const caloriesText = entry.caloriesBurned ? ` &middot; ${Math.round(entry.caloriesBurned)} Cal burned` : '';
+            return `
+                <li class="item-row logged">
+                    <div class="item-details">
+                        <span class="item-title">${entry.emoji} ${entry.activity}</span>
+                        <span class="item-brand">${timeLabel} &middot; ${entry.durationMinutes} min${caloriesText}</span>
+                    </div>
+                    <button class="icon-btn btn-delete" onclick="deleteExerciseEntry(${entry.id})" title="Delete">🗑️</button>
+                </li>
+            `;
+        }).join('');
+    }
+
+    async function deleteExerciseEntry(id) {
+        await deleteExerciseFromDB(id);
+        await renderExerciseList();
+    }
+
+    // ---- Daily notes ----
+    async function renderDailyNote() {
+        const text = await getNoteForDate(currentViewDateStr);
+        document.getElementById('daily-notes-textarea').value = text || '';
+    }
+
+    async function saveDailyNote() {
+        const text = document.getElementById('daily-notes-textarea').value;
+        try {
+            await saveNoteForDate(currentViewDateStr, text);
+        } catch (error) {
+            console.error('saveDailyNote failed:', error);
+            alert(`Couldn't save this note: ${error && error.message ? error.message : error}`);
+            return;
+        }
+        alert('Note saved.');
+    }
+
     // Formats a YYYY-MM-DD string as e.g. "Thu, Jul 17" for display. Parses
     // the pieces manually (not `new Date(dateStr)`) so it's built as a LOCAL
     // date - passing a bare "YYYY-MM-DD" to the Date constructor is parsed
@@ -2324,10 +2515,14 @@
         document.getElementById('jump-to-today-btn').style.display = isToday ? 'none' : 'inline-block';
 
         const dateLabel = formatDateForDisplay(currentViewDateStr);
-        document.getElementById('log-section-title').innerText = isToday ? '⚖️ Eaten Today' : `⚖️ Eaten — ${dateLabel}`;
+        document.getElementById('log-section-title').innerText = isToday ? '😋 Eaten Today' : `😋 Eaten — ${dateLabel}`;
         document.getElementById('dash-cal-label').innerText = isToday ? 'Logged Calories Today' : `Logged Calories — ${dateLabel}`;
-        document.getElementById('metrics-section-title').innerText = isToday ? '📏 Health Metrics' : `📏 Health Metrics — ${dateLabel}`;
+        document.getElementById('metrics-section-title').innerText = isToday ? '⚕️ Health Metrics' : `⚕️ Health Metrics — ${dateLabel}`;
         await renderMetricsList();
+        document.getElementById('exercise-section-title').innerText = isToday ? '⏱️ Exercise' : `⏱️ Exercise — ${dateLabel}`;
+        await renderExerciseList();
+        document.getElementById('notes-section-title').innerText = isToday ? '🗒️ Daily Notes' : `🗒️ Daily Notes — ${dateLabel}`;
+        await renderDailyNote();
 
         // 1. Populate Daily Log and Tally for the viewed date
         const logs = await getMealsLoggedForDate(currentViewDateStr);
