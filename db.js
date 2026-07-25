@@ -1,11 +1,13 @@
 const DB_NAME = 'RecallorieDB';
-const DB_VERSION = 5; // Upgraded version to support exercise logging and daily notes
+const DB_VERSION = 6; // Upgraded version to support water logging and dashboard section settings
 const STORE_NAME = 'food_history';
 const LOG_STORE_NAME = 'daily_log';
 const MEALS_STORE_NAME = 'saved_meals';
 const METRICS_STORE_NAME = 'health_metrics';
 const EXERCISE_STORE_NAME = 'exercise_log';
 const NOTES_STORE_NAME = 'daily_notes';
+const WATER_STORE_NAME = 'water_log';
+const SETTINGS_STORE_NAME = 'app_settings';
 
 let db = null;
 
@@ -53,6 +55,19 @@ function initDB() {
             // is keyed directly by the date string rather than autoIncrement.
             if (!database.objectStoreNames.contains(NOTES_STORE_NAME)) {
                 database.createObjectStore(NOTES_STORE_NAME, { keyPath: 'dateStr' });
+            }
+
+            // 7. Water intake log - one entry per glass/bottle/etc, tracked
+            // per day.
+            if (!database.objectStoreNames.contains(WATER_STORE_NAME)) {
+                const waterStore = database.createObjectStore(WATER_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                waterStore.createIndex('dateStr', 'dateStr', { unique: false });
+            }
+
+            // 8. Generic app settings - simple key/value pairs (currently
+            // just the dashboard section order/visibility config).
+            if (!database.objectStoreNames.contains(SETTINGS_STORE_NAME)) {
+                database.createObjectStore(SETTINGS_STORE_NAME, { keyPath: 'key' });
             }
         };
 
@@ -421,6 +436,76 @@ function getNoteForDate(dateStr) {
         const request = store.get(dateStr);
 
         request.onsuccess = () => resolve(request.result ? request.result.text : '');
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Saves a water intake entry: { amount, unit ('oz'|'cup'|'ml'|'l'), dateStr, timestamp }.
+function saveWaterToDB(entry) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([WATER_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(WATER_STORE_NAME);
+        const request = store.add(entry);
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Retrieve water entries logged on a specific day, chronological.
+function getWaterForDate(dateStr) {
+    return new Promise((resolve, reject) => {
+        if (!db) return resolve([]);
+        const transaction = db.transaction([WATER_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(WATER_STORE_NAME);
+        const index = store.index('dateStr');
+        const request = index.getAll(IDBKeyRange.only(dateStr));
+
+        request.onsuccess = () => {
+            const sorted = request.result.sort((a, b) => a.timestamp - b.timestamp);
+            resolve(sorted);
+        };
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Deletes a single water log entry.
+function deleteWaterFromDB(id) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject();
+        const transaction = db.transaction([WATER_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(WATER_STORE_NAME);
+        const request = store.delete(id);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Generic app settings - simple key/value storage (currently just the
+// dashboard section order/visibility config, but usable for anything else
+// later without needing another dedicated object store).
+function saveSetting(key, value) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([SETTINGS_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(SETTINGS_STORE_NAME);
+        const request = store.put({ key, value });
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+function getSetting(key) {
+    return new Promise((resolve, reject) => {
+        if (!db) return resolve(null);
+        const transaction = db.transaction([SETTINGS_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(SETTINGS_STORE_NAME);
+        const request = store.get(key);
+
+        request.onsuccess = () => resolve(request.result ? request.result.value : null);
         request.onerror = () => reject(request.error);
     });
 }

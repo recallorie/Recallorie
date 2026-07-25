@@ -666,6 +666,77 @@
             pointer-events: none;
         }
 
+        /* Manage Sections (profile menu): each row shows reorder arrows, the
+           section's icon/label, and an on/off switch. */
+        .section-settings-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 4px;
+            border-bottom: 1px solid #eee;
+        }
+        .section-settings-row:last-child {
+            border-bottom: none;
+        }
+        .section-settings-label {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+        .section-order-btns {
+            display: flex;
+            flex-direction: column;
+        }
+        .section-order-btns button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            color: var(--text-muted);
+            line-height: 1.1;
+        }
+        .section-order-btns button:disabled {
+            opacity: 0.25;
+            cursor: default;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-switch .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: 0.2s;
+            border-radius: 24px;
+        }
+        .toggle-switch .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        .toggle-switch input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
         .profile-corner {
             position: fixed;
             top: calc(env(safe-area-inset-top) + 12px);
@@ -751,6 +822,7 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); exportFoodDatabase();">⬇ Export Foods</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); exportEatingHistory();">⬇ Export History</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
+        <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
     </div>
 </div>
 
@@ -759,7 +831,6 @@
 <div class="container">
     <header>
         <h1>Recallorie</h1>
-        <p>Effortless Diet Memory</p>
     </header>
 
     <div class="dashboard-card">
@@ -821,7 +892,7 @@
             </div>
 
             <div style="margin-bottom: 22px;">
-                <h4 style="margin: 0 0 8px 0; font-size: 0.95rem;">Build a Meal from Your Foods</h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 0.95rem;">Build a Meal from <span id="meal-builder-date-label"></span></h4>
                 <input type="text" id="meal-builder-filter" placeholder="Search your foods..." oninput="renderMealBuilderList()" style="width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px;">
                 <div id="meal-builder-list" style="max-height: 220px; overflow-y: auto; margin-bottom: 10px;"></div>
                 <input type="text" id="meal-name-input" placeholder="Meal name (e.g. Breakfast)" style="width: 100%; padding: 8px; box-sizing: border-box; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px;">
@@ -916,11 +987,45 @@
         </div>
     </div>
 
+    <!-- Log a water intake entry for whichever day is currently being viewed. -->
+    <div id="log-water-overlay" class="emoji-picker-overlay">
+        <div class="emoji-picker-card">
+            <div class="emoji-picker-header">
+                <h3>Log Water</h3>
+                <button class="emoji-picker-close" onclick="closeLogWaterOverlay()">✕</button>
+            </div>
+            <div class="portion-row">
+                <label for="water-amount">Amount:</label>
+                <input type="number" id="water-amount" min="0" step="any" style="width: 80px;">
+                <select id="water-unit">
+                    <option value="oz">oz</option>
+                    <option value="cup">cup</option>
+                    <option value="ml">mL</option>
+                    <option value="l">L</option>
+                </select>
+            </div>
+            <button class="btn-primary" style="width: 100%; margin-top: 12px;" onclick="saveWaterEntry()">Save</button>
+        </div>
+    </div>
+
+    <!-- Reached via the profile menu: turn dashboard sections on/off and
+         reorder them, without cluttering the main screen with these controls. -->
+    <div id="manage-sections-overlay" class="emoji-picker-overlay">
+        <div class="emoji-picker-card">
+            <div class="emoji-picker-header">
+                <h3>Manage Sections</h3>
+                <button class="emoji-picker-close" onclick="closeManageSections()">✕</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 12px 0;">Turn sections on or off, and use the arrows to reorder them on the main screen.</p>
+            <div id="section-settings-list"></div>
+        </div>
+    </div>
+
     <div class="search-container">
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.35" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.36" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -975,70 +1080,101 @@
         <button id="log-meal-btn" class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="logCurrentMeal()">Log This Meal</button>
     </div>
 
-    <div class="section-header">
-        <h3 id="log-section-title">😋 Eaten Today</h3>
-        <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
-            <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
-        </button>
-    </div>
-    <div id="log-scroll-wrapper" class="scroll-wrapper" style="display: none;">
-        <ul id="log-container" class="item-list">
-        </ul>
+    <div id="dashboard-sections-container">
+
+    <div class="dashboard-section" data-section-id="log">
+        <div class="section-header">
+            <h3 id="log-section-title">😋 Eaten Today</h3>
+            <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
+                <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
+            </button>
+        </div>
+        <div id="log-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+            <ul id="log-container" class="item-list">
+            </ul>
+        </div>
     </div>
 
-    <div class="section-header">
-        <h3 id="metrics-section-title">⚕️ Health Metrics</h3>
-        <button id="metrics-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('metrics-scroll-wrapper', 'metrics-toggle-triangle', 'metrics-toggle-btn')" aria-expanded="false" aria-label="Show or hide health metrics">
-            <span id="metrics-toggle-triangle" class="toggle-triangle">▶</span>
-        </button>
-    </div>
-    <div id="metrics-scroll-wrapper" class="scroll-wrapper" style="display: none;">
-        <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogMetricOverlay()">+ Log Weight / Blood Pressure / Custom</button>
-        <ul id="metrics-container" class="item-list">
-        </ul>
-    </div>
-
-    <div class="section-header">
-        <h3 id="exercise-section-title">⏱️ Exercise</h3>
-        <button id="exercise-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('exercise-scroll-wrapper', 'exercise-toggle-triangle', 'exercise-toggle-btn')" aria-expanded="false" aria-label="Show or hide exercise log">
-            <span id="exercise-toggle-triangle" class="toggle-triangle">▶</span>
-        </button>
-    </div>
-    <div id="exercise-scroll-wrapper" class="scroll-wrapper" style="display: none;">
-        <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogExerciseOverlay()">+ Log Exercise</button>
-        <ul id="exercise-container" class="item-list">
-        </ul>
+    <div class="dashboard-section" data-section-id="metrics">
+        <div class="section-header">
+            <h3 id="metrics-section-title">⚕️ Health Metrics</h3>
+            <button id="metrics-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('metrics-scroll-wrapper', 'metrics-toggle-triangle', 'metrics-toggle-btn')" aria-expanded="false" aria-label="Show or hide health metrics">
+                <span id="metrics-toggle-triangle" class="toggle-triangle">▶</span>
+            </button>
+        </div>
+        <div id="metrics-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+            <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogMetricOverlay()">+ Log Weight / Blood Pressure / Custom</button>
+            <ul id="metrics-container" class="item-list">
+            </ul>
+        </div>
     </div>
 
-    <div class="section-header">
-        <h3 id="notes-section-title">🗒️ Daily Notes</h3>
-        <button id="notes-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('notes-scroll-wrapper', 'notes-toggle-triangle', 'notes-toggle-btn')" aria-expanded="false" aria-label="Show or hide daily notes">
-            <span id="notes-toggle-triangle" class="toggle-triangle">▶</span>
-        </button>
-    </div>
-    <div id="notes-scroll-wrapper" class="scroll-wrapper" style="display: none;">
-        <textarea id="daily-notes-textarea" placeholder="Notes for this day..." style="width: 100%; min-height: 90px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
-        <button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="saveDailyNote()">Save Note</button>
+    <div class="dashboard-section" data-section-id="exercise">
+        <div class="section-header">
+            <h3 id="exercise-section-title">⏱️ Exercise</h3>
+            <button id="exercise-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('exercise-scroll-wrapper', 'exercise-toggle-triangle', 'exercise-toggle-btn')" aria-expanded="false" aria-label="Show or hide exercise log">
+                <span id="exercise-toggle-triangle" class="toggle-triangle">▶</span>
+            </button>
+        </div>
+        <div id="exercise-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+            <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogExerciseOverlay()">+ Log Exercise</button>
+            <ul id="exercise-container" class="item-list">
+            </ul>
+        </div>
     </div>
 
-    <div class="section-header">
-        <h3>🎗️ Quick Recall</h3>
-        <button id="history-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn')" aria-expanded="false" aria-label="Show or hide quick recall entries">
-            <span id="history-toggle-triangle" class="toggle-triangle">▶</span>
-        </button>
+    <div class="dashboard-section" data-section-id="water">
+        <div class="section-header">
+            <h3 id="water-section-title">💧 Water Intake / Hydration</h3>
+            <button id="water-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('water-scroll-wrapper', 'water-toggle-triangle', 'water-toggle-btn')" aria-expanded="false" aria-label="Show or hide water intake">
+                <span id="water-toggle-triangle" class="toggle-triangle">▶</span>
+            </button>
+        </div>
+        <div id="water-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+            <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogWaterOverlay()">+ Log Water</button>
+            <div id="water-total-label" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;"></div>
+            <ul id="water-container" class="item-list">
+            </ul>
+        </div>
     </div>
-    <input type="text" id="filter-input" class="filter-input" placeholder="Search saved items by name..." oninput="onRecallFilterInput()">
 
-    <div id="history-scroll-wrapper" class="scroll-wrapper" style="display: none;">
-        <ul id="history-container" class="item-list">
-        </ul>
+    <div class="dashboard-section" data-section-id="notes">
+        <div class="section-header">
+            <h3 id="notes-section-title">🗒️ Daily Notes</h3>
+            <button id="notes-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('notes-scroll-wrapper', 'notes-toggle-triangle', 'notes-toggle-btn')" aria-expanded="false" aria-label="Show or hide daily notes">
+                <span id="notes-toggle-triangle" class="toggle-triangle">▶</span>
+            </button>
+        </div>
+        <div id="notes-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+            <textarea id="daily-notes-textarea" placeholder="Notes for this day..." style="width: 100%; min-height: 90px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+            <button class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="saveDailyNote()">Save Note</button>
+        </div>
+    </div>
+
+    <div class="dashboard-section" data-section-id="recall">
+        <div class="section-header" style="flex-direction: column; align-items: stretch;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>🎗️ Quick Recall</h3>
+                <button id="history-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn')" aria-expanded="false" aria-label="Show or hide quick recall entries">
+                    <span id="history-toggle-triangle" class="toggle-triangle">▶</span>
+                </button>
+            </div>
+            <input type="text" id="filter-input" class="filter-input" placeholder="Search saved items by name..." oninput="onRecallFilterInput()" style="margin-top: 8px;">
+        </div>
+
+        <div id="history-scroll-wrapper" class="scroll-wrapper" style="display: none;">
+            <ul id="history-container" class="item-list">
+            </ul>
+        </div>
+    </div>
+
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.35"></script>
-<script src="zxing.min.js?v=1.35"></script>
-<script src="db.js?v=1.35"></script>
-<script src="USDA_DB_Access.js?v=1.35"></script>
+<script src="foodEmojis.js?v=1.36"></script>
+<script src="zxing.min.js?v=1.36"></script>
+<script src="db.js?v=1.36"></script>
+<script src="USDA_DB_Access.js?v=1.36"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1048,8 +1184,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.35';
-    const BUILD_DATE_UTC = '2026-07-25T02:43:24Z';
+    const APP_VERSION = '1.36';
+    const BUILD_DATE_UTC = '2026-07-25T11:05:47Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1065,11 +1201,13 @@
     let currentViewDateStr = null; // YYYY-MM-DD of the day currently shown in the dashboard/log
     let currentViewLogs = []; // Raw log entries for currentViewDateStr, so duplicate/delete can look up by id without a re-fetch
     let savedMealsList = []; // Saved meals, kept in sync via refreshSavedMealsList()
-    let mealBuilderCandidates = []; // All cached (Quick Recall) foods available while the Manage Meals overlay is open
-    let mealBuilderSelectedUpcs = new Set(); // Which of those are currently checked, tracked separately so it survives filter re-renders
+    let mealBuilderCandidates = []; // The currently-viewed day's logged foods, available while Manage Meals is open
+    let mealBuilderSelectedIds = new Set(); // Which log entry ids are currently checked, tracked separately so it survives filter re-renders
 
     window.addEventListener('DOMContentLoaded', async () => {
         await initDB();
+        await loadSectionConfig();
+        applySectionConfig();
         refreshAppUI();
         await refreshSavedMealsList();
 
@@ -1970,13 +2108,14 @@
     // together with one tap from the "My Meals" button on the main screen.
 
     async function openManageMeals() {
-        // Building a meal now pulls from your whole Quick Recall food
-        // library, not just what's been logged today - lets you assemble a
-        // meal (e.g. "Breakfast") out of foods you've looked up before, even
-        // ones you haven't eaten yet today.
-        mealBuilderCandidates = dedupeAndSortCachedFoods(await getAllCachedFoods());
-        mealBuilderSelectedUpcs = new Set();
+        // Building a meal pulls from whichever day is currently selected in
+        // the main date bar (not hardcoded to today) - so you can bundle up
+        // "everything I ate Tuesday morning" regardless of what day you
+        // happen to be viewing when you open this.
+        mealBuilderCandidates = await getMealsLoggedForDate(currentViewDateStr);
+        mealBuilderSelectedIds = new Set();
         document.getElementById('meal-builder-filter').value = '';
+        document.getElementById('meal-builder-date-label').innerText = formatDateForDisplay(currentViewDateStr);
         renderMealBuilderList();
         document.getElementById('meal-name-input').value = '';
 
@@ -1988,13 +2127,13 @@
         const builderContainer = document.getElementById('meal-builder-list');
 
         if (mealBuilderCandidates.length === 0) {
-            builderContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Look up some foods first (they'll show up under Quick Recall), then come back here to bundle them into a meal.</p>`;
+            builderContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No foods logged on this date yet. Log some first (or navigate to a different date), then come back here to bundle them into a meal.</p>`;
             return;
         }
 
         const query = document.getElementById('meal-builder-filter').value.toLowerCase();
         const filtered = mealBuilderCandidates.filter(item =>
-            item.description.toLowerCase().includes(query) || item.brand.toLowerCase().includes(query)
+            item.description.toLowerCase().includes(query) || (item.brand || '').toLowerCase().includes(query)
         );
 
         if (filtered.length === 0) {
@@ -2002,22 +2141,22 @@
             return;
         }
 
-        // Checked state is tracked separately in mealBuilderSelectedUpcs
-        // (not just read off the DOM) so it survives re-rendering this list
-        // when the search filter changes.
+        // Checked state is tracked separately in mealBuilderSelectedIds (not
+        // just read off the DOM) so it survives re-rendering this list when
+        // the search filter changes.
         builderContainer.innerHTML = filtered.map(item => `
             <label class="descriptor-row" style="cursor: pointer;">
-                <input type="checkbox" class="meal-builder-checkbox" style="margin-right: 10px; flex-shrink: 0;" ${mealBuilderSelectedUpcs.has(item.upc) ? 'checked' : ''} onchange="onMealBuilderCheckboxChange('${item.upc}', this.checked)">
-                <span class="descriptor-row-label">${item.description} &middot; ${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
+                <input type="checkbox" class="meal-builder-checkbox" style="margin-right: 10px; flex-shrink: 0;" ${mealBuilderSelectedIds.has(item.id) ? 'checked' : ''} onchange="onMealBuilderCheckboxChange(${item.id}, this.checked)">
+                <span class="descriptor-row-label">${item.description} &middot; ${Math.round(item.calories)} Cal</span>
             </label>
         `).join('');
     }
 
-    function onMealBuilderCheckboxChange(upc, checked) {
+    function onMealBuilderCheckboxChange(id, checked) {
         if (checked) {
-            mealBuilderSelectedUpcs.add(upc);
+            mealBuilderSelectedIds.add(id);
         } else {
-            mealBuilderSelectedUpcs.delete(upc);
+            mealBuilderSelectedIds.delete(id);
         }
     }
 
@@ -2053,40 +2192,33 @@
             alert('Give this meal a name first.');
             return;
         }
-        if (mealBuilderSelectedUpcs.size === 0) {
+        if (mealBuilderSelectedIds.size === 0) {
             alert('Check at least one food to include in this meal.');
             return;
         }
 
-        // Snapshot each selected food at its default portion (label serving
-        // size in grams if known, else 100g - same fallback used elsewhere
-        // in the app), not a live reference to the Quick Recall cache, so
-        // later edits or deletions there don't affect this saved meal.
+        // Snapshot just the fields needed to re-log each food later - not a
+        // live reference to that day's log entries, so editing or deleting
+        // those later doesn't affect this saved meal.
         const items = mealBuilderCandidates
-            .filter(food => mealBuilderSelectedUpcs.has(food.upc))
-            .map(food => {
-                const grams = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
-                    ? Math.round(food.servingSize)
-                    : 100;
-                const scaled = scaleFoodToGrams(food, grams);
-                return {
-                    description: food.description,
-                    brand: food.brand,
-                    calories: scaled.calories,
-                    protein: scaled.protein,
-                    carbs: scaled.carbs,
-                    fat: scaled.fat,
-                    portionGrams: grams,
-                    unit: 'g',
-                    unitOverrides: food.unitOverrides || null
-                };
-            });
+            .filter(log => mealBuilderSelectedIds.has(log.id))
+            .map(log => ({
+                description: log.description,
+                brand: log.brand,
+                calories: log.calories,
+                protein: log.protein,
+                carbs: log.carbs,
+                fat: log.fat,
+                portionGrams: log.portionGrams,
+                unit: log.unit,
+                unitOverrides: log.unitOverrides
+            }));
 
         await saveMealToDB(name, items);
         alert(`Saved "${name}" as a meal (${items.length} item${items.length === 1 ? '' : 's'}).`);
 
         document.getElementById('meal-name-input').value = '';
-        mealBuilderSelectedUpcs = new Set();
+        mealBuilderSelectedIds = new Set();
         renderMealBuilderList();
         await renderSavedMealsList();
     }
@@ -2477,6 +2609,183 @@
         alert('Note saved.');
     }
 
+    // ---- Water intake / hydration ----
+    // Rough conversion to ounces, just for computing a same-unit daily total
+    // across mixed entries (e.g. logging some in oz and some in mL/cups).
+    const WATER_UNIT_TO_OZ = { oz: 1, cup: 8, ml: 0.033814, l: 33.814 };
+
+    function openLogWaterOverlay() {
+        document.getElementById('water-amount').value = '';
+        document.getElementById('water-unit').value = 'oz';
+        document.getElementById('log-water-overlay').style.display = 'flex';
+        document.getElementById('water-amount').focus();
+    }
+
+    function closeLogWaterOverlay() {
+        document.getElementById('log-water-overlay').style.display = 'none';
+    }
+
+    async function saveWaterEntry() {
+        const amount = parseFloat(document.getElementById('water-amount').value);
+        if (!amount || amount <= 0) {
+            alert('Enter an amount greater than 0.');
+            return;
+        }
+        const unit = document.getElementById('water-unit').value;
+
+        // Logged onto whichever day is currently selected in the date bar,
+        // same convention as food, exercise, and health metric entries.
+        const now = new Date();
+        const [y, m, d] = currentViewDateStr.split('-').map(Number);
+        const timestamp = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
+
+        const entry = { amount, unit, dateStr: currentViewDateStr, timestamp };
+
+        try {
+            await saveWaterToDB(entry);
+        } catch (error) {
+            console.error('saveWaterEntry failed:', error);
+            alert(`Couldn't save this entry: ${error && error.message ? error.message : error}`);
+            return;
+        }
+
+        closeLogWaterOverlay();
+        await renderWaterList();
+    }
+
+    async function renderWaterList() {
+        const entries = await getWaterForDate(currentViewDateStr);
+        const container = document.getElementById('water-container');
+        const totalLabel = document.getElementById('water-total-label');
+
+        if (entries.length === 0) {
+            container.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No water logged on this date.</li>`;
+            totalLabel.innerText = '';
+            return;
+        }
+
+        const totalOz = entries.reduce((sum, e) => sum + (e.amount * (WATER_UNIT_TO_OZ[e.unit] || 1)), 0);
+        const totalCups = totalOz / 8;
+        totalLabel.innerText = `Total: ${Math.round(totalOz * 10) / 10} oz (${Math.round(totalCups * 10) / 10} cups)`;
+
+        container.innerHTML = entries.map(entry => {
+            const timeLabel = new Date(entry.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            return `
+                <li class="item-row logged">
+                    <div class="item-details">
+                        <span class="item-title">💧 ${entry.amount} ${entry.unit}</span>
+                        <span class="item-brand">${timeLabel}</span>
+                    </div>
+                    <button class="icon-btn btn-delete" onclick="deleteWaterEntry(${entry.id})" title="Delete">🗑️</button>
+                </li>
+            `;
+        }).join('');
+    }
+
+    async function deleteWaterEntry(id) {
+        await deleteWaterFromDB(id);
+        await renderWaterList();
+    }
+
+    // ---- Dashboard section settings (Manage Sections, in profile menu) ----
+    // Controls both which of these sections show on the main screen at all,
+    // and what order they appear in - persisted so it's remembered next time.
+    const SECTION_DEFS = {
+        log: { icon: '😋', label: 'Eaten Today' },
+        metrics: { icon: '⚕️', label: 'Health Metrics' },
+        exercise: { icon: '⏱️', label: 'Exercise' },
+        water: { icon: '💧', label: 'Water Intake / Hydration' },
+        notes: { icon: '🗒️', label: 'Daily Notes' },
+        recall: { icon: '🎗️', label: 'Quick Recall' }
+    };
+    const DEFAULT_SECTION_ORDER = ['log', 'metrics', 'exercise', 'water', 'notes', 'recall'];
+
+    let sectionConfig = null; // array of { id, enabled }, in display order
+
+    async function loadSectionConfig() {
+        const saved = await getSetting('sectionConfig');
+        if (saved && Array.isArray(saved) && saved.length > 0) {
+            // Merge in new sections added since this was last saved (e.g.
+            // "water" for someone who configured this before it existed),
+            // and drop any now-unrecognized ids.
+            const knownIds = saved.map(s => s.id);
+            const merged = saved.filter(s => DEFAULT_SECTION_ORDER.includes(s.id));
+            for (const id of DEFAULT_SECTION_ORDER) {
+                if (!knownIds.includes(id)) merged.push({ id, enabled: true });
+            }
+            sectionConfig = merged;
+        } else {
+            sectionConfig = DEFAULT_SECTION_ORDER.map(id => ({ id, enabled: true }));
+        }
+    }
+
+    // Reorders the actual section elements in the DOM to match sectionConfig
+    // (moving each one to the end of the container, in order, achieves a
+    // full reorder) and shows/hides each based on its enabled flag.
+    function applySectionConfig() {
+        const container = document.getElementById('dashboard-sections-container');
+        for (const { id, enabled } of sectionConfig) {
+            const el = container.querySelector(`[data-section-id="${id}"]`);
+            if (!el) continue;
+            el.style.display = enabled ? '' : 'none';
+            container.appendChild(el);
+        }
+    }
+
+    async function openManageSections() {
+        renderSectionSettingsList();
+        document.getElementById('manage-sections-overlay').style.display = 'flex';
+    }
+
+    function closeManageSections() {
+        document.getElementById('manage-sections-overlay').style.display = 'none';
+    }
+
+    function renderSectionSettingsList() {
+        const container = document.getElementById('section-settings-list');
+        container.innerHTML = sectionConfig.map((s, idx) => {
+            const def = SECTION_DEFS[s.id];
+            if (!def) return '';
+            return `
+                <div class="section-settings-row">
+                    <div class="section-order-btns">
+                        <button onclick="moveSectionUp(${idx})" ${idx === 0 ? 'disabled' : ''} title="Move up">▲</button>
+                        <button onclick="moveSectionDown(${idx})" ${idx === sectionConfig.length - 1 ? 'disabled' : ''} title="Move down">▼</button>
+                    </div>
+                    <span class="section-settings-label">${def.icon} ${def.label}</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${s.enabled ? 'checked' : ''} onchange="onSectionToggle(${idx}, this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function persistSectionConfig() {
+        await saveSetting('sectionConfig', sectionConfig);
+        applySectionConfig();
+    }
+
+    async function onSectionToggle(idx, checked) {
+        sectionConfig[idx].enabled = checked;
+        await persistSectionConfig();
+    }
+
+    async function moveSectionUp(idx) {
+        if (idx <= 0) return;
+        [sectionConfig[idx - 1], sectionConfig[idx]] = [sectionConfig[idx], sectionConfig[idx - 1]];
+        renderSectionSettingsList();
+        await persistSectionConfig();
+    }
+
+    async function moveSectionDown(idx) {
+        if (idx >= sectionConfig.length - 1) return;
+        [sectionConfig[idx + 1], sectionConfig[idx]] = [sectionConfig[idx], sectionConfig[idx + 1]];
+        renderSectionSettingsList();
+        await persistSectionConfig();
+    }
+
     // Formats a YYYY-MM-DD string as e.g. "Thu, Jul 17" for display. Parses
     // the pieces manually (not `new Date(dateStr)`) so it's built as a LOCAL
     // date - passing a bare "YYYY-MM-DD" to the Date constructor is parsed
@@ -2583,6 +2892,8 @@
         await renderMetricsList();
         document.getElementById('exercise-section-title').innerText = isToday ? '⏱️ Exercise' : `⏱️ Exercise — ${dateLabel}`;
         await renderExerciseList();
+        document.getElementById('water-section-title').innerText = isToday ? '💧 Water Intake / Hydration' : `💧 Water — ${dateLabel}`;
+        await renderWaterList();
         document.getElementById('notes-section-title').innerText = isToday ? '🗒️ Daily Notes' : `🗒️ Daily Notes — ${dateLabel}`;
         await renderDailyNote();
 
