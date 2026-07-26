@@ -124,6 +124,11 @@ x- Log BP.
 x- Log exercise.
 - Be able to backup AND restore the user's data.
 
+TODO for 260726:
+x- Add the ability to search for direct food item by fdcId.
+x- I want the food entry I added via an fdcId to have the Icon of that entry preceding it in the text line of the entry.
+x- In the Quick Recall section, why do all the descriptors have a shortened name with ""..." after them? Can that
+    be fixed?
 
 
 FUTURE:
