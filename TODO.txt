@@ -26,9 +26,9 @@ x- Under the calendar/Daily tally, I want you to keep the format of all the "Eat
         triangle (like a dropdown box does) and display a window with all the entries for today that fit on the
         screen.  If it fills the screen, then add a vertical bar to the right so the user can move this up and down
         and see all foods eaten.
-- Hide the 2 download buttons (Export and History) behind a profile icon.  This profile icon should be in the top
+x- Hide the 2 download buttons (Export and History) behind a profile icon.  This profile icon should be in the top
     right corner of the screen.
-- Come up with a way for the user to save a whole meal and reuse it with a click of an icon.  I think this would
+x- Come up with a way for the user to save a whole meal and reuse it with a click of an icon.  I think this would
     mean that we would need another icon group next to all the food group icons in the main window.  It should
     only be shown if this user made a meal. All meals are really multiple entries that contain the individual food
     entries for this meal.  I think this managing of the meals should be stored under the profile button.  There could
@@ -64,9 +64,9 @@ x- Modify the code to protect the user from accidentally deleting the database.
 
 
 TODO for 260724:
-- When I requested: Modify the code to display the version number at the bottom left on the screen.  It should be in the
+x- When I requested: Modify the code to display the version number at the bottom left on the screen.  It should be in the
     format: "Build v1.31 YYYY-MM-DD HH:MM:SS", I wanted the date and time in my current time zone, NOT the UTC time!
-- Icon and section changes:
+x- Icon and section changes:
     x- For "Eaten Today", use icon: 😋	U+1F60B or  🍽️	U+1F37D
     x- For the existing section "Health Metrics", use this icon: ⚕️	U+2695
     x- Change the "Quick Recall" section to use 🎗️ U+1F397
@@ -92,6 +92,7 @@ TODO for 260724:
         type their notes or make quick additions they wanted to document.
 x- There is still too much space between the Edit, Duplicate to today, & Delete buttons.
 
+TODO for 260725:
 x- Be able to fully customize the "Eaten Today" and "Quick Recall" food entries. This should open the food entry to how
     it looked before adding it since I may want to see what the carbs ar for an oz or something like that includes
     changing what time the food was eaten and what portion was eaten.
@@ -99,29 +100,31 @@ x- In the food description when I type something and press the Enter key, it sho
     wait until I press the "Lookup" button.
 x- If I navigate to yesterday's date and lookup a food item to add, it should populate the date with yesterday's
     date at noon and not today's present date and time.
-- When I do a lookup of a food item, I prefer to have a generic food entry that has a portion size of 1. and what the
+x- When I do a lookup of a food item, I prefer to have a generic food entry that has a portion size of 1. and what the
     number of grams, oz, or whatever the portion size is to help describe the recommended portion. What I am also
     looking for here is to add to type of portions: each, slices, etc.
 x- Under the "Quick Recall" section, only show the number of times the food entry has been used if it is > 1.
 x- For the list of exercises, figure out how many calories are burned per hour.
 
 
-- In manage meals, we should be choosing from all the foods from the chosen day in the main selector and not today.
-- Make a new section to track Water usage. Use this for the section: Water Intake / Hydration, and use the
+x- In manage meals, we should be choosing from all the foods from the chosen day in the main selector and not today.
+x- Make a new section to track Water usage. Use this for the section: Water Intake / Hydration, and use the
     icon: 💧 (U+1F4A1)
 - Move the "Search saved items by" section to the top of the "Quick Recall" section (perhaps into its header).
-- Make a list of the sections and put this list of these sections into the profile with switches to turn off and on
-    each section. This would make it possible for someone who doesn't want to track their water intake to trun that
+x- Make a list of the sections and put this list of these sections into the profile with switches to turn off and on
+    each section. This would make it possible for someone who doesn't want to track their water intake to turn that
     section off. This list of sections should also be to move all the sections around below the "Lookup" button.
     This would make it easier to find the section you want to turn on or off while also letting the user display
     the order they would like to see their sections while not cluttering up the main screen with these choices.
-- I want to remove the subtitle "Effortless Diet Memory" since I want to save the space (for when I view this
+x- I want to remove the subtitle "Effortless Diet Memory" since I want to save the space (for when I view this
     webpage on an iphone or other mobile device).
+
+x- Log weight.
+x- Log BP.
+x- Log exercise.
+- Be able to backup AND restore the user's data.
+
 
 
 FUTURE:
-- Log weight.
-- Log BP.
-- Log exercise.
 - I need to move the user (profile) onto a system where I can have multiple users.
-- Be able to backup AND restore the user's data.

@@ -821,6 +821,8 @@
     <div id="profile-menu" class="profile-menu">
         <button class="profile-menu-item" onclick="closeProfileMenu(); exportFoodDatabase();">⬇ Export Foods</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); exportEatingHistory();">⬇ Export History</button>
+        <button class="profile-menu-item" onclick="closeProfileMenu(); exportAllData();">⬇ Export All Data (Full Backup)</button>
+        <button class="profile-menu-item" onclick="closeProfileMenu(); openImportOverlay();">⬆ Import Data</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
     </div>
@@ -1021,11 +1023,28 @@
         </div>
     </div>
 
+    <!-- Reached via the profile menu: restore data from either a full
+         backup file (Export All Data) or one of the older single-category
+         export files (Export Foods / Export History). -->
+    <div id="import-data-overlay" class="emoji-picker-overlay">
+        <div class="emoji-picker-card">
+            <div class="emoji-picker-header">
+                <h3>Import Data</h3>
+                <button class="emoji-picker-close" onclick="closeImportOverlay()">✕</button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 14px 0;">Choose a Recallorie export file (a full backup, or an older Export Foods / Export History file), then pick how to bring it in.</p>
+            <input type="file" id="import-file-input" accept="application/json,.json" style="width: 100%; margin-bottom: 16px;">
+            <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="handleImportFile('merge')">Merge with Current Data</button>
+            <button class="btn-primary" style="width: 100%; background: #c0392b;" onclick="handleImportFile('replace')">Replace Current Data</button>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 10px 0 0 0;"><strong>Merge</strong> adds the imported data alongside what's already here (matching foods/notes are updated, everything else is added as new). <strong>Replace</strong> erases everything currently stored first - use this only if you're intentionally restoring from a backup and want to discard what's currently here.</p>
+        </div>
+    </div>
+
     <div class="search-container">
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.36" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.37" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1171,10 +1190,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.36"></script>
-<script src="zxing.min.js?v=1.36"></script>
-<script src="db.js?v=1.36"></script>
-<script src="USDA_DB_Access.js?v=1.36"></script>
+<script src="foodEmojis.js?v=1.37"></script>
+<script src="zxing.min.js?v=1.37"></script>
+<script src="db.js?v=1.37"></script>
+<script src="USDA_DB_Access.js?v=1.37"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1184,8 +1203,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.36';
-    const BUILD_DATE_UTC = '2026-07-25T11:05:47Z';
+    const APP_VERSION = '1.37';
+    const BUILD_DATE_UTC = '2026-07-26T02:18:53Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1784,6 +1803,152 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    }
+
+    // Exports every store in one combined file - the recommended way to
+    // back up (and later restore) everything at once, rather than juggling
+    // the two separate Export Foods / Export History files.
+    async function exportAllData() {
+        const [foodHistory, dailyLog, savedMeals, healthMetrics, exerciseLog, waterLog, dailyNotes] = await Promise.all([
+            getAllFromStore('food_history'),
+            getAllFromStore('daily_log'),
+            getAllFromStore('saved_meals'),
+            getAllFromStore('health_metrics'),
+            getAllFromStore('exercise_log'),
+            getAllFromStore('water_log'),
+            getAllFromStore('daily_notes')
+        ]);
+
+        const backup = {
+            recallorieBackup: true,
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            foodHistory, dailyLog, savedMeals, healthMetrics, exerciseLog, waterLog, dailyNotes
+        };
+
+        const json = JSON.stringify(backup, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const dateStr = toLocalDateStr(new Date());
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `recallorie-full-backup-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function openImportOverlay() {
+        document.getElementById('import-file-input').value = '';
+        document.getElementById('import-data-overlay').style.display = 'flex';
+    }
+
+    function closeImportOverlay() {
+        document.getElementById('import-data-overlay').style.display = 'none';
+    }
+
+    // Restores data from an uploaded export file - either a combined full
+    // backup (from Export All Data) or one of the older single-category
+    // files (Export Foods / Export History), auto-detected by shape.
+    // mode is 'merge' (add to what's already here) or 'replace' (erase
+    // everything first, then restore exactly what's in the file).
+    async function handleImportFile(mode) {
+        const fileInput = document.getElementById('import-file-input');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert('Choose a file first.');
+            return;
+        }
+
+        if (mode === 'replace') {
+            const confirmed = confirm('This will ERASE all data currently in Recallorie and replace it entirely with the contents of this file. This cannot be undone unless you have another backup. Continue?');
+            if (!confirmed) return;
+        }
+
+        let text;
+        try {
+            text = await file.text();
+        } catch (error) {
+            alert(`Couldn't read that file: ${error.message}`);
+            return;
+        }
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (error) {
+            alert("That file isn't valid JSON.");
+            return;
+        }
+
+        // Normalize into { storeName: records[] }, regardless of whether
+        // this is a combined full-backup file or one of the older
+        // single-array exports.
+        let categories = {};
+        if (data && data.recallorieBackup) {
+            categories = {
+                food_history: data.foodHistory || [],
+                daily_log: data.dailyLog || [],
+                saved_meals: data.savedMeals || [],
+                health_metrics: data.healthMetrics || [],
+                exercise_log: data.exerciseLog || [],
+                water_log: data.waterLog || [],
+                daily_notes: data.dailyNotes || []
+            };
+        } else if (Array.isArray(data)) {
+            if (data.length === 0) {
+                alert('That file has no records in it - nothing to import.');
+                return;
+            }
+            // Legacy single-category export - tell them apart by shape.
+            const sample = data[0];
+            if ('upc' in sample) {
+                categories = { food_history: data };
+            } else if ('portionGrams' in sample && 'dateStr' in sample) {
+                categories = { daily_log: data };
+            } else {
+                alert("This doesn't look like a Recallorie export file.");
+                return;
+            }
+        } else {
+            alert("This doesn't look like a Recallorie export file.");
+            return;
+        }
+
+        // food_history (keyed by upc) and daily_notes (keyed by dateStr) use
+        // stable natural keys, so overwriting a matching key on merge is
+        // correct - re-importing the same food or the same day's note
+        // should update it in place, not duplicate it. Everything else uses
+        // an autoIncrement id, which must be stripped on merge so an
+        // imported record can't collide with and silently overwrite an
+        // unrelated existing entry that happens to occupy that same id.
+        const naturalKeyStores = new Set(['food_history', 'daily_notes']);
+
+        try {
+            for (const [storeName, records] of Object.entries(categories)) {
+                if (!records || records.length === 0) continue;
+
+                if (mode === 'replace') {
+                    await clearStore(storeName);
+                    await bulkPut(storeName, records);
+                } else if (naturalKeyStores.has(storeName)) {
+                    await bulkPut(storeName, records);
+                } else {
+                    await bulkAddStrippingId(storeName, records);
+                }
+            }
+        } catch (error) {
+            console.error('Import failed:', error);
+            alert(`Import failed: ${error && error.message ? error.message : error}`);
+            return;
+        }
+
+        alert(mode === 'replace' ? 'Data replaced successfully.' : 'Data merged successfully.');
+        closeImportOverlay();
+        refreshAppUI();
+        await refreshSavedMealsList();
     }
 
     // Formats a Date as "YYYY-MM-DDTHH:mm" in LOCAL time, which is what

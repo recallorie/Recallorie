@@ -509,3 +509,71 @@ function getSetting(key) {
         request.onerror = () => reject(request.error);
     });
 }
+
+// ---- Generic helpers for full-database export/import/backup ----
+// (Used alongside the store-specific functions above, not a replacement for
+// them - these just avoid needing a bespoke getAll/clear/bulk-insert
+// function for every single store when building a combined backup file.)
+
+function getAllFromStore(storeName) {
+    return new Promise((resolve, reject) => {
+        if (!db) return resolve([]);
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+function clearStore(storeName) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.clear();
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Writes records as-is, keeping their original key. Safe when the store was
+// just cleared (replace mode), or for naturally-keyed stores (food_history's
+// upc, daily_notes' dateStr) where overwriting a matching key on merge is
+// the correct behavior - re-importing the same food or the same day's note
+// should update it, not duplicate it.
+function bulkPut(storeName, records) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        for (const record of records) {
+            store.put(record);
+        }
+
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
+}
+
+// Re-inserts records as brand-new entries, stripping any existing
+// autoIncrement id first. Used for merge mode on autoIncrement-keyed stores
+// (daily_log, saved_meals, health_metrics, exercise_log, water_log) so an
+// imported record can never collide with - and silently overwrite - an
+// unrelated existing entry that happens to already occupy that same id.
+function bulkAddStrippingId(storeName, records) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        for (const record of records) {
+            const { id, ...rest } = record;
+            store.add(rest);
+        }
+
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
+}
