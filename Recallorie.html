@@ -1044,7 +1044,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.37" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.38" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1190,10 +1190,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.37"></script>
-<script src="zxing.min.js?v=1.37"></script>
-<script src="db.js?v=1.37"></script>
-<script src="USDA_DB_Access.js?v=1.37"></script>
+<script src="foodEmojis.js?v=1.38"></script>
+<script src="zxing.min.js?v=1.38"></script>
+<script src="db.js?v=1.38"></script>
+<script src="USDA_DB_Access.js?v=1.38"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1385,8 +1385,56 @@
             pendingPortionUnit = null;
             pendingUnitOverrides = null;
         }
+
+        // A searchOn of "fdc-<fdcId>" means this picker item is pinned to
+        // one exact USDA food record (set up in foodEmojis.js), rather than
+        // a plain text phrase - skip the ambiguous name-search results list
+        // entirely and jump straight to that one food.
+        const fdcMatch = /^fdc-(\d+)$/.exec(String(searchTerm).trim());
+        if (fdcMatch) {
+            beginFdcIdLookup(fdcMatch[1]);
+            return;
+        }
+
         document.getElementById('upc-input').value = searchTerm;
         handleScan();
+    }
+
+    // Looks up one exact USDA food by fdcId, bypassing name search
+    // altogether. Checks the local cache first under the "fdc-<id>" key
+    // (the same convention selectSearchResult() uses for name-searched
+    // items), then falls back to a direct /food/{fdcId} network call via
+    // lookupFoodByFdcId() (in USDA_DB_Access.js).
+    async function beginFdcIdLookup(fdcId) {
+        const cacheKey = `fdc-${fdcId}`;
+        document.getElementById('search-results-container').innerHTML = '';
+
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const localMatch = await new Promise(r => {
+            const req = store.get(cacheKey);
+            req.onsuccess = () => r(req.result);
+            req.onerror = () => r(null);
+        });
+
+        if (localMatch) {
+            console.log(`Found cached fdcId item (${cacheKey})!`);
+            displayFood(localMatch);
+            saveFoodToLocalCache(cacheKey, localMatch); // bump timestamp
+            refreshAppUI();
+            return;
+        }
+
+        console.log(`Fetching fdcId ${fdcId} directly from USDA...`);
+        const food = await lookupFoodByFdcId(fdcId);
+        if (food) {
+            saveFoodToLocalCache(cacheKey, food);
+            displayFood({ ...food, upc: cacheKey });
+            refreshAppUI();
+        } else {
+            document.getElementById('search-results-container').innerHTML =
+                `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">Couldn't find USDA fdcId ${fdcId}.</li>`;
+        }
     }
 
     // Selecting an emoji item behaves exactly like typing its search term and

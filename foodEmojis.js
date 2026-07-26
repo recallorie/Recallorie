@@ -44,6 +44,19 @@
 // Note: a couple of source entries were missing their emoji glyph or had an
 // inconsistent name/emoji order; those were corrected by hand below (Bento
 // Box, Dumpling, Bacon).
+//
+// PINNING searchOn TO AN EXACT USDA FOOD ("fdc-<fdcId>"):
+// By default "searchOn" is a plain text phrase that goes through the normal
+// ambiguous name search (USDA + Open Food Facts), which can return a whole
+// list of candidates to pick through. If you already know exactly which
+// USDA food you always want (e.g. you always log "Lemon, raw" and don't
+// want to scroll past every other lemon entry every time), set searchOn to
+// "fdc-<fdcId>" instead - e.g. "fdc-2709168". Recallorie.html detects that
+// pattern and fetches that single food record directly by ID, skipping the
+// results list entirely and dropping you straight into the food card ready
+// to log. Find a food's fdcId via a normal search first (it's shown/cached
+// per result), then hardcode it here once you know it's the right one.
+// This same convention works in "descriptors" entries too.
 
 // How many descriptor choices show in the long-press popup, at most (a
 // single place to change this later, per request).
@@ -108,7 +121,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍋", name: "Lemon", searchOn: "Lemon", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍋", name: "Lemon", searchOn: "fdc-2709168", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },

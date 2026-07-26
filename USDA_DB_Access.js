@@ -210,6 +210,40 @@ async function searchFoodsByName(queryText) {
 }
 
 /**
+ * Fetches one exact food record by its USDA fdcId, using the /food/{fdcId}
+ * "detail" endpoint rather than /foods/search. Used when a caller already
+ * knows precisely which food they want (e.g. a food-emoji picker item
+ * pinned via a "fdc-<fdcId>" searchOn value) and wants to skip the
+ * ambiguous name-search results list entirely.
+ *
+ * Returns the same normalized per-100g shape as extractNutritionData(),
+ * with a cacheKey set (matching the "fdc-<id>" convention used elsewhere
+ * for non-barcode items), or null if the fetch/lookup fails.
+ */
+async function lookupFoodByFdcId(fdcId) {
+    try {
+        const params = new URLSearchParams({ api_key: USDA_API_KEY });
+        const requestUrl = `https://api.nal.usda.gov/fdc/v1/food/${fdcId}?${params.toString()}`;
+        console.log(`Fetching USDA food detail for fdcId: ${fdcId}`);
+
+        const response = await fetch(requestUrl, { method: 'GET' });
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error(`USDA food/{fdcId} returned ${response.status} for "${fdcId}":`, errText);
+            return null;
+        }
+
+        const data = await response.json();
+        const parsed = extractNutritionData(data);
+        parsed.cacheKey = `fdc-${fdcId}`;
+        return parsed;
+    } catch (error) {
+        console.error(`Error fetching USDA fdcId ${fdcId}: [${error.name}] ${error.message}`, error);
+        return null;
+    }
+}
+
+/**
  * Helper function to parse out the messy USDA nutrient array into a clean JSON object.
  *
  * NOTE ON SCALING: USDA's foodNutrients array for Branded foods is reported
@@ -234,7 +268,12 @@ function extractNutritionData(foodItem) {
             String(n.number) === String(nutrientNumber) ||
             String(n.nutrientNumber) === String(nutrientNumber) ||
             n.nutrientId === nutrientId ||
-            n.id === nutrientId
+            n.id === nutrientId ||
+            // The /food/{fdcId} "full detail" endpoint (used by
+            // lookupFoodByFdcId) nests each nutrient's id/number one level
+            // deeper as n.nutrient.id / n.nutrient.number, rather than at
+            // the top level like /foods/search does. Check both shapes.
+            (n.nutrient && (n.nutrient.id === nutrientId || String(n.nutrient.number) === String(nutrientNumber)))
         );
         if (!match) return 0;
         const val = match.amount !== undefined ? match.amount : match.value;
