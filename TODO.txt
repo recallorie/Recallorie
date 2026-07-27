@@ -133,3 +133,4 @@ x- In the Quick Recall section, why do all the descriptors have a shortened name
 
 FUTURE:
 - I need to move the user (profile) onto a system where I can have multiple users.
+- Have a table where the standard portion  type and weight (in grams) is known.

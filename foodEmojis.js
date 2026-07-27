@@ -86,7 +86,7 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Fruits",
         icon: "🍎",
         items: [
-            { emoji: "🍇", name: "Grapes", searchOn: "Grapes", portionAmount: 1, portionUnit: "cup", unitGrams: 152, descriptors: [
+            { emoji: "🍇", name: "Grapes", searchOn: "fdc-174683", portionAmount: 1, portionUnit: "cup", unitGrams: 152, descriptors: [
                 { label: "Green Grapes", searchOn: "Grapes, green", portionAmount: 1, portionUnit: "cup", unitGrams: 152 },
                 { label: "Red Grapes", searchOn: "Grapes, red", portionAmount: 1, portionUnit: "cup", unitGrams: 152 },
                 { label: "", searchOn: "Grapes", portionAmount: 100, portionUnit: "g" },
@@ -175,7 +175,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍏", name: "Green Apple", searchOn: "Green Apple", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍏", name: "Green Apple", searchOn: "fdc-168203", portionAmount: 1, portionUnit: "each", unitGrams: 182, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -271,7 +271,7 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Veggies+",
         icon: "🥕",
         items: [
-            { emoji: "🫒", name: "Olive", searchOn: "Olive", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🫒", name: "Olive", searchOn: "fdc-169094", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -280,7 +280,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍆", name: "Eggplant", searchOn: "Eggplant", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍆", name: "Eggplant", searchOn: "fdc-169228", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -289,7 +289,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥔", name: "Potato", searchOn: "Potato", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥔", name: "Potato", searchOn: "fdc-170093", portionAmount: 1, portionUnit: "each", unitGrams: 173, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -298,7 +298,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍠", name: "Sweet Potato", searchOn: "Sweet Potato", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍠", name: "Sweet Potato", searchOn: "fdc-168483", portionAmount: 1, portionUnit: "each", unitGrams: 114, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -307,7 +307,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥕", name: "Carrot", searchOn: "Carrot", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥕", name: "Carrot", searchOn: "fdc-170393", portionAmount: 1, portionUnit: "each", unitGrams: 61, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -316,7 +316,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🌽", name: "Corn", searchOn: "Corn", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🌽", name: "Corn", searchOn: "fdc-169999", portionAmount: 1, portionUnit: "each", unitGrams: 90, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -325,7 +325,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🌶️", name: "Hot Pepper", searchOn: "Hot Pepper", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🌶️", name: "Hot Pepper", searchOn: "fdc-168576", portionAmount: 1, portionUnit: "each", unitGrams: 14, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -334,7 +334,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🫑", name: "Bell Pepper", searchOn: "Bell Pepper", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🫑", name: "Bell Pepper", searchOn: "fdc-170427", portionAmount: 1, portionUnit: "each", unitGrams: 119, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -343,7 +343,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥒", name: "Cucumber", searchOn: "Cucumber", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥒", name: "Cucumber", searchOn: "fdc-168409", portionAmount: 1, portionUnit: "cup", unitGrams: 119, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -352,7 +352,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥬", name: "Leafy Green", searchOn: "Leafy Green", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥬", name: "Leafy Green", searchOn: "fdc-168462", portionAmount: 1, portionUnit: "cup", unitGrams: 30, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -361,7 +361,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥦", name: "Broccoli", searchOn: "Broccoli", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥦", name: "Broccoli", searchOn: "fdc-170379", portionAmount: 1, portionUnit: "cup", unitGrams: 91, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -370,7 +370,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🧄", name: "Garlic", searchOn: "Garlic", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🧄", name: "Garlic", searchOn: "fdc-169230", portionAmount: 1, portionUnit: "each", unitGrams: 3, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -379,7 +379,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🧅", name: "Onion", searchOn: "Onion", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🧅", name: "Onion", searchOn: "fdc-170000", portionAmount: 1, portionUnit: "each", unitGrams: 110, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -388,7 +388,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🫚", name: "Ginger Root", searchOn: "Ginger Root", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🫚", name: "Ginger Root", searchOn: "fdc-169231", portionAmount: 1, portionUnit: "tsp", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -424,7 +424,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍄", name: "Mushroom", searchOn: "Mushroom", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍄", name: "Mushroom", searchOn: "fdc-169251", portionAmount: 1, portionUnit: "cup", unitGrams: 96, descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -433,7 +433,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥜", name: "Peanut", searchOn: "Peanut", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥜", name: "Peanut", searchOn: "fdc-172430", portionAmount: 1, portionUnit: "oz", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -442,7 +442,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🫘", name: "Beans", searchOn: "Beans", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🫘", name: "Beans", searchOn: "fdc-173740", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -451,7 +451,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🌰", name: "Chestnut", searchOn: "Chestnut", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🌰", name: "Chestnut", searchOn: "fdc-170168", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -466,7 +466,7 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Prepared Foods",
         icon: "🍔",
         items: [
-            { emoji: "🍞", name: "Bread", searchOn: "Bread", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍞", name: "Bread", searchOn: "fdc-174924", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -475,7 +475,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥐", name: "Croissant", searchOn: "Croissant", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥐", name: "Croissant", searchOn: "fdc-174987", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -484,7 +484,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥖", name: "Baguette", searchOn: "Baguette", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥖", name: "Baguette", searchOn: "fdc-174911", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -502,7 +502,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥨", name: "Pretzel", searchOn: "Pretzel", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥨", name: "Pretzel", searchOn: "fdc-167555", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -511,7 +511,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥯", name: "Bagel", searchOn: "Bagel", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥯", name: "Bagel", searchOn: "fdc-167533", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -583,7 +583,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥓", name: "Bacon", searchOn: "Bacon", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥓", name: "Bacon", searchOn: "fdc-168322", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -601,7 +601,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍟", name: "French Fries", searchOn: "French Fries", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍟", name: "French Fries", searchOn: "fdc-170698", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -727,7 +727,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍿", name: "Popcorn", searchOn: "Popcorn", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍿", name: "Popcorn", searchOn: "fdc-167959", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -760,7 +760,7 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Seafood",
         icon: "🦀",
         items: [
-            { emoji: "🦀", name: "Crab", searchOn: "Crab", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🦀", name: "Crab", searchOn: "fdc-174202", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -769,7 +769,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🦞", name: "Lobster", searchOn: "Lobster", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🦞", name: "Lobster", searchOn: "fdc-174208", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -778,7 +778,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🦐", name: "Shrimp", searchOn: "Shrimp", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🦐", name: "Shrimp", searchOn: "fdc-171971", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -787,7 +787,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🦑", name: "Squid", searchOn: "Squid", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🦑", name: "Squid", searchOn: "fdc-172010", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -796,7 +796,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🦪", name: "Oyster", searchOn: "Oyster", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🦪", name: "Oyster", searchOn: "fdc-174219", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -820,7 +820,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍘", name: "Rice Cracker", searchOn: "Rice Cracker", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍘", name: "Rice Cracker", searchOn: "fdc-167967", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -838,7 +838,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍚", name: "Rice", searchOn: "Rice", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍚", name: "Rice", searchOn: "fdc-168878", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -874,7 +874,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍝", name: "Spaghetti", searchOn: "Spaghetti", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍝", name: "Spaghetti", searchOn: "fdc-168928", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -946,7 +946,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥠", name: "Fortune Cookie", searchOn: "Fortune Cookie", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥠", name: "Fortune Cookie", searchOn: "fdc-172722", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -970,7 +970,7 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Sweets & Desserts",
         icon: "🍩",
         items: [
-            { emoji: "🍦", name: "Ice Cream", searchOn: "Ice Cream, soft serve, vanilla", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍦", name: "Ice Cream", searchOn: "fdc-173465", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -997,7 +997,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍨", name: "Hard Ice Cream", searchOn: "Ice cream, vanilla", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍨", name: "Hard Ice Cream", searchOn: "fdc-167575", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1006,7 +1006,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍩", name: "Doughnut", searchOn: "Doughnut, chocolate", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍩", name: "Doughnut", searchOn: "fdc-174990", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1015,7 +1015,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍪", name: "Cookie", searchOn: "Cookie, chocolate chip", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍪", name: "Cookie", searchOn: "fdc-172808", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1024,7 +1024,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🎂", name: "Cake", searchOn: "CAKE", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🎂", name: "Cake", searchOn: "fdc-172697", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1033,7 +1033,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍰", name: "Cheesecake", searchOn: "Cheesecake, plain", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍰", name: "Cheesecake", searchOn: "fdc-172711", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1051,7 +1051,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥧", name: "Pie", searchOn: "Pie, apple", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥧", name: "Pie", searchOn: "fdc-173239", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1069,7 +1069,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍬", name: "Hard Candy", searchOn: "Candies, butterscotch", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍬", name: "Hard Candy", searchOn: "fdc-167972", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1087,7 +1087,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍮", name: "Flan", searchOn: "Flan", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍮", name: "Flan", searchOn: "fdc-169602", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1096,7 +1096,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍯", name: "Honey", searchOn: "Honey", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍯", name: "Honey", searchOn: "fdc-169640", portionAmount: 1, portionUnit: "tbsp", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1111,7 +1111,7 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Drinks",
         icon: "🍹",
         items: [
-            { emoji: "🥛", name: "Milk", searchOn: "Milk, whole", portionAmount: 12, portionUnit: "fl oz", descriptors: [
+            { emoji: "🥛", name: "Milk", searchOn: "fdc-170872", portionAmount: 12, portionUnit: "fl oz", descriptors: [
                 { label: "Milk, whole", searchOn: "Milk, whole", portionAmount: 12, portionUnit: "g" },
                 { label: "Milk, reduced fat (2%)", searchOn: "Milk, 2%", portionAmount: 12, portionUnit: "g" },
                 { label: "Milk, low fat (1%)", searchOn: "Milk, 1%", portionAmount: 12, portionUnit: "g" },
@@ -1120,7 +1120,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Strawberry Milk", searchOn: "Strawberry Milk", portionAmount: 12, portionUnit: "g" },
                 { label: "Milk, evaporated", searchOn: "Milk, evaporated", portionAmount: 12, portionUnit: "g" }
             ] },
-            { emoji: "☕", name: "Coffee", searchOn: "Coffee", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "☕", name: "Coffee", searchOn: "fdc-171890", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1129,7 +1129,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🫖", name: "Tea", searchOn: "Tea", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🫖", name: "Tea", searchOn: "fdc-174873", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1138,7 +1138,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍵", name: "Green Tea", searchOn: "Green Tea", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍵", name: "Green Tea", searchOn: "fdc-171883", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1147,7 +1147,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍶", name: "Sake", searchOn: "Sake", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍶", name: "Sake", searchOn: "fdc-167723", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1156,7 +1156,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍾", name: "Vodka", searchOn: "Vodka", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍾", name: "Vodka", searchOn: "fdc-174818", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1165,7 +1165,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍷", name: "Wine", searchOn: "Wine", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍷", name: "Wine", searchOn: "fdc-173185", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1192,7 +1192,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍺", name: "Beer", searchOn: "Beer", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍺", name: "Beer", searchOn: "fdc-168746", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1201,7 +1201,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🍻", name: "Beers", searchOn: "Beers", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍻", name: "Beers", searchOn: "fdc-174141", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1219,7 +1219,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🥃", name: "Whiskey", searchOn: "Whiskey", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🥃", name: "Whiskey", searchOn: "fdc-174819", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
@@ -1228,7 +1228,7 @@ const FOOD_EMOJI_CATEGORIES = [
                 { label: "Desc6", searchOn: "Desc6", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc7", searchOn: "Desc7", portionAmount: 100, portionUnit: "g" }
             ] },
-            { emoji: "🫗", name: "Rum", searchOn: "Rum", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🫗", name: "Rum", searchOn: "fdc-174817", portionAmount: 100, portionUnit: "g", descriptors: [
                 { label: "Desc1", searchOn: "Desc1", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc2", searchOn: "Desc2", portionAmount: 100, portionUnit: "g" },
                 { label: "Desc3", searchOn: "Desc3", portionAmount: 100, portionUnit: "g" },
