@@ -162,6 +162,10 @@
         .descriptor-picker-header h3 {
             margin: 0;
             font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .descriptor-picker-close {
             background: none;
@@ -1043,7 +1047,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.47" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.48" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1189,10 +1193,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.47"></script>
-<script src="zxing.min.js?v=1.47"></script>
-<script src="db.js?v=1.47"></script>
-<script src="USDA_DB_Access.js?v=1.47"></script>
+<script src="foodEmojis.js?v=1.48"></script>
+<script src="zxing.min.js?v=1.48"></script>
+<script src="db.js?v=1.48"></script>
+<script src="USDA_DB_Access.js?v=1.48"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1202,8 +1206,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.47b';
-    const BUILD_DATE_UTC = '2026-07-27T10:42:48Z';
+    const APP_VERSION = '1.48';
+    const BUILD_DATE_UTC = '2026-07-30T11:39:56Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1454,16 +1458,19 @@
     }
 
     // ---- Descriptor popup (long-press) ----
-    // Shows the originally-pressed item at the top (selecting it = same as a
-    // plain tap), followed by up to MAX_DESCRIPTOR_CHOICES descriptor
-    // entries. Each descriptor is its own full { label, searchOn,
-    // portionAmount, portionUnit } object (not just a modifier string), so
-    // selecting one searches directly on its own searchOn and pre-fills its
-    // own portion - e.g. picking "Milk, evaporated, whole" under Milk
-    // doesn't just append text to "Milk", it's a distinct lookup entry.
+    // The title itself (icon + name) doubles as the "plain, no descriptor"
+    // selection - tapping it is the same as a plain tap on the item. Below
+    // it is a list of up to MAX_DESCRIPTOR_CHOICES descriptor entries. Each
+    // descriptor is its own full { label, searchOn, portionAmount,
+    // portionUnit } object (not just a modifier string), so selecting one
+    // searches directly on its own searchOn and pre-fills its own portion -
+    // e.g. picking "Milk, evaporated, whole" under Milk doesn't just append
+    // text to "Milk", it's a distinct lookup entry.
     function openDescriptorPicker(catIdx, itemIdx) {
         const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
-        document.getElementById('descriptor-picker-title').innerText = item.name;
+        const titleEl = document.getElementById('descriptor-picker-title');
+        titleEl.innerHTML = `<span class="emoji-glyph">${item.emoji}</span> ${item.name}`;
+        titleEl.onclick = () => selectDescriptor(catIdx, itemIdx, null);
 
         // Skip any descriptor slot that's empty/unfilled (blank label, e.g.
         // the placeholder padding entries some items still have) rather
@@ -1476,19 +1483,13 @@
             .filter(d => d && d.label && d.label.trim() !== '')
             .slice(0, MAX_DESCRIPTOR_CHOICES);
 
-        const baseRow = `
-            <div class="descriptor-row base-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, null)">
-                <span class="emoji-glyph">${item.emoji}</span>
-                <span class="descriptor-row-label">${item.name}</span>
-            </div>
-        `;
         const descriptorRows = descriptors.map(desc => `
             <div class="descriptor-row" onclick="selectDescriptor(${catIdx}, ${itemIdx}, ${desc._origIdx})">
                 <span class="descriptor-row-label">${desc.label}</span>
             </div>
         `).join('');
 
-        document.getElementById('descriptor-picker-list').innerHTML = baseRow + descriptorRows;
+        document.getElementById('descriptor-picker-list').innerHTML = descriptorRows;
         document.getElementById('descriptor-picker-overlay').style.display = 'flex';
     }
 
