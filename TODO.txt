@@ -130,7 +130,18 @@ x- I want the food entry I added via an fdcId to have the Icon of that entry pre
 x- In the Quick Recall section, why do all the descriptors have a shortened name with ""..." after them? Can that
     be fixed?
 
+TODO for 260802:
+x- Ok to have the lookup results inline right under the lookup button but enclose this with a group box with an "x" in
+    the top right corner in case the user wishes to close all the results. Note that this will close and remove all
+    choices except the one chosen.
+x- All sections should have their contents enclosed with a group box with an "x" in the top right corner in case the user
+    wishes to close this section.
+x- Long clicking on a primary food category (like Fruit, Veggies, etc) should bring up foods from the recall list that
+    matches this food category.  These entries should contain the same information that the Quick Recall section had
+    except they must have originated from this food category. Remember that these should also be enclosed with a group
+    box with an "x" in the top right corner in case the user
 
 FUTURE:
 - I need to move the user (profile) onto a system where I can have multiple users.
-- Have a table where the standard portion  type and weight (in grams) is known.
+- Have a table where the standard portion type and weight (in grams) is known.
+                                                                                                  wishes to close this section.

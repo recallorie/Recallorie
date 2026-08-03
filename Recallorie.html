@@ -439,14 +439,17 @@
         /* Section Headers */
         .section-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            gap: 8px;
             margin: 24px 0 12px 0;
         }
 
         /* Group Box: reusable bordered container with a header row and an
-           "x" close button, used for search results, dashboard sections,
-           and the category-recall popup. */
+           "x" close button, used for search results and the category-recall
+           popup. Dashboard sections get the same bordered look via their
+           own .dashboard-section rule below, but manage visibility only
+           through Manage Sections - no close button of their own. */
         .group-box {
             background: var(--card-color);
             border: 1px solid rgba(0,0,0,0.08);
@@ -505,7 +508,6 @@
             border: none;
             cursor: pointer;
             padding: 6px 8px;
-            margin-left: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1109,7 +1111,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.49" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.50" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1174,11 +1176,10 @@
 
     <div class="dashboard-section" data-section-id="log">
         <div class="section-header">
-            <h3 id="log-section-title">😋 Eaten Today</h3>
             <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
                 <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
-            <button class="section-toggle-btn" onclick="quickCloseSection('log')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
+            <h3 id="log-section-title">😋 Eaten Today</h3>
         </div>
         <div id="log-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <ul id="log-container" class="item-list">
@@ -1188,11 +1189,10 @@
 
     <div class="dashboard-section" data-section-id="metrics">
         <div class="section-header">
-            <h3 id="metrics-section-title">⚕️ Health Metrics</h3>
             <button id="metrics-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('metrics-scroll-wrapper', 'metrics-toggle-triangle', 'metrics-toggle-btn')" aria-expanded="false" aria-label="Show or hide health metrics">
                 <span id="metrics-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
-            <button class="section-toggle-btn" onclick="quickCloseSection('metrics')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
+            <h3 id="metrics-section-title">⚕️ Health Metrics</h3>
         </div>
         <div id="metrics-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogMetricOverlay()">+ Log Weight / Blood Pressure / Custom</button>
@@ -1203,11 +1203,10 @@
 
     <div class="dashboard-section" data-section-id="exercise">
         <div class="section-header">
-            <h3 id="exercise-section-title">⏱️ Exercise</h3>
             <button id="exercise-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('exercise-scroll-wrapper', 'exercise-toggle-triangle', 'exercise-toggle-btn')" aria-expanded="false" aria-label="Show or hide exercise log">
                 <span id="exercise-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
-            <button class="section-toggle-btn" onclick="quickCloseSection('exercise')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
+            <h3 id="exercise-section-title">⏱️ Exercise</h3>
         </div>
         <div id="exercise-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogExerciseOverlay()">+ Log Exercise</button>
@@ -1218,11 +1217,10 @@
 
     <div class="dashboard-section" data-section-id="water">
         <div class="section-header">
-            <h3 id="water-section-title">💧 Water Intake / Hydration</h3>
             <button id="water-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('water-scroll-wrapper', 'water-toggle-triangle', 'water-toggle-btn')" aria-expanded="false" aria-label="Show or hide water intake">
                 <span id="water-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
-            <button class="section-toggle-btn" onclick="quickCloseSection('water')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
+            <h3 id="water-section-title">💧 Water Intake / Hydration</h3>
         </div>
         <div id="water-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogWaterOverlay()">+ Log Water</button>
@@ -1234,11 +1232,10 @@
 
     <div class="dashboard-section" data-section-id="notes">
         <div class="section-header">
-            <h3 id="notes-section-title">🗒️ Daily Notes</h3>
             <button id="notes-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('notes-scroll-wrapper', 'notes-toggle-triangle', 'notes-toggle-btn')" aria-expanded="false" aria-label="Show or hide daily notes">
                 <span id="notes-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
-            <button class="section-toggle-btn" onclick="quickCloseSection('notes')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
+            <h3 id="notes-section-title">🗒️ Daily Notes</h3>
         </div>
         <div id="notes-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <textarea id="daily-notes-textarea" placeholder="Notes for this day..." style="width: 100%; min-height: 90px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
@@ -1248,12 +1245,11 @@
 
     <div class="dashboard-section" data-section-id="recall">
         <div class="section-header" style="flex-direction: column; align-items: stretch;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>🎗️ Quick Recall</h3>
+            <div style="display: flex; justify-content: flex-start; align-items: center; gap: 8px;">
                 <button id="history-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn')" aria-expanded="false" aria-label="Show or hide quick recall entries">
                     <span id="history-toggle-triangle" class="toggle-triangle">▶</span>
                 </button>
-                <button class="section-toggle-btn" onclick="quickCloseSection('recall')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
+                <h3>🎗️ Quick Recall</h3>
             </div>
             <input type="text" id="filter-input" class="filter-input" placeholder="Search saved items by name..." oninput="onRecallFilterInput()" style="margin-top: 8px;">
         </div>
@@ -1267,10 +1263,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.49"></script>
-<script src="zxing.min.js?v=1.49"></script>
-<script src="db.js?v=1.49"></script>
-<script src="USDA_DB_Access.js?v=1.49"></script>
+<script src="foodEmojis.js?v=1.50"></script>
+<script src="zxing.min.js?v=1.50"></script>
+<script src="db.js?v=1.50"></script>
+<script src="USDA_DB_Access.js?v=1.50"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1280,8 +1276,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.49';
-    const BUILD_DATE_UTC = '2026-08-03T10:28:51Z';
+    const APP_VERSION = '1.50';
+    const BUILD_DATE_UTC = '2026-08-03T11:13:51Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -3152,18 +3148,6 @@
 
     async function onSectionToggle(idx, checked) {
         sectionConfig[idx].enabled = checked;
-        await persistSectionConfig();
-    }
-
-    // Closes a dashboard section directly from its own "x" button, without
-    // opening the Manage Sections panel. Reuses that same persisted
-    // sectionConfig, so a closed section can be turned back on later from
-    // the profile menu's Manage Sections screen - this is just a shortcut
-    // for disabling it, not a separate/temporary hide.
-    async function quickCloseSection(sectionId) {
-        const idx = sectionConfig.findIndex(s => s.id === sectionId);
-        if (idx === -1) return;
-        sectionConfig[idx].enabled = false;
         await persistSectionConfig();
     }
 
