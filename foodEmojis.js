@@ -38,7 +38,7 @@
 //     first MAX_DESCRIPTOR_CHOICES entries are shown, so trimming the list
 //     per-item isn't required - just reorder so the most useful ones come
 //     first. Currently most items still have placeholder descriptor text
-//     ("Desc1" etc.) - replace with real per-food variants as needed (Milk
+//     ("" etc.) - replace with real per-food variants as needed (Milk
 //     has been done as a worked example).
 //
 // Note: a couple of source entries were missing their emoji glyph or had an
@@ -113,40 +113,40 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🍍", name: "Pineapple", searchOn: "fdc-169124", portionAmount: 1, portionUnit: "cup", unitGrams: 165, descriptors: [
             ] },
             { emoji: "🥭", name: "Mango", searchOn: "fdc-169910", portionAmount: 1, portionUnit: "each", unitGrams: 207, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍎", name: "Red Apple", searchOn: "fdc-171688", portionAmount: 1, portionUnit: "each", unitGrams: 182, descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 },
             ] },
             { emoji: "🍏", name: "Green Apple", searchOn: "fdc-168203", portionAmount: 1, portionUnit: "each", unitGrams: 182, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍐", name: "Pear", searchOn: "fdc-169118", portionAmount: 1, portionUnit: "each", unitGrams: 178, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍑", name: "Peach", searchOn: "fdc-169928", portionAmount: 1, portionUnit: "each", unitGrams: 150, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍒", name: "Cherries", searchOn: "fdc-2346399", portionAmount: 1, portionUnit: "cup", unitGrams: 154, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍓", name: "Strawberry", searchOn: "fdc-167762", portionAmount: 1, portionUnit: "cup", unitGrams: 152, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫐", name: "Blueberries", searchOn: "fdc-171711", portionAmount: 1, portionUnit: "cup", unitGrams: 148, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥝", name: "Kiwifruit", searchOn: "fdc-168153", portionAmount: 1, portionUnit: "each", unitGrams: 69, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥥", name: "Coconut", searchOn: "fdc-170169", portionAmount: 1, portionUnit: "cup", unitGrams: 80, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍅", name: "Tomato", searchOn: "fdc-170457", portionAmount: 1, portionUnit: "each", unitGrams: 123, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥑", name: "Avocado", searchOn: "fdc-171705", portionAmount: 1, portionUnit: "each", unitGrams: 201, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     },
@@ -155,67 +155,67 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🥕",
         items: [
             { emoji: "🫒", name: "Olive", searchOn: "fdc-169094", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍆", name: "Eggplant", searchOn: "fdc-169228", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥔", name: "Potato", searchOn: "fdc-170093", portionAmount: 1, portionUnit: "each", unitGrams: 173, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍠", name: "Sweet Potato", searchOn: "fdc-168483", portionAmount: 1, portionUnit: "each", unitGrams: 114, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥕", name: "Carrot", searchOn: "fdc-170393", portionAmount: 1, portionUnit: "each", unitGrams: 61, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🌽", name: "Corn", searchOn: "fdc-169999", portionAmount: 1, portionUnit: "each", unitGrams: 90, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🌶️", name: "Hot Pepper", searchOn: "fdc-168576", portionAmount: 1, portionUnit: "each", unitGrams: 14, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫑", name: "Bell Pepper", searchOn: "fdc-170427", portionAmount: 1, portionUnit: "each", unitGrams: 119, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥒", name: "Cucumber", searchOn: "fdc-168409", portionAmount: 1, portionUnit: "cup", unitGrams: 119, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥬", name: "Leafy Green", searchOn: "fdc-168462", portionAmount: 1, portionUnit: "cup", unitGrams: 30, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥦", name: "Broccoli", searchOn: "fdc-170379", portionAmount: 1, portionUnit: "cup", unitGrams: 91, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧄", name: "Garlic", searchOn: "fdc-169230", portionAmount: 1, portionUnit: "each", unitGrams: 3, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧅", name: "Onion", searchOn: "fdc-170000", portionAmount: 1, portionUnit: "each", unitGrams: 110, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫚", name: "Ginger Root", searchOn: "fdc-169231", portionAmount: 1, portionUnit: "tsp", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫛", name: "Peapod", searchOn: "Peapod", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍄‍🟫", name: "Brown Mushroom", searchOn: "Brown Mushroom", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫜", name: "Root Vegetable", searchOn: "Root Vegetable", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍄", name: "Mushroom", searchOn: "fdc-169251", portionAmount: 1, portionUnit: "cup", unitGrams: 96, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥜", name: "Peanut", searchOn: "fdc-172430", portionAmount: 1, portionUnit: "oz", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫘", name: "Beans", searchOn: "fdc-173740", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🌰", name: "Chestnut", searchOn: "fdc-170168", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     },
@@ -224,100 +224,100 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🍔",
         items: [
             { emoji: "🍞", name: "Bread", searchOn: "fdc-174924", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥐", name: "Croissant", searchOn: "fdc-174987", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥖", name: "Baguette", searchOn: "fdc-174911", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫓", name: "Flatbread", searchOn: "Flatbread", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥨", name: "Pretzel", searchOn: "fdc-167555", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥯", name: "Bagel", searchOn: "fdc-167533", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥞", name: "Pancakes", searchOn: "Pancakes", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧇", name: "Waffle", searchOn: "Waffle", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧀", name: "Cheese", searchOn: "Cheese", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍖", name: "Meat", searchOn: "Meat", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍗", name: "Poultry", searchOn: "Poultry", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🐟", name: "Fish", searchOn: "Fish", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥩", name: "Steak", searchOn: "Steak", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥓", name: "Bacon", searchOn: "fdc-168322", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍔", name: "Hamburger", searchOn: "Hamburger", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍟", name: "French Fries", searchOn: "fdc-170698", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍕", name: "Pizza", searchOn: "Pizza", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🌭", name: "Hot Dog", searchOn: "Hot Dog", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥪", name: "Sandwich", searchOn: "Sandwich", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🌮", name: "Taco", searchOn: "Taco", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🌯", name: "Burrito", searchOn: "Burrito", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫔", name: "Tamale", searchOn: "Tamale", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥙", name: "Pita", searchOn: "Pita", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧆", name: "Falafel", searchOn: "Falafel", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥚", name: "Egg", searchOn: "Eggs, Grade A, Large, egg whole", portionAmount: 1, portionUnit: "each", unitGrams: 50, descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥘", name: "Stew", searchOn: "Stew", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫕", name: "Fondue", searchOn: "Fondue", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥣", name: "Cereal", searchOn: "Cereal", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥗", name: "Salad", searchOn: "Salad", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍿", name: "Popcorn", searchOn: "fdc-167959", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧈", name: "Butter", searchOn: "Butter", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥫", name: "Sauce", searchOn: "Sauce", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     },
@@ -326,19 +326,19 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🦀",
         items: [
             { emoji: "🦀", name: "Crab", searchOn: "fdc-174202", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🦞", name: "Lobster", searchOn: "fdc-174208", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🦐", name: "Shrimp", searchOn: "fdc-171971", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🦑", name: "Squid", searchOn: "fdc-172010", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🦪", name: "Oyster", searchOn: "fdc-174219", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     },
@@ -347,55 +347,55 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🍜",
         items: [
             { emoji: "🍱", name: "Bento Box", searchOn: "Bento Box", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍘", name: "Rice Cracker", searchOn: "fdc-167967", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍙", name: "Rice Ball", searchOn: "Rice Ball", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍚", name: "Rice", searchOn: "fdc-168878", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍛", name: "Curry And Rice", searchOn: "Curry And Rice", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍜", name: "Ramen", searchOn: "Ramen", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍲", name: "Soup", searchOn: "Soup", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍝", name: "Spaghetti", searchOn: "fdc-168928", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍢", name: "Oden", searchOn: "Oden", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍣", name: "Sushi", searchOn: "Sushi", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍤", name: "Fried Shrimp", searchOn: "Fried Shrimp", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍥", name: "Fish Cake", searchOn: "Fish Cake", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥮", name: "Mooncake", searchOn: "Mooncake", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍡", name: "Dango", searchOn: "Dango", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥟", name: "Dumpling", searchOn: "Dumpling", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥠", name: "Fortune Cookie", searchOn: "fdc-172722", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥡", name: "Fried Rice", searchOn: "Fried Rice", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     },
@@ -404,49 +404,49 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🍩",
         items: [
             { emoji: "🍦", name: "Ice Cream", searchOn: "fdc-173465", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍧", name: "Shaved Ice", searchOn: "Shaved Ice", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍧", name: "Italian Ice", searchOn: "Italian Ice", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍨", name: "Hard Ice Cream", searchOn: "fdc-167575", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍩", name: "Doughnut", searchOn: "fdc-174990", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍪", name: "Cookie", searchOn: "fdc-172808", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🎂", name: "Cake", searchOn: "fdc-172697", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍰", name: "Cheesecake", searchOn: "fdc-172711", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧁", name: "Cupcake", searchOn: "Cupcake", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥧", name: "Pie", searchOn: "fdc-173239", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍫", name: "Chocolate Bar", searchOn: "HERSHEY'S, MILK CHOCOLATE", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍬", name: "Hard Candy", searchOn: "fdc-167972", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍭", name: "Lollipop", searchOn: "Candy, lollipop", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍮", name: "Flan", searchOn: "fdc-169602", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍯", name: "Honey", searchOn: "fdc-169640", portionAmount: 1, portionUnit: "tbsp", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     },
@@ -455,67 +455,67 @@ const FOOD_EMOJI_CATEGORIES = [
         icon: "🍹",
         items: [
             { emoji: "🥛", name: "Milk", searchOn: "fdc-170872", portionAmount: 12, portionUnit: "fl oz", descriptors: [
-                { label: "Milk, whole", searchOn: "Milk, whole", portionAmount: 12, portionUnit: "g" },
-                { label: "Milk, reduced fat (2%)", searchOn: "Milk, 2%", portionAmount: 12, portionUnit: "g" },
-                { label: "Milk, low fat (1%)", searchOn: "Milk, 1%", portionAmount: 12, portionUnit: "g" },
-                { label: "Milk, fat free (skim)", searchOn: "Milk, skim", portionAmount: 12, portionUnit: "g" },
-                { label: "Chocolate milk", searchOn: "Chocolate milk", portionAmount: 12, portionUnit: "g" },
-                { label: "Strawberry Milk", searchOn: "Strawberry Milk", portionAmount: 12, portionUnit: "g" },
-                { label: "Milk, evaporated", searchOn: "Milk, evaporated", portionAmount: 12, portionUnit: "g" }
+                { label: "Milk, whole", searchOn: "Milk, whole", portionAmount: 12, portionUnit: "fl oz" },
+                { label: "Milk, reduced fat (2%)", searchOn: "Milk, 2%", portionAmount: 12, portionUnit: "fl oz" },
+                { label: "Milk, low fat (1%)", searchOn: "Milk, 1%", portionAmount: 12, portionUnit: "fl oz" },
+                { label: "Milk, fat free (skim)", searchOn: "Milk, skim", portionAmount: 12, portionUnit: "fl oz" },
+                { label: "Chocolate milk", searchOn: "Chocolate milk", portionAmount: 12, portionUnit: "fl oz" },
+                { label: "Strawberry Milk", searchOn: "Strawberry Milk", portionAmount: 12, portionUnit: "fl oz" },
+                { label: "Milk, evaporated", searchOn: "Milk, evaporated", portionAmount: 12, portionUnit: "fl oz" }
             ] },
             { emoji: "☕", name: "Coffee", searchOn: "fdc-171890", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫖", name: "Tea", searchOn: "fdc-174873", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍵", name: "Green Tea", searchOn: "fdc-171883", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍶", name: "Sake", searchOn: "fdc-167723", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍾", name: "Vodka", searchOn: "fdc-174818", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍷", name: "Wine", searchOn: "fdc-173185", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍸", name: "Martini", searchOn: "Martini", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍹", name: "Tropical Drink", searchOn: "Tropical Drink", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍺", name: "Beer", searchOn: "fdc-168746", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍻", name: "Beers", searchOn: "fdc-174141", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥂", name: "Champagne", searchOn: "Champagne", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥃", name: "Whiskey", searchOn: "fdc-174819", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫗", name: "Rum", searchOn: "fdc-174817", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥤", name: "Soda", searchOn: "Soda", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧋", name: "Milkshake", searchOn: "Milkshake", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧃", name: "Juice", searchOn: "Juice", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧉", name: "Mate", searchOn: "Mate", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🧊", name: "Ice", searchOn: "Ice", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     },
@@ -528,25 +528,25 @@ const FOOD_EMOJI_CATEGORIES = [
         hidden: true,
         items: [
             { emoji: "🥢", name: "Chopsticks", searchOn: "Chopsticks", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍽️", name: "Plate", searchOn: "Plate", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍴", name: "Fork & Knife", searchOn: "Fork & Knife", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥄", name: "Spoon", searchOn: "Spoon", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🔪", name: "Steak Knife", searchOn: "Steak Knife", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🫙", name: "Jar", searchOn: "Jar", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🏺", name: "Amphora", searchOn: "Amphora", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "Desc1", searchOn: "Desc1", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] }
         ]
     }
