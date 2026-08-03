@@ -444,6 +444,55 @@
             margin: 24px 0 12px 0;
         }
 
+        /* Group Box: reusable bordered container with a header row and an
+           "x" close button, used for search results, dashboard sections,
+           and the category-recall popup. */
+        .group-box {
+            background: var(--card-color);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            padding: 12px 14px 14px 14px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        .group-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .group-box-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .group-box-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 1;
+            color: var(--text-muted);
+            padding: 4px 6px;
+            flex-shrink: 0;
+        }
+
+        /* Dashboard sections (Eaten Today, Health Metrics, etc.) get the
+           group-box treatment directly rather than an extra wrapper div,
+           since .section-header already acts as their header row. */
+        .dashboard-section {
+            background: var(--card-color);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            padding: 4px 16px 16px 16px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+        .dashboard-section .section-header {
+            margin-top: 20px;
+        }
+
         .section-header h3 {
             margin: 0;
             font-size: 1.2rem;
@@ -876,6 +925,19 @@
         </div>
     </div>
 
+    <!-- Long-pressing a category icon (Fruits, Veggies+, etc.) opens this -
+         shows cached foods whose origin category matches, same info as
+         Quick Recall. Reuses the descriptor-picker's modal styling. -->
+    <div id="category-recall-overlay" class="descriptor-picker-overlay">
+        <div class="descriptor-picker-card">
+            <div class="descriptor-picker-header">
+                <h3 id="category-recall-title"></h3>
+                <button class="descriptor-picker-close" onclick="closeCategoryRecallPicker()">✕</button>
+            </div>
+            <ul id="category-recall-list" class="item-list"></ul>
+        </div>
+    </div>
+
     <!-- Tapping a saved meal here logs every food in it to today with one tap. -->
     <div id="meal-picker-overlay" class="emoji-picker-overlay">
         <div class="emoji-picker-card">
@@ -1047,7 +1109,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.48" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.49" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1058,7 +1120,13 @@
         <button class="scanner-close" onclick="closeScanner()">✕ Cancel</button>
     </div>
 
-    <ul id="search-results-container" class="item-list"></ul>
+    <div id="search-results-box" class="group-box" style="display: none;">
+        <div class="group-box-header">
+            <span class="group-box-title">Search Results</span>
+            <button class="group-box-close" onclick="closeSearchResultsBox()" aria-label="Close search results" title="Close results">✕</button>
+        </div>
+        <ul id="search-results-container" class="item-list"></ul>
+    </div>
 
     <div id="food-display" class="food-card" style="display: none;">
         <button class="food-card-close" onclick="closeFoodCard()" aria-label="Close">✕</button>
@@ -1110,6 +1178,7 @@
             <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
                 <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
+            <button class="section-toggle-btn" onclick="quickCloseSection('log')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
         </div>
         <div id="log-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <ul id="log-container" class="item-list">
@@ -1123,6 +1192,7 @@
             <button id="metrics-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('metrics-scroll-wrapper', 'metrics-toggle-triangle', 'metrics-toggle-btn')" aria-expanded="false" aria-label="Show or hide health metrics">
                 <span id="metrics-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
+            <button class="section-toggle-btn" onclick="quickCloseSection('metrics')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
         </div>
         <div id="metrics-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogMetricOverlay()">+ Log Weight / Blood Pressure / Custom</button>
@@ -1137,6 +1207,7 @@
             <button id="exercise-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('exercise-scroll-wrapper', 'exercise-toggle-triangle', 'exercise-toggle-btn')" aria-expanded="false" aria-label="Show or hide exercise log">
                 <span id="exercise-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
+            <button class="section-toggle-btn" onclick="quickCloseSection('exercise')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
         </div>
         <div id="exercise-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogExerciseOverlay()">+ Log Exercise</button>
@@ -1151,6 +1222,7 @@
             <button id="water-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('water-scroll-wrapper', 'water-toggle-triangle', 'water-toggle-btn')" aria-expanded="false" aria-label="Show or hide water intake">
                 <span id="water-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
+            <button class="section-toggle-btn" onclick="quickCloseSection('water')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
         </div>
         <div id="water-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <button class="btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="openLogWaterOverlay()">+ Log Water</button>
@@ -1166,6 +1238,7 @@
             <button id="notes-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('notes-scroll-wrapper', 'notes-toggle-triangle', 'notes-toggle-btn')" aria-expanded="false" aria-label="Show or hide daily notes">
                 <span id="notes-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
+            <button class="section-toggle-btn" onclick="quickCloseSection('notes')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
         </div>
         <div id="notes-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <textarea id="daily-notes-textarea" placeholder="Notes for this day..." style="width: 100%; min-height: 90px; padding: 10px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
@@ -1180,6 +1253,7 @@
                 <button id="history-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('history-scroll-wrapper', 'history-toggle-triangle', 'history-toggle-btn')" aria-expanded="false" aria-label="Show or hide quick recall entries">
                     <span id="history-toggle-triangle" class="toggle-triangle">▶</span>
                 </button>
+                <button class="section-toggle-btn" onclick="quickCloseSection('recall')" aria-label="Close this section" title="Close (re-enable later from Manage Sections)">✕</button>
             </div>
             <input type="text" id="filter-input" class="filter-input" placeholder="Search saved items by name..." oninput="onRecallFilterInput()" style="margin-top: 8px;">
         </div>
@@ -1193,10 +1267,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.48"></script>
-<script src="zxing.min.js?v=1.48"></script>
-<script src="db.js?v=1.48"></script>
-<script src="USDA_DB_Access.js?v=1.48"></script>
+<script src="foodEmojis.js?v=1.49"></script>
+<script src="zxing.min.js?v=1.49"></script>
+<script src="db.js?v=1.49"></script>
+<script src="USDA_DB_Access.js?v=1.49"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1206,8 +1280,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.48';
-    const BUILD_DATE_UTC = '2026-07-30T11:39:56Z';
+    const APP_VERSION = '1.49';
+    const BUILD_DATE_UTC = '2026-08-03T10:28:51Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1274,7 +1348,11 @@
         let html = FOOD_EMOJI_CATEGORIES.map((cat, idx) => {
             if (cat.hidden) return '';
             return `
-            <button class="emoji-cat-btn" onclick="openEmojiCategory(${idx})">
+            <button class="emoji-cat-btn"
+                onpointerdown="startCategoryLongPress(${idx})"
+                onpointerup="handleCategoryPointerUp(${idx})"
+                onpointerleave="cancelCategoryLongPress()"
+                oncontextmenu="return false;">
                 <span class="emoji-glyph">${cat.icon}</span>
                 <span class="emoji-cat-label">${cat.label}</span>
             </button>
@@ -1352,6 +1430,35 @@
         selectFoodEmoji(catIdx, itemIdx);
     }
 
+    // ---- Long-press detection for category buttons (Fruits, Veggies+,
+    // etc.) - separate timer/flag from the item-level ones above since a
+    // category button and a food-item button are never mid-press at the
+    // same time, but sharing state would still be fragile if that changed.
+    let categoryLongPressTimer = null;
+    let categoryLongPressTriggered = false;
+
+    function startCategoryLongPress(catIdx) {
+        categoryLongPressTriggered = false;
+        clearTimeout(categoryLongPressTimer);
+        categoryLongPressTimer = setTimeout(() => {
+            categoryLongPressTriggered = true;
+            openCategoryRecallPicker(catIdx);
+        }, LONG_PRESS_MS);
+    }
+
+    function cancelCategoryLongPress() {
+        clearTimeout(categoryLongPressTimer);
+    }
+
+    function handleCategoryPointerUp(catIdx) {
+        cancelCategoryLongPress();
+        if (categoryLongPressTriggered) {
+            categoryLongPressTriggered = false;
+            return;
+        }
+        openEmojiCategory(catIdx);
+    }
+
     // Shared entry point for every emoji-picker-driven search (short tap,
     // the descriptor popup's base row, or a specific descriptor row) - sets
     // the portion amount/unit to be pre-filled once the food card renders,
@@ -1362,6 +1469,14 @@
     let pendingPortionAmount = null;
     let pendingPortionUnit = null;
     let pendingUnitOverrides = null;
+    // One-shot state for the plain-text (non-fdc-pinned) picker search
+    // path - consumed and cleared by selectSearchResult() once the user
+    // picks a result, since the emoji/category can't be attached to a food
+    // record until then. handleScan() resets both to null for genuine
+    // manual searches (typed directly into the box), so those never
+    // inherit a stale tag from an earlier picker tap.
+    let pendingEmoji = null;
+    let pendingCategoryLabel = null;
 
     // Set when editing an existing Eaten Today entry via editLoggedEntry() -
     // the full food card is reused for editing (so you can see the same
@@ -1375,7 +1490,21 @@
     // pending* flags above.
     let pendingEatenAtOverrideMs = null;
 
-    function beginFoodEmojiSearch(searchTerm, portionAmount, portionUnit, unitGrams, emoji) {
+    // ---- Search results group box ----
+    // The results list (from a name search, or an fdcId-not-found message)
+    // lives inside this box so the user has one obvious way to dismiss
+    // whatever's left in it. Closing only clears this box - it never
+    // touches #food-display, which is a separate element for whichever
+    // food is currently selected/being edited.
+    function showSearchResultsBox() {
+        document.getElementById('search-results-box').style.display = 'block';
+    }
+    function closeSearchResultsBox() {
+        document.getElementById('search-results-container').innerHTML = '';
+        document.getElementById('search-results-box').style.display = 'none';
+    }
+
+    function beginFoodEmojiSearch(searchTerm, portionAmount, portionUnit, unitGrams, emoji, categoryLabel) {
         const hasStandardUnit = portionUnit && UNIT_TO_GRAMS[portionUnit];
         const hasCustomUnit = portionUnit && typeof unitGrams === 'number' && unitGrams > 0;
 
@@ -1395,25 +1524,37 @@
         // entirely and jump straight to that one food.
         const fdcMatch = /^fdc-(\d+)$/.exec(String(searchTerm).trim());
         if (fdcMatch) {
-            beginFdcIdLookup(fdcMatch[1], emoji);
+            beginFdcIdLookup(fdcMatch[1], emoji, categoryLabel);
             return;
         }
 
+        // Plain-text picker search: the eventual pick happens in
+        // selectSearchResult(), once the user chooses from the results
+        // list, so the emoji/category can't be attached here yet - stash
+        // them as one-shot pending state for selectSearchResult() to apply
+        // and clear. Calling handleNameSearch() directly (rather than
+        // handleScan()) skips its barcode-vs-name branch, which we already
+        // know the answer to, and keeps this path from colliding with
+        // handleScan()'s own pending-state reset (used for genuine manual
+        // searches typed into the box, which shouldn't inherit these tags).
         document.getElementById('upc-input').value = searchTerm;
-        handleScan();
+        pendingEmoji = emoji || null;
+        pendingCategoryLabel = categoryLabel || null;
+        handleNameSearch(searchTerm);
     }
 
     // Looks up one exact USDA food by fdcId, bypassing name search
     // altogether. Checks the local cache first under the "fdc-<id>" key
     // (the same convention selectSearchResult() uses for name-searched
     // items), then falls back to a direct /food/{fdcId} network call via
-    // lookupFoodByFdcId() (in USDA_DB_Access.js). The picker's emoji is
-    // baked onto the food record (and re-saved to cache) so it's still
-    // there next time this food is recalled, logged, or edited - not just
-    // on this one initial display.
-    async function beginFdcIdLookup(fdcId, emoji) {
+    // lookupFoodByFdcId() (in USDA_DB_Access.js). The picker's emoji and
+    // origin category are baked onto the food record (and re-saved to
+    // cache) so they're still there next time this food is recalled,
+    // logged, edited, or looked up via the category's long-press recall
+    // list - not just on this one initial display.
+    async function beginFdcIdLookup(fdcId, emoji, categoryLabel) {
         const cacheKey = `fdc-${fdcId}`;
-        document.getElementById('search-results-container').innerHTML = '';
+        closeSearchResultsBox();
 
         const transaction = db.transaction([STORE_NAME], 'readonly');
         const store = transaction.objectStore(STORE_NAME);
@@ -1426,6 +1567,7 @@
         if (localMatch) {
             console.log(`Found cached fdcId item (${cacheKey})!`);
             if (emoji) localMatch.emoji = emoji;
+            if (categoryLabel) localMatch.category = categoryLabel;
             displayFood(localMatch);
             saveFoodToLocalCache(cacheKey, localMatch); // bump timestamp
             refreshAppUI();
@@ -1436,14 +1578,17 @@
         const food = await lookupFoodByFdcId(fdcId);
         if (food) {
             if (emoji) food.emoji = emoji;
+            if (categoryLabel) food.category = categoryLabel;
             saveFoodToLocalCache(cacheKey, food);
             displayFood({ ...food, upc: cacheKey });
             refreshAppUI();
         } else {
             document.getElementById('search-results-container').innerHTML =
                 `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">Couldn't find USDA fdcId ${fdcId}.</li>`;
+            showSearchResultsBox();
         }
     }
+
 
     // Selecting an emoji item behaves exactly like typing its search term and
     // hitting "Look Up" - same handleScan() path, so it goes through the
@@ -1454,7 +1599,7 @@
     function selectFoodEmoji(catIdx, itemIdx) {
         const item = FOOD_EMOJI_CATEGORIES[catIdx].items[itemIdx];
         closeEmojiPicker();
-        beginFoodEmojiSearch(item.searchOn || item.name, item.portionAmount, item.portionUnit, item.unitGrams, item.emoji);
+        beginFoodEmojiSearch(item.searchOn || item.name, item.portionAmount, item.portionUnit, item.unitGrams, item.emoji, FOOD_EMOJI_CATEGORIES[catIdx].label);
     }
 
     // ---- Descriptor popup (long-press) ----
@@ -1505,10 +1650,10 @@
         closeEmojiPicker();
 
         if (descIdx === null) {
-            beginFoodEmojiSearch(item.searchOn || item.name, item.portionAmount, item.portionUnit, item.unitGrams, item.emoji);
+            beginFoodEmojiSearch(item.searchOn || item.name, item.portionAmount, item.portionUnit, item.unitGrams, item.emoji, FOOD_EMOJI_CATEGORIES[catIdx].label);
         } else {
             const descriptor = item.descriptors[descIdx];
-            beginFoodEmojiSearch(descriptor.searchOn || descriptor.label, descriptor.portionAmount, descriptor.portionUnit, descriptor.unitGrams, item.emoji);
+            beginFoodEmojiSearch(descriptor.searchOn || descriptor.label, descriptor.portionAmount, descriptor.portionUnit, descriptor.unitGrams, item.emoji, FOOD_EMOJI_CATEGORIES[catIdx].label);
         }
     }
 
@@ -1621,7 +1766,13 @@
         const rawInput = document.getElementById('upc-input').value.trim();
         if (!rawInput) return;
 
-        document.getElementById('search-results-container').innerHTML = '';
+        // A manual search typed directly into the box (as opposed to one
+        // triggered by the emoji picker) shouldn't inherit an emoji/category
+        // tag left over from a previous picker tap.
+        pendingEmoji = null;
+        pendingCategoryLabel = null;
+
+        closeSearchResultsBox();
 
         const isBarcodeInput = /^[\d\s-]+$/.test(rawInput);
         if (!isBarcodeInput) {
@@ -1659,6 +1810,7 @@
 
         if (results.length === 0) {
             container.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No matches found for "${queryText}".</li>`;
+            showSearchResultsBox();
             return;
         }
 
@@ -1671,6 +1823,7 @@
                 <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
             </li>
         `).join('');
+        showSearchResultsBox();
 
         // Stash results so the picker's onclick (plain index, to avoid
         // re-serializing full objects into HTML attributes) can find them.
@@ -1680,8 +1833,15 @@
     function selectSearchResult(idx) {
         const item = window.__lastSearchResults[idx];
         if (!item) return;
+        // Applies (and clears) whatever emoji/category the emoji picker
+        // stashed as pending state - only set when this search was
+        // triggered by tapping a picker item rather than typed manually.
+        if (pendingEmoji) item.emoji = pendingEmoji;
+        if (pendingCategoryLabel) item.category = pendingCategoryLabel;
+        pendingEmoji = null;
+        pendingCategoryLabel = null;
         saveFoodToLocalCache(item.cacheKey, item);
-        document.getElementById('search-results-container').innerHTML = '';
+        closeSearchResultsBox();
         document.getElementById('upc-input').value = '';
         displayFood({ ...item, upc: item.cacheKey });
         refreshAppUI();
@@ -2995,6 +3155,18 @@
         await persistSectionConfig();
     }
 
+    // Closes a dashboard section directly from its own "x" button, without
+    // opening the Manage Sections panel. Reuses that same persisted
+    // sectionConfig, so a closed section can be turned back on later from
+    // the profile menu's Manage Sections screen - this is just a shortcut
+    // for disabling it, not a separate/temporary hide.
+    async function quickCloseSection(sectionId) {
+        const idx = sectionConfig.findIndex(s => s.id === sectionId);
+        if (idx === -1) return;
+        sectionConfig[idx].enabled = false;
+        await persistSectionConfig();
+    }
+
     async function moveSectionUp(idx) {
         if (idx <= 0) return;
         [sectionConfig[idx - 1], sectionConfig[idx]] = [sectionConfig[idx], sectionConfig[idx - 1]];
@@ -3205,29 +3377,18 @@
     }
 
     // Dynamically filters and displays Quick Recall list using the filter input
-    function filterRecallList() {
-        const query = document.getElementById('filter-input').value.toLowerCase();
-        const container = document.getElementById('history-container');
-
-        const filtered = cachedFoodsList.filter(item =>
-            item.description.toLowerCase().includes(query) ||
-            item.brand.toLowerCase().includes(query)
-        );
-
-        if (filtered.length === 0) {
-            container.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No matching foods saved.</li>`;
-            return;
-        }
-
-        // The duplicate icon's title reflects whatever day is currently
-        // selected in the date bar, not always "today" - matches what it
-        // actually does now.
+    // Shared row template for a cached food, used by both the Quick Recall
+    // list and the category-recall popup so they stay visually identical.
+    // afterClick is any extra JS to run after displayFood() - the category
+    // popup needs to close itself, the inline Quick Recall list doesn't.
+    function renderRecallRow(item, afterClick = '') {
         const viewedIsToday = (currentViewDateStr || toLocalDateStr(new Date())) === toLocalDateStr(new Date());
         const duplicateTitle = viewedIsToday ? 'Duplicate to today' : `Duplicate to ${formatDateForDisplay(currentViewDateStr)}`;
+        const onRowClick = `displayFood(${JSON.stringify(item)});${afterClick}`;
 
-        container.innerHTML = filtered.map(item => `
+        return `
             <li class="item-row recall">
-                <div style="display: flex; align-items: center; min-width: 0; cursor: pointer;" onclick='displayFood(${JSON.stringify(item)})'>
+                <div style="display: flex; align-items: center; min-width: 0; cursor: pointer;" onclick='${onRowClick}'>
                     ${(item.useCount || 0) > 1 ? `<span class="item-badge tally" title="Times logged">${item.useCount}&times;</span>` : ''}
                     <div class="item-details">
                         <span class="item-title">${item.emoji ? item.emoji + ' ' : ''}${item.description}</span>
@@ -3243,8 +3404,50 @@
                     <span class="item-macros">Prot:${Math.round(item.proteinPer100g || 0)}g,Carb:${Math.round(item.carbsPer100g || 0)}g,Fat:${Math.round(item.fatPer100g || 0)}g</span>
                 </div>
             </li>
-        `).join('');
+        `;
     }
+
+    function filterRecallList() {
+        const query = document.getElementById('filter-input').value.toLowerCase();
+        const container = document.getElementById('history-container');
+
+        const filtered = cachedFoodsList.filter(item =>
+            item.description.toLowerCase().includes(query) ||
+            item.brand.toLowerCase().includes(query)
+        );
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No matching foods saved.</li>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(item => renderRecallRow(item)).join('');
+    }
+
+    // Long-pressing a category icon (Fruits, Veggies+, etc.) opens this -
+    // filters cachedFoodsList down to foods whose origin category matches
+    // (tagged in beginFdcIdLookup()/selectSearchResult() whenever a food
+    // is picked via that category's icon), same row format as Quick Recall.
+    function openCategoryRecallPicker(catIdx) {
+        const cat = FOOD_EMOJI_CATEGORIES[catIdx];
+        document.getElementById('category-recall-title').innerHTML = `<span class="emoji-glyph">${cat.icon}</span> ${cat.label}`;
+
+        const matches = cachedFoodsList.filter(item => item.category === cat.label);
+        const listEl = document.getElementById('category-recall-list');
+
+        if (matches.length === 0) {
+            listEl.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No ${cat.label} foods logged from this category yet.</li>`;
+        } else {
+            listEl.innerHTML = matches.map(item => renderRecallRow(item, ' closeCategoryRecallPicker();')).join('');
+        }
+
+        document.getElementById('category-recall-overlay').style.display = 'flex';
+    }
+
+    function closeCategoryRecallPicker() {
+        document.getElementById('category-recall-overlay').style.display = 'none';
+    }
+
 </script>
 </body>
 
