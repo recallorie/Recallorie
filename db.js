@@ -124,10 +124,14 @@ function saveFoodToLocalCache(upc, foodData) {
     store.put(itemToSave);
 }
 
-// Bumps a cached food's usage tally by 1 - called every time that food is
-// actually logged (not just viewed), so the Quick Recall list can show and
-// sort by "how often is this actually eaten" rather than just recency.
-function incrementFoodUseCount(upc) {
+// Bumps a cached food's usage tally by 1, and records when it was actually
+// eaten (lastLoggedAt) - called every time that food is actually logged as
+// a new entry (not just viewed, and not on edits to an existing entry), so
+// the Quick Recall list can show and sort by "how often is this actually
+// eaten" and display "last had" accurately. loggedAtMs is the eaten-at time
+// the user chose (defaults to now), matching whatever was actually written
+// to the log entry itself - not necessarily the moment this function runs.
+function incrementFoodUseCount(upc, loggedAtMs) {
     return new Promise((resolve, reject) => {
         if (!db) return reject('Database not ready');
         const transaction = db.transaction([STORE_NAME], 'readwrite');
@@ -143,7 +147,7 @@ function incrementFoodUseCount(upc) {
                 return;
             }
             const newCount = (existing.useCount || 0) + 1;
-            const putRequest = store.put({ ...existing, useCount: newCount });
+            const putRequest = store.put({ ...existing, useCount: newCount, lastLoggedAt: loggedAtMs || Date.now() });
             putRequest.onsuccess = () => resolve(newCount);
             putRequest.onerror = () => reject(putRequest.error);
         };

@@ -606,6 +606,15 @@
             margin-top: 4px;
         }
 
+        .item-last-had {
+            width: 100%;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
         .item-badge {
             font-weight: 700;
             color: var(--primary-color);
@@ -1112,7 +1121,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.51" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.52" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1265,10 +1274,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.51"></script>
-<script src="zxing.min.js?v=1.51"></script>
-<script src="db.js?v=1.51"></script>
-<script src="USDA_DB_Access.js?v=1.51"></script>
+<script src="foodEmojis.js?v=1.52"></script>
+<script src="zxing.min.js?v=1.52"></script>
+<script src="db.js?v=1.52"></script>
+<script src="USDA_DB_Access.js?v=1.52"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1278,8 +1287,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.51';
-    const BUILD_DATE_UTC = '2026-08-03T23:36:57Z';
+    const APP_VERSION = '1.52';
+    const BUILD_DATE_UTC = '2026-08-04T01:25:33Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -2407,10 +2416,10 @@
                 loggedAtMs: loggedAtMs
             });
 
-            // Bump this food's Quick Recall usage tally - "used" means actually
-            // logged, not just looked up/viewed.
+            // Bump this food's Quick Recall usage tally and "last had" time -
+            // "used" means actually logged, not just looked up/viewed.
             if (currentActiveFood.upc) {
-                await incrementFoodUseCount(currentActiveFood.upc);
+                await incrementFoodUseCount(currentActiveFood.upc, loggedAtMs);
             }
         } catch (error) {
             // Without this, a failed write here used to fail completely
@@ -2472,7 +2481,7 @@
             unitOverrides: food.unitOverrides || null,
             loggedAtMs: loggedAtMs
         });
-        await incrementFoodUseCount(upc);
+        await incrementFoodUseCount(upc, loggedAtMs);
 
         const dateLabel = formatDateForDisplay(currentViewDateStr || toLocalDateStr(now));
         const isToday = (currentViewDateStr || toLocalDateStr(now)) === toLocalDateStr(new Date());
@@ -3321,7 +3330,7 @@
                                 <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
                                 <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
                             </div>
-                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:${Math.round(item.carbs)}g,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
+                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:<span style="${item.carbs > 5 ? 'color: #d32f2f; font-weight: 600;' : ''}">${Math.round(item.carbs)}g</span>,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
                         </div>
                     </li>
                 `;
@@ -3383,8 +3392,16 @@
         const duplicateTitle = viewedIsToday ? 'Duplicate to today' : `Duplicate to ${formatDateForDisplay(currentViewDateStr)}`;
         const onRowClick = `displayFood(${JSON.stringify(item)});${afterClick}`;
 
+        // "Last had" reflects the eaten-at time chosen the last time this
+        // food was actually logged (set in incrementFoodUseCount) - not the
+        // last time it was merely looked up/viewed, which is what
+        // item.timestamp tracks instead.
+        const lastHadHtml = item.lastLoggedAt
+            ? `<div class="item-last-had">Last had: ${formatDateForDisplay(toLocalDateStr(new Date(item.lastLoggedAt)))} at ${new Date(item.lastLoggedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>`
+            : '';
+
         return `
-            <li class="item-row recall">
+            <li class="item-row recall" style="flex-wrap: wrap;">
                 <div style="display: flex; align-items: center; min-width: 0; cursor: pointer;" onclick='${onRowClick}'>
                     ${(item.useCount || 0) > 1 ? `<span class="item-badge tally" title="Times logged">${item.useCount}&times;</span>` : ''}
                     <div class="item-details">
@@ -3400,6 +3417,7 @@
                     </div>
                     <span class="item-macros">Prot:${Math.round(item.proteinPer100g || 0)}g,Carb:${Math.round(item.carbsPer100g || 0)}g,Fat:${Math.round(item.fatPer100g || 0)}g,Fiber:${Math.round(item.fiberPer100g || 0)}g</span>
                 </div>
+                ${lastHadHtml}
             </li>
         `;
     }
