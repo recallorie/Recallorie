@@ -902,6 +902,7 @@
             <div class="macro-box"><span id="dash-protein" class="macro-val">0g</span>Prot</div>
             <div class="macro-box"><span id="dash-carbs" class="macro-val">0g</span>Carb</div>
             <div class="macro-box"><span id="dash-fat" class="macro-val">0g</span>Fat</div>
+            <div class="macro-box"><span id="dash-fiber" class="macro-val">0g</span>Fiber</div>
         </div>
     </div>
 
@@ -1111,7 +1112,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.50" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.51" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1163,11 +1164,12 @@
             <button class="btn-primary" style="padding: 10px 14px;" onclick="setLoggedTimeToNow()">Now</button>
         </div>
 
-        <div class="macro-grid">
+        <div class="macro-grid" style="grid-template-columns: repeat(5, 1fr);">
             <div class="macro-box"><span class="macro-val" id="val-cals">0</span>Cals</div>
             <div class="macro-box"><span class="macro-val" id="val-protein">0g</span>Prot</div>
             <div class="macro-box"><span class="macro-val" id="val-carbs">0g</span>Carb</div>
             <div class="macro-box"><span class="macro-val" id="val-fat">0g</span>Fat</div>
+            <div class="macro-box"><span class="macro-val" id="val-fiber">0g</span>Fiber</div>
         </div>
         <button id="log-meal-btn" class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="logCurrentMeal()">Log This Meal</button>
     </div>
@@ -1263,10 +1265,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.50"></script>
-<script src="zxing.min.js?v=1.50"></script>
-<script src="db.js?v=1.50"></script>
-<script src="USDA_DB_Access.js?v=1.50"></script>
+<script src="foodEmojis.js?v=1.51"></script>
+<script src="zxing.min.js?v=1.51"></script>
+<script src="db.js?v=1.51"></script>
+<script src="USDA_DB_Access.js?v=1.51"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1276,8 +1278,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.50b';
-    const BUILD_DATE_UTC = '2026-08-03T11:13:51Z';
+    const APP_VERSION = '1.51';
+    const BUILD_DATE_UTC = '2026-08-03T23:36:57Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -2207,6 +2209,7 @@
         document.getElementById('val-protein').innerText = Math.round(scaled.protein) + 'g';
         document.getElementById('val-carbs').innerText = Math.round(scaled.carbs) + 'g';
         document.getElementById('val-fat').innerText = Math.round(scaled.fat) + 'g';
+        document.getElementById('val-fiber').innerText = Math.round(scaled.fiber) + 'g';
     }
 
     function onPortionChange() {
@@ -2311,6 +2314,7 @@
         const prot = parseFloat(prompt("Enter Protein (g per 100g):") || 0);
         const carbs = parseFloat(prompt("Enter Carbohydrates (g per 100g):") || 0);
         const fat = parseFloat(prompt("Enter Fat (g per 100g):") || 0);
+        const fiber = parseFloat(prompt("Enter Fiber (g per 100g):") || 0);
 
         const newFood = {
             description: name,
@@ -2319,6 +2323,7 @@
             proteinPer100g: prot,
             carbsPer100g: carbs,
             fatPer100g: fat,
+            fiberPer100g: fiber,
             servingSize: null,
             servingSizeUnit: null,
             householdServingText: null
@@ -2362,6 +2367,7 @@
                 protein: scaled.protein,
                 carbs: scaled.carbs,
                 fat: scaled.fat,
+                fiber: scaled.fiber,
                 portionGrams: grams,
                 unit: document.getElementById('portion-unit').value,
                 unitOverrides: currentActiveFood.unitOverrides || null,
@@ -2394,6 +2400,7 @@
                 protein: scaled.protein,
                 carbs: scaled.carbs,
                 fat: scaled.fat,
+                fiber: scaled.fiber,
                 portionGrams: grams,
                 unit: document.getElementById('portion-unit').value,
                 unitOverrides: currentActiveFood.unitOverrides || null,
@@ -2459,6 +2466,7 @@
             protein: scaled.protein,
             carbs: scaled.carbs,
             fat: scaled.fat,
+            fiber: scaled.fiber,
             portionGrams: grams,
             unit: 'g', // logged directly in grams here; unitOverrides below still lets a later edit offer e.g. cup/each
             unitOverrides: food.unitOverrides || null,
@@ -2586,6 +2594,7 @@
                 protein: log.protein,
                 carbs: log.carbs,
                 fat: log.fat,
+                fiber: log.fiber || 0,
                 portionGrams: log.portionGrams,
                 unit: log.unit,
                 unitOverrides: log.unitOverrides
@@ -2661,6 +2670,7 @@
             protein: item.protein,
             carbs: item.carbs,
             fat: item.fat,
+            fiber: item.fiber || 0,
             portionGrams: item.portionGrams,
             unit: item.unit,
             unitOverrides: item.unitOverrides,
@@ -2692,6 +2702,7 @@
             proteinPer100g: entry.protein / entry.portionGrams * 100,
             carbsPer100g: entry.carbs / entry.portionGrams * 100,
             fatPer100g: entry.fat / entry.portionGrams * 100,
+            fiberPer100g: (entry.fiber || 0) / entry.portionGrams * 100,
             servingSize: null,
             servingSizeUnit: null,
             householdServingText: null,
@@ -3279,7 +3290,7 @@
         // 1. Populate Daily Log and Tally for the viewed date
         const logs = await getMealsLoggedForDate(currentViewDateStr);
         currentViewLogs = logs; // stashed so duplicate/delete can look up by id without a re-fetch
-        let totalCals = 0, totalProt = 0, totalCarbs = 0, totalFat = 0;
+        let totalCals = 0, totalProt = 0, totalCarbs = 0, totalFat = 0, totalFiber = 0;
 
         const logContainer = document.getElementById('log-container');
         if (logs.length === 0) {
@@ -3293,6 +3304,7 @@
                 totalProt += item.protein;
                 totalCarbs += item.carbs;
                 totalFat += item.fat;
+                totalFiber += (item.fiber || 0);
 
                 const timeLabel = new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
@@ -3309,7 +3321,7 @@
                                 <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
                                 <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
                             </div>
-                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:${Math.round(item.carbs)}g,Fat:${Math.round(item.fat)}g</span>
+                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:${Math.round(item.carbs)}g,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
                         </div>
                     </li>
                 `;
@@ -3321,6 +3333,7 @@
         document.getElementById('dash-protein').innerText = Math.round(totalProt) + 'g';
         document.getElementById('dash-carbs').innerText = Math.round(totalCarbs) + 'g';
         document.getElementById('dash-fat').innerText = Math.round(totalFat) + 'g';
+        document.getElementById('dash-fiber').innerText = Math.round(totalFiber) + 'g';
 
         // 2. Fetch all cached barcode foods for the Quick Recall timeline
         cachedFoodsList = dedupeAndSortCachedFoods(await getAllCachedFoods());
@@ -3385,7 +3398,7 @@
                         <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📋</button>
                         <button class="icon-btn btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
                     </div>
-                    <span class="item-macros">Prot:${Math.round(item.proteinPer100g || 0)}g,Carb:${Math.round(item.carbsPer100g || 0)}g,Fat:${Math.round(item.fatPer100g || 0)}g</span>
+                    <span class="item-macros">Prot:${Math.round(item.proteinPer100g || 0)}g,Carb:${Math.round(item.carbsPer100g || 0)}g,Fat:${Math.round(item.fatPer100g || 0)}g,Fiber:${Math.round(item.fiberPer100g || 0)}g</span>
                 </div>
             </li>
         `;

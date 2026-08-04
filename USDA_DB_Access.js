@@ -158,6 +158,7 @@ async function lookupFoodOnOpenFoodFacts(cleanUPC) {
             proteinPer100g: n['proteins_100g'] || 0,
             carbsPer100g: n['carbohydrates_100g'] || 0,
             fatPer100g: n['fat_100g'] || 0,
+            fiberPer100g: n['fiber_100g'] || 0,
 
             servingSize: p.serving_quantity ? Number(p.serving_quantity) : null,
             servingSizeUnit: p.serving_quantity ? 'g' : null,
@@ -294,6 +295,7 @@ function extractNutritionData(foodItem) {
         proteinPer100g: findNutrientValue(203, 1003),  // Protein (G)
         carbsPer100g: findNutrientValue(205, 1005),    // Carbohydrate, by difference (G)
         fatPer100g: findNutrientValue(204, 1004),      // Total lipid (fat) (G)
+        fiberPer100g: findNutrientValue(291, 1079),    // Fiber, total dietary (G)
 
         // Label info, used to pre-fill a sensible default portion weight
         servingSize: servingSize,
@@ -312,6 +314,7 @@ function scaleFoodToGrams(food, grams) {
         calories: (food.caloriesPer100g || 0) * ratio,
         protein: (food.proteinPer100g || 0) * ratio,
         carbs: (food.carbsPer100g || 0) * ratio,
-        fat: (food.fatPer100g || 0) * ratio
+        fat: (food.fatPer100g || 0) * ratio,
+        fiber: (food.fiberPer100g || 0) * ratio
     };
 }

@@ -272,9 +272,10 @@ function deleteLoggedMealFromDB(id) {
 }
 
 // Saves a named bundle of food items (each already in the same
-// {description, brand, calories, protein, carbs, fat, portionGrams} shape as
-// a daily_log entry) as a reusable "meal" - e.g. "Breakfast" = eggs + toast +
-// coffee, logged all together with one tap instead of one food at a time.
+// {description, brand, calories, protein, carbs, fat, fiber, portionGrams}
+// shape as a daily_log entry) as a reusable "meal" - e.g. "Breakfast" = eggs
+// + toast + coffee, logged all together with one tap instead of one food at
+// a time.
 function saveMealToDB(name, items) {
     return new Promise((resolve, reject) => {
         if (!db) return reject('Database not ready');
