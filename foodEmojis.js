@@ -406,10 +406,10 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🍦", name: "Ice Cream", searchOn: "fdc-173465", portionAmount: 100, portionUnit: "g", descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
-            { emoji: "🍧", name: "Shaved Ice", searchOn: "Shaved Ice", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍧🧊", name: "Shaved Ice", searchOn: "Shaved Ice", portionAmount: 100, portionUnit: "g", descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
-            { emoji: "🍧", name: "Italian Ice", searchOn: "Italian Ice", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🍧🧊", name: "Italian Ice", searchOn: "Italian Ice", portionAmount: 100, portionUnit: "g", descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🍨", name: "Hard Ice Cream", searchOn: "fdc-167575", portionAmount: 100, portionUnit: "g", descriptors: [
