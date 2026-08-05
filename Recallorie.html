@@ -388,6 +388,29 @@
             position: relative;
         }
 
+        /* Editable food name - looks like the old plain heading until
+           focused, so it doesn't visually scream "form field" but is
+           still obviously editable once tapped. Custom-name a food (own
+           name for it) or fix a wrong name from a barcode lookup. */
+        .food-title-input {
+            display: block;
+            width: 100%;
+            margin: 0 0 4px 0;
+            padding: 2px 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            font-family: inherit;
+            color: var(--text-main);
+            background: transparent;
+            border: none;
+            border-bottom: 1px dashed transparent;
+            box-sizing: border-box;
+        }
+        .food-title-input:focus {
+            outline: none;
+            border-bottom: 1px dashed var(--primary-color);
+        }
+
         .food-card-close {
             position: absolute;
             top: 10px;
@@ -1121,7 +1144,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.53" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.54" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1142,7 +1165,7 @@
 
     <div id="food-display" class="food-card" style="display: none;">
         <button class="food-card-close" onclick="closeFoodCard()" aria-label="Close">✕</button>
-        <h3 id="food-title" style="margin: 0 0 4px 0; font-size: 1.15rem;"></h3>
+        <input type="text" id="food-title" class="food-title-input" aria-label="Food name">
         <small id="food-brand" style="color: var(--text-muted); display: block; margin-bottom: 12px;"></small>
 
         <div class="portion-row">
@@ -1274,10 +1297,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.53"></script>
-<script src="zxing.min.js?v=1.53"></script>
-<script src="db.js?v=1.53"></script>
-<script src="USDA_DB_Access.js?v=1.53"></script>
+<script src="foodEmojis.js?v=1.54"></script>
+<script src="zxing.min.js?v=1.54"></script>
+<script src="db.js?v=1.54"></script>
+<script src="USDA_DB_Access.js?v=1.54"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1287,8 +1310,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.53';
-    const BUILD_DATE_UTC = '2026-08-05T01:10:01Z';
+    const APP_VERSION = '1.54';
+    const BUILD_DATE_UTC = '2026-08-05T01:44:08Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1491,6 +1514,12 @@
     // separate cut-down edit form. logCurrentMeal() checks this to decide
     // whether to update that existing entry in place or log a new one.
     let editingExistingLogId = null;
+    // Set when editing a Quick Recall / category-recall entry directly via
+    // editCachedFood() - the food card is reused the same way, but saving
+    // just updates that cached food record (name, default portion) rather
+    // than creating or updating a log entry. Mutually exclusive with
+    // editingExistingLogId (editCachedFood() clears the other).
+    let editingCachedFoodUpc = null;
     // Forces the "Eaten at" field to a specific moment (the entry's
     // original logged time) instead of the usual "now"/noon default -
     // consumed once by displayFood(), same one-shot pattern as the other
@@ -1905,7 +1934,7 @@
         }
 
         currentActiveFood = food;
-        document.getElementById('food-title').innerText = food.description;
+        document.getElementById('food-title').value = food.description;
         document.getElementById('food-brand').innerText = food.brand;
 
         // If this lookup was triggered from the food-emoji picker (with a
@@ -1914,7 +1943,17 @@
         // it so a later unrelated barcode scan or typed search doesn't
         // accidentally reuse it.
         let amount, unit;
-        if (pendingPortionAmount !== null && pendingPortionUnit !== null) {
+        if (food.portionAmount != null && food.portionUnit) {
+            // A previously-saved, user-adjusted portion for this exact food
+            // sticks and takes priority over everything else, including the
+            // emoji picker's built-in preset - once someone's customized how
+            // they log a food, that's what should keep being used, not the
+            // picker's original default.
+            amount = food.portionAmount;
+            unit = food.portionUnit;
+            pendingPortionAmount = null;
+            pendingPortionUnit = null;
+        } else if (pendingPortionAmount !== null && pendingPortionUnit !== null) {
             amount = pendingPortionAmount;
             unit = pendingPortionUnit;
         } else {
@@ -1966,7 +2005,7 @@
 
         // Reflect edit vs. add mode on the action button, so it's clear
         // whether this will update the entry you opened or create a new one.
-        document.getElementById('log-meal-btn').innerText = editingExistingLogId !== null ? 'Save Changes' : 'Log This Meal';
+        document.getElementById('log-meal-btn').innerText = (editingExistingLogId !== null || editingCachedFoodUpc !== null) ? 'Save Changes' : 'Log This Meal';
 
         // Ensure UI displays card and scrolls to it
         const card = document.getElementById('food-display');
@@ -2349,6 +2388,7 @@
         document.getElementById('food-display').style.display = 'none';
         currentActiveFood = null;
         editingExistingLogId = null; // cancel any in-progress edit rather than leaving it dangling
+        editingCachedFoodUpc = null;
     }
 
     // Log the active meal to running daily timeline, using the actual scaled
@@ -2358,8 +2398,44 @@
     async function logCurrentMeal() {
         if (!currentActiveFood) return;
 
+        // The title input and portion fields aren't reactively bound to
+        // currentActiveFood - pull their current values in now, before
+        // using currentActiveFood for anything below.
+        const editedName = document.getElementById('food-title').value.trim();
+        if (editedName) currentActiveFood.description = editedName;
+        const chosenPortionAmount = parseFloat(document.getElementById('portion-amount').value) || null;
+        const chosenPortionUnit = document.getElementById('portion-unit').value;
+
+        if (editingCachedFoodUpc !== null) {
+            // Editing a Quick Recall / category-recall entry directly - just
+            // fix the cached food record (name, default portion) and don't
+            // create or touch any log entry.
+            currentActiveFood.portionAmount = chosenPortionAmount;
+            currentActiveFood.portionUnit = chosenPortionUnit;
+            saveFoodToLocalCache(editingCachedFoodUpc, currentActiveFood);
+
+            editingCachedFoodUpc = null;
+            document.getElementById('food-display').style.display = 'none';
+            document.getElementById('upc-input').value = '';
+            currentActiveFood = null;
+            refreshAppUI();
+            return;
+        }
+
         const grams = parseFloat(document.getElementById('portion-weight').value) || 0;
         const scaled = scaleFoodToGrams(currentActiveFood, grams);
+
+        // Remember the adjusted name/portion on this food's Quick Recall
+        // cache record too (if it has one), so future recalls - including
+        // the emoji picker's fdcId-pinned shortcuts - default to whatever
+        // was actually just used here rather than the original fetched
+        // values. Foods with no cache link (e.g. editing a very old log
+        // entry reconstructed without one) are skipped - nothing to update.
+        if (currentActiveFood.upc) {
+            currentActiveFood.portionAmount = chosenPortionAmount;
+            currentActiveFood.portionUnit = chosenPortionUnit;
+            saveFoodToLocalCache(currentActiveFood.upc, currentActiveFood);
+        }
 
         const datetimeVal = document.getElementById('logged-datetime').value;
         // datetime-local gives "YYYY-MM-DDTHH:mm" with no timezone - the Date
@@ -2691,6 +2767,21 @@
     }
 
     // ---- Editing an already-logged entry's portion ----
+    // Reopens the FULL food card for a Quick Recall / category-recall entry
+    // directly (via each row's ✏️ button) - lets you fix a wrong or
+    // unwanted name/portion default on the cached food record itself,
+    // without creating a log entry. logCurrentMeal() checks
+    // editingCachedFoodUpc to know to save back into the cache instead of
+    // logging.
+    function editCachedFood(upc) {
+        const food = cachedFoodsList.find(f => f.upc === upc);
+        if (!food) return;
+        editingExistingLogId = null; // mutually exclusive with editing a log entry
+        editingCachedFoodUpc = upc;
+        closeCategoryRecallPicker(); // no-op if it wasn't open
+        displayFood(food);
+    }
+
     // Reopens the FULL food card (the same view used when a food is first
     // looked up) for an already-logged "Eaten Today" entry, instead of a
     // separate cut-down edit form - so you can see the same per-100g/per-oz
@@ -2720,6 +2811,7 @@
         };
 
         editingExistingLogId = id;
+        editingCachedFoodUpc = null; // mutually exclusive with editing a cached food directly
         // Entries logged before unit-tracking existed won't have a stored
         // unit/unitOverrides - fall back to plain grams for those, same as
         // a food with no special units ever would.
@@ -3412,6 +3504,7 @@
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
                     <div style="display: flex; align-items: center;">
                         <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
+                        <button class="icon-btn btn-edit" onclick="editCachedFood('${item.upc}')" title="Edit name/portion">✏️</button>
                         <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📋</button>
                         <button class="icon-btn btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
                     </div>
