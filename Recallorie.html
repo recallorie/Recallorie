@@ -973,6 +973,78 @@
         </div>
     </div>
 
+    <!-- Full edit form for Quick Recall/cached food entries - all fields editable -->
+    <div id="cached-food-edit-overlay" class="descriptor-picker-overlay" style="display: none;">
+        <div class="descriptor-picker-card" style="max-height: 90vh; overflow-y: auto;">
+            <div class="descriptor-picker-header">
+                <h3>Edit Food Entry</h3>
+                <button class="descriptor-picker-close" onclick="closeCachedFoodEditOverlay()">✕</button>
+            </div>
+            <div style="padding: 16px;">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Name</label>
+                    <input type="text" id="edit-descriptor" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Brand</label>
+                    <input type="text" id="edit-brand" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Emoji</label>
+                    <input type="text" id="edit-emoji" maxlength="2" style="width: 60px; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Calories per 100g</label>
+                    <input type="number" id="edit-calories-per-100g" step="0.1" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Protein (g per 100g)</label>
+                    <input type="number" id="edit-protein-per-100g" step="0.1" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Carbs (g per 100g)</label>
+                    <input type="number" id="edit-carbs-per-100g" step="0.1" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Fat (g per 100g)</label>
+                    <input type="number" id="edit-fat-per-100g" step="0.1" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Fiber (g per 100g)</label>
+                    <input type="number" id="edit-fiber-per-100g" step="0.1" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Portion Amount</label>
+                    <input type="number" id="edit-portion-amount" step="0.01" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Portion Unit</label>
+                    <select id="edit-portion-unit" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                        <option>g</option>
+                        <option>oz</option>
+                        <option>ml</option>
+                        <option>l</option>
+                        <option>cup</option>
+                        <option>tbsp</option>
+                        <option>tsp</option>
+                        <option>fl oz</option>
+                        <option>each</option>
+                        <option>slice</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Unit Grams (if portion unit isn't standard)</label>
+                    <input type="number" id="edit-unit-grams" step="0.1" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Last Had (Date & Time)</label>
+                    <input type="datetime-local" id="edit-last-logged-at" style="width: 100%; padding: 8px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px;">
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="saveCachedFoodEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Tapping a saved meal here logs every food in it to today with one tap. -->
     <div id="meal-picker-overlay" class="emoji-picker-overlay">
         <div class="emoji-picker-card">
@@ -1144,7 +1216,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.54" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.55" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1297,10 +1369,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.54"></script>
-<script src="zxing.min.js?v=1.54"></script>
-<script src="db.js?v=1.54"></script>
-<script src="USDA_DB_Access.js?v=1.54"></script>
+<script src="foodEmojis.js?v=1.55"></script>
+<script src="zxing.min.js?v=1.55"></script>
+<script src="db.js?v=1.55"></script>
+<script src="USDA_DB_Access.js?v=1.55"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1310,8 +1382,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.54a';
-    const BUILD_DATE_UTC = '2026-08-05T01:44:08Z';
+    const APP_VERSION = '1.55';
+    const BUILD_DATE_UTC = '2026-08-05T18:55:10Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1520,6 +1592,12 @@
     // than creating or updating a log entry. Mutually exclusive with
     // editingExistingLogId (editCachedFood() clears the other).
     let editingCachedFoodUpc = null;
+    // Set when opening the full-edit overlay for a cached food record -
+    // used to track which food's data populates the form and where to save
+    // the edits back to. Different from editingCachedFoodUpc which just
+    // syncs name/portion to the food card display.
+    let editingCachedFoodFullUpc = null;
+
     // Forces the "Eaten at" field to a specific moment (the entry's
     // original logged time) instead of the usual "now"/noon default -
     // consumed once by displayFood(), same one-shot pattern as the other
@@ -3504,7 +3582,7 @@
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
                     <div style="display: flex; align-items: center;">
                         <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
-                        <button class="icon-btn btn-edit" onclick="editCachedFood('${item.upc}')" title="Edit name/portion">✏️</button>
+                        <button class="icon-btn btn-edit" onclick="openCachedFoodEditOverlay('${item.upc}')" title="Edit all fields">✏️</button>
                         <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📋</button>
                         <button class="icon-btn btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
                     </div>
@@ -3554,6 +3632,81 @@
 
     function closeCategoryRecallPicker() {
         document.getElementById('category-recall-overlay').style.display = 'none';
+    }
+
+    // Opens the full-edit overlay for a Quick Recall cached food record,
+    // with editable fields for all properties: name, brand, emoji, all
+    // per-100g macros, portion amount/unit/unitGrams, and last-had time.
+    function openCachedFoodEditOverlay(upc) {
+        const food = cachedFoodsList.find(f => f.upc === upc);
+        if (!food) return;
+
+        editingCachedFoodFullUpc = upc;
+        closeCategoryRecallPicker(); // close category popup if open
+
+        document.getElementById('edit-descriptor').value = food.description || '';
+        document.getElementById('edit-brand').value = food.brand || '';
+        document.getElementById('edit-emoji').value = food.emoji || '';
+        document.getElementById('edit-calories-per-100g').value = food.caloriesPer100g || 0;
+        document.getElementById('edit-protein-per-100g').value = food.proteinPer100g || 0;
+        document.getElementById('edit-carbs-per-100g').value = food.carbsPer100g || 0;
+        document.getElementById('edit-fat-per-100g').value = food.fatPer100g || 0;
+        document.getElementById('edit-fiber-per-100g').value = food.fiberPer100g || 0;
+        document.getElementById('edit-portion-amount').value = food.portionAmount || '';
+        document.getElementById('edit-portion-unit').value = food.portionUnit || 'g';
+        document.getElementById('edit-unit-grams').value = food.unitGrams || '';
+
+        // Format lastLoggedAt as datetime-local if it exists
+        if (food.lastLoggedAt) {
+            const dt = new Date(food.lastLoggedAt);
+            const year = dt.getFullYear();
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            const day = String(dt.getDate()).padStart(2, '0');
+            const hours = String(dt.getHours()).padStart(2, '0');
+            const minutes = String(dt.getMinutes()).padStart(2, '0');
+            document.getElementById('edit-last-logged-at').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        } else {
+            document.getElementById('edit-last-logged-at').value = '';
+        }
+
+        document.getElementById('cached-food-edit-overlay').style.display = 'flex';
+    }
+
+    function closeCachedFoodEditOverlay() {
+        document.getElementById('cached-food-edit-overlay').style.display = 'none';
+        editingCachedFoodFullUpc = null;
+    }
+
+    function saveCachedFoodEdit() {
+        if (!editingCachedFoodFullUpc) return;
+
+        const food = cachedFoodsList.find(f => f.upc === editingCachedFoodFullUpc);
+        if (!food) return;
+
+        // Update all fields from the form
+        food.description = document.getElementById('edit-descriptor').value.trim() || 'Food';
+        food.brand = document.getElementById('edit-brand').value.trim() || '';
+        food.emoji = document.getElementById('edit-emoji').value || null;
+        food.caloriesPer100g = parseFloat(document.getElementById('edit-calories-per-100g').value) || 0;
+        food.proteinPer100g = parseFloat(document.getElementById('edit-protein-per-100g').value) || 0;
+        food.carbsPer100g = parseFloat(document.getElementById('edit-carbs-per-100g').value) || 0;
+        food.fatPer100g = parseFloat(document.getElementById('edit-fat-per-100g').value) || 0;
+        food.fiberPer100g = parseFloat(document.getElementById('edit-fiber-per-100g').value) || 0;
+        food.portionAmount = parseFloat(document.getElementById('edit-portion-amount').value) || null;
+        food.portionUnit = document.getElementById('edit-portion-unit').value || 'g';
+        food.unitGrams = parseFloat(document.getElementById('edit-unit-grams').value) || null;
+
+        // Update lastLoggedAt if a date/time was provided
+        const lastLoggedAtVal = document.getElementById('edit-last-logged-at').value;
+        if (lastLoggedAtVal) {
+            food.lastLoggedAt = new Date(lastLoggedAtVal).getTime();
+        }
+
+        // Save the updated food record back to the cache
+        saveFoodToLocalCache(editingCachedFoodFullUpc, food);
+
+        closeCachedFoodEditOverlay();
+        refreshAppUI(); // Re-render Quick Recall and category lists with updated data
     }
 
 </script>
