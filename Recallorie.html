@@ -1040,6 +1040,24 @@
         </div>
     </div>
 
+    <!-- Exercise duration input modal - compact, just exercise + minutes field + log button -->
+    <div id="exercise-input-modal" class="descriptor-picker-overlay" style="display: none;">
+        <div class="descriptor-picker-card" style="max-height: 30vh; width: 90vw; max-width: 300px;">
+            <div class="descriptor-picker-header">
+                <h3>Log Exercise</h3>
+                <button class="descriptor-picker-close" onclick="closeExerciseInputModal()">✕</button>
+            </div>
+            <div style="padding: 16px; text-align: center;">
+                <div id="exercise-modal-icon" style="font-size: 3rem; margin-bottom: 8px;"></div>
+                <div id="exercise-modal-name" style="font-weight: 600; margin-bottom: 12px; font-size: 1.1rem;"></div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 6px;">Minutes</label>
+                    <input type="number" id="exercise-modal-minutes" min="1" value="20" style="width: 100%; padding: 10px; border: 1px solid rgba(0,0,0,0.1); border-radius: 4px; font-size: 1rem; text-align: center;">
+                </div>
+                <button class="btn-primary" style="width: 100%; padding: 10px;" onclick="logExerciseFromModal()">Log</button>
+            </div>
+        </div>
+    </div>
     <!-- Tapping a saved meal here logs every food in it to today with one tap. -->
     <div id="meal-picker-overlay" class="emoji-picker-overlay">
         <div class="emoji-picker-card">
@@ -1211,7 +1229,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.58" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.59" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1364,10 +1382,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.58"></script>
-<script src="zxing.min.js?v=1.58"></script>
-<script src="db.js?v=1.58"></script>
-<script src="USDA_DB_Access.js?v=1.58"></script>
+<script src="foodEmojis.js?v=1.59"></script>
+<script src="zxing.min.js?v=1.59"></script>
+<script src="db.js?v=1.59"></script>
+<script src="USDA_DB_Access.js?v=1.59"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1378,7 +1396,7 @@
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
     const APP_VERSION = '1.56';
-    const BUILD_DATE_UTC = '2026-08-07T14:02:19Z';
+    const BUILD_DATE_UTC = '2026-08-07T18:53:55Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1396,6 +1414,7 @@
     let savedMealsList = []; // Saved meals, kept in sync via refreshSavedMealsList()
     let mealBuilderCandidates = []; // The currently-viewed day's logged foods, available while Manage Meals is open
     let mealBuilderSelectedIds = new Set(); // Which log entry ids are currently checked, tracked separately so it survives filter re-renders
+    let exerciseModalData = null; // Holds the exercise being logged (icon, name, intensity) while the duration modal is open
 
     window.addEventListener('DOMContentLoaded', async () => {
         await initDB();
@@ -3069,10 +3088,21 @@
     }
 
     function selectExerciseType(idx) {
-        selectedExerciseType = EXERCISE_TYPES[idx];
-        document.getElementById('exercise-selected-label').innerText = `${selectedExerciseType.emoji} ${selectedExerciseType.name}`;
-        document.getElementById('exercise-details-fields').style.display = 'block';
-        document.getElementById('exercise-duration').focus();
+        const exercise = EXERCISE_TYPES[idx];
+        exerciseModalData = exercise;
+        
+        // Populate the compact modal with this exercise's data
+        document.getElementById('exercise-modal-icon').innerText = exercise.emoji;
+        document.getElementById('exercise-modal-name').innerText = exercise.name;
+        document.getElementById('exercise-modal-minutes').value = 20; // default
+        
+        // Close the full exercise picker overlay and open the compact modal
+        document.getElementById('log-exercise-overlay').style.display = 'none';
+        document.getElementById('exercise-input-modal').style.display = 'flex';
+        
+        // Focus the minutes input
+        document.getElementById('exercise-modal-minutes').focus();
+        document.getElementById('exercise-modal-minutes').select();
     }
 
     // Prefills "Calories burned" with a rough estimate as duration is
@@ -3678,6 +3708,39 @@
     function closeCachedFoodEditOverlay() {
         document.getElementById('cached-food-edit-overlay').style.display = 'none';
         editingCachedFoodFullUpc = null;
+    }
+
+    function closeExerciseInputModal() {
+        document.getElementById('exercise-input-modal').style.display = 'none';
+        exerciseModalData = null;
+    }
+
+    async function logExerciseFromModal() {
+        if (!exerciseModalData) return;
+
+        const minutes = parseFloat(document.getElementById('exercise-modal-minutes').value) || 0;
+        if (minutes <= 0) {
+            alert('Enter a duration greater than 0 minutes.');
+            return;
+        }
+
+        // Use the exercise's caloriesPerHour to estimate burned calories
+        const caloriesBurned = (exerciseModalData.caloriesPerHour * minutes) / 60;
+
+        try {
+            await logExerciseToDB({
+                name: exerciseModalData.name,
+                emoji: exerciseModalData.emoji,
+                minutes: minutes,
+                caloriesBurned: caloriesBurned,
+                loggedAtMs: Date.now()
+            });
+
+            closeExerciseInputModal();
+            refreshAppUI();
+        } catch (error) {
+            alert('Failed to log exercise: ' + error);
+        }
     }
 
     function saveCachedFoodEdit() {
