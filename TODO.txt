@@ -150,26 +150,31 @@ x- For recalled food entries, I want to display the last date & time I had it at
 TODO for 260804:
 x- You know that the screen looks like since you created it with me.  I am happy with most of it but one thing is
     that it seems to use a lot of space for the sections margins and the space between the sections.
-- When editing a food entry, I want to be able to change it's name since I may want to custom name that I call the food OR
-    the name in the database, based on the UPC, is wrong.
 - After modifying a food and saving it, I want the adjusted amount saved (ie. the amount, portion type, and name is save
     exactly like this in the Quick Recall section.
 - Be able to edit all the Quick Recall food items.
 
+TODO for 260805:
+-I want to be able to change everything in the record including descriptor, brand,emoji,calories,protein,carbs,fat,
+    fiber,portionGrams,unit,unitOverrides,date,and time. Right now just a name change won't do it!  I found a food
+    for which I need to change some of these things.
+- When editing a food entry, I want to be able to change it's name since I may want to custom name that I call the food
+    OR the name in the database, based on the UPC, is wrong.
+
 FUTURE:
-- Track Sugar Alcohols so I can see the affect on carbs. Does USDA have this info?
-- Add a small drop down in the food entry that shows detailed vitamins and minerals.
-- Allow to share total macros (calories, Protein, Carbs, Fat, Fiber) for the day or week.
-- I need to move the user (profile) onto a system where I can have multiple users.
-- Have a table where the standard portion type and weight (in grams) is known.
+- Change the word "Eaten" to "Consumed" in all places.
+- add a sound when an food entry is recorded; although make this an optional selection under the profile icon.
 - Have an option to keep only 1 food section open at a time.
+- After I select the edit icon inside a food entry, move focus to the portion and highlight the portion size so that it
+    is ready to be replaced by what the user types.
 - When duplicating from the Quick Recall section, have option to only display and categorize by a time OR meal
     type: Breakfast, Lunch, Dinner, Snack. This will make the Quick Recall list shorter so when I want to find
     Breakfast items, I don't have to search thru a long list that may just have dinners.
 - Maybe customize the sort logic so user can sort the Quick Recall section by last used OR date it was added to the list.
 - Auto delete old "Quick Recall" foods after 1 week.
+- Add a small drop down in the food entry that shows detailed vitamins and minerals.
 - How to control access to website/app with only static webpage access?
--I want to be able to change everything in the record including descriptor, brand,emoji,calories,protein,carbs,fat,
-    fiber,portionGrams,unit,unitOverrides,date,and time. Right now just a name change won't do it!  I found a food
-    for which I need to change some of these things.
-- Change the word "Eaten" to "Consumed"
+- Track Sugar Alcohols so I can see the affect on carbs. Does USDA have this info?
+- Allow to share total macros (calories, Protein, Carbs, Fat, Fiber) for the day or week.
+- I need to move the user (profile) onto a system where I can have multiple users.
+- Have a table where the standard portion type and weight (in grams) is known.
