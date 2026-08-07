@@ -1211,7 +1211,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.56" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.57" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1364,10 +1364,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.56"></script>
-<script src="zxing.min.js?v=1.56"></script>
-<script src="db.js?v=1.56"></script>
-<script src="USDA_DB_Access.js?v=1.56"></script>
+<script src="foodEmojis.js?v=1.57"></script>
+<script src="zxing.min.js?v=1.57"></script>
+<script src="db.js?v=1.57"></script>
+<script src="USDA_DB_Access.js?v=1.57"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1378,7 +1378,7 @@
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
     const APP_VERSION = '1.56';
-    const BUILD_DATE_UTC = '2026-08-07T01:12:03Z';
+    const BUILD_DATE_UTC = '2026-08-07T03:06:49Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -3492,7 +3492,7 @@
                             <div style="display: flex; align-items: center;">
                                 <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
                                 <button class="icon-btn btn-edit" onclick="editLoggedEntry(${item.id})" title="Edit entry">✏️</button>
-                                <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📋</button>
+                                <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📑</button>
                                 <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
                             </div>
                             <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:<span style="${item.carbs > 5 ? 'color: #d32f2f; font-weight: 600;' : ''}">${Math.round(item.carbs)}g</span>,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
@@ -3578,7 +3578,7 @@
                     <div style="display: flex; align-items: center;">
                         <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
                         <button class="icon-btn btn-edit" onclick="openCachedFoodEditOverlay('${item.upc}')" title="Edit all fields">✏️</button>
-                        <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📋</button>
+                        <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📑</button>
                         <button class="icon-btn btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
                     </div>
                     <span class="item-macros">Prot:${Math.round(item.proteinPer100g || 0)}g,Carb:${Math.round(item.carbsPer100g || 0)}g,Fat:${Math.round(item.fatPer100g || 0)}g,Fiber:${Math.round(item.fiberPer100g || 0)}g</span>
