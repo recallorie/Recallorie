@@ -504,7 +504,7 @@
             flex-shrink: 0;
         }
 
-        /* Dashboard sections (Eaten Today, Health Metrics, etc.) get the
+        /* Dashboard sections (Consumed Today, Health Metrics, etc.) get the
            group-box treatment directly rather than an extra wrapper div,
            since .section-header already acts as their header row. */
         .dashboard-section {
@@ -525,7 +525,7 @@
             font-weight: 700;
         }
 
-        /* Collapsible-section toggle (e.g. "Eaten Today") */
+        /* Collapsible-section toggle (e.g. "Consumed Today") */
         .section-toggle-btn {
             background: none;
             border: none;
@@ -550,7 +550,7 @@
             transform: rotate(90deg);
         }
 
-        /* Wraps the "Eaten Today" list. Capped height + vertical scroll so a
+        /* Wraps the "Consumed Today" list. Capped height + vertical scroll so a
            long day's entries get a scrollbar (the "vertical bar") instead of
            pushing the rest of the page down indefinitely. */
         .scroll-wrapper {
@@ -619,7 +619,7 @@
             color: var(--text-muted);
         }
 
-        /* Prot/Carb/Fat breakdown shown bottom-right on each Eaten Today /
+        /* Prot/Carb/Fat breakdown shown bottom-right on each Consumed Today /
            Quick Recall entry - same size/color as item-brand (the time-and-
            source line) so they read as a matched pair, one per side. */
         .item-macros {
@@ -661,7 +661,7 @@
         }
 
         /* Shared base for the small icon buttons (edit/duplicate/delete) on
-           each Eaten Today / Quick Recall row - centralizes spacing so it's
+           each Consumed Today / Quick Recall row - centralizes spacing so it's
            easy to keep tight and consistent across all three. */
         .icon-btn {
             background: none;
@@ -1211,7 +1211,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.57" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.58" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1258,7 +1258,7 @@
         <div id="serving-hint" class="serving-hint"></div>
 
         <div class="portion-row">
-            <label for="logged-datetime">Eaten at:</label>
+            <label for="logged-datetime">Consumed at:</label>
             <input type="datetime-local" id="logged-datetime" step="60">
             <button class="btn-primary" style="padding: 10px 14px;" onclick="setLoggedTimeToNow()">Now</button>
         </div>
@@ -1280,7 +1280,7 @@
             <button id="log-toggle-btn" class="section-toggle-btn" onclick="toggleCollapsibleSection('log-scroll-wrapper', 'log-toggle-triangle', 'log-toggle-btn')" aria-expanded="false" aria-label="Show or hide today's logged entries">
                 <span id="log-toggle-triangle" class="toggle-triangle">▶</span>
             </button>
-            <h3 id="log-section-title">😋 Eaten Today</h3>
+            <h3 id="log-section-title">😋 Consumed Today</h3>
         </div>
         <div id="log-scroll-wrapper" class="scroll-wrapper" style="display: none;">
             <ul id="log-container" class="item-list">
@@ -1364,10 +1364,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.57"></script>
-<script src="zxing.min.js?v=1.57"></script>
-<script src="db.js?v=1.57"></script>
-<script src="USDA_DB_Access.js?v=1.57"></script>
+<script src="foodEmojis.js?v=1.58"></script>
+<script src="zxing.min.js?v=1.58"></script>
+<script src="db.js?v=1.58"></script>
+<script src="USDA_DB_Access.js?v=1.58"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1378,7 +1378,7 @@
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
     const APP_VERSION = '1.56';
-    const BUILD_DATE_UTC = '2026-08-07T03:06:49Z';
+    const BUILD_DATE_UTC = '2026-08-07T14:02:19Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1575,7 +1575,7 @@
     let pendingEmoji = null;
     let pendingCategoryLabel = null;
 
-    // Set when editing an existing Eaten Today entry via editLoggedEntry() -
+    // Set when editing an existing Consumed Today entry via editLoggedEntry() -
     // the full food card is reused for editing (so you can see the same
     // per-100g/per-oz breakdown as when you first added it), rather than a
     // separate cut-down edit form. logCurrentMeal() checks this to decide
@@ -1593,7 +1593,7 @@
     // syncs name/portion to the food card display.
     let editingCachedFoodFullUpc = null;
 
-    // Forces the "Eaten at" field to a specific moment (the entry's
+    // Forces the "Consumed at" field to a specific moment (the entry's
     // original logged time) instead of the usual "now"/noon default -
     // consumed once by displayFood(), same one-shot pattern as the other
     // pending* flags above.
@@ -2088,7 +2088,7 @@
 
     // Exports the FULL eating history (every logged meal, every date, all
     // stored via db.js's LOG_STORE_NAME which nothing ever auto-deletes from)
-    // as a downloadable JSON file - the "how much of food X have I eaten over
+    // as a downloadable JSON file - the "how much of food X have I consumed over
     // time" data.
     async function exportEatingHistory() {
         const meals = await getAllLoggedMeals();
@@ -2295,12 +2295,12 @@
     }
 
     // Used when a food card first renders (not the explicit "Now" button):
-    // defaults "Eaten at" to the CURRENTLY VIEWED date, combined with the
+    // defaults "Consumed at" to the CURRENTLY VIEWED date, combined with the
     // current time-of-day - so looking up a new food while browsing last
     // Thursday defaults to logging it onto Thursday, not silently onto
     // today. The "Now" button still always means the actual current moment.
     // Used when a food card first renders (not the explicit "Now" button):
-    // defaults "Eaten at" to the CURRENTLY VIEWED date. If that's today, use
+    // defaults "Consumed at" to the CURRENTLY VIEWED date. If that's today, use
     // the actual current time-of-day; if it's a past (or future) date,
     // default to noon instead - "now" doesn't mean anything meaningful for
     // a day that isn't today. The "Now" button still always means the
@@ -2465,7 +2465,7 @@
     }
 
     // Log the active meal to running daily timeline, using the actual scaled
-    // portion (grams entered) and the date/time chosen in the "Eaten at" field.
+    // portion (grams entered) and the date/time chosen in the "Consumed at" field.
     // If editingExistingLogId is set (opened via editLoggedEntry()), this
     // updates that existing entry in place instead of creating a new one.
     async function logCurrentMeal() {
@@ -2588,14 +2588,14 @@
     }
 
     // "Duplicate to today" for a Quick Recall entry: since these are cached
-    // per-100g food records (not already-scaled log entries like the Eaten
+    // per-100g food records (not already-scaled log entries like the Consumed
     // Today list), logs it to TODAY using a default portion - the label
     // serving size in grams if there is one, else 100g, same fallback
     // displayFood() uses - then bumps its usage tally exactly as if it had
     // been looked up and logged the normal way.
     // "Duplicate to [viewed day]" for a Quick Recall entry: since these are
     // cached per-100g food records (not already-scaled log entries like the
-    // Eaten Today list), logs it using a default portion - the label
+    // Consumed Today list), logs it using a default portion - the label
     // serving size in grams if there is one, else 100g, same fallback
     // displayFood() uses - onto whichever day is currently selected in the
     // date bar (not necessarily today), then bumps its usage tally exactly
@@ -2639,7 +2639,7 @@
     }
 
     // Removes a food from Quick Recall entirely (does not touch any past
-    // logged meals under "Eaten Today" - those are a separate history).
+    // logged meals under "Consumed Today" - those are a separate history).
     async function deleteCachedFood(upc) {
         await deleteCachedFoodFromDB(upc);
         refreshAppUI();
@@ -2856,7 +2856,7 @@
     }
 
     // Reopens the FULL food card (the same view used when a food is first
-    // looked up) for an already-logged "Eaten Today" entry, instead of a
+    // looked up) for an already-logged "Consumed Today" entry, instead of a
     // separate cut-down edit form - so you can see the same per-100g/per-oz
     // breakdown you saw originally (handy for "what's this per oz again?"),
     // and pick any portion unit, not just re-scale the one you used before.
@@ -3255,7 +3255,7 @@
     // Controls both which of these sections show on the main screen at all,
     // and what order they appear in - persisted so it's remembered next time.
     const SECTION_DEFS = {
-        log: { icon: '😋', label: 'Eaten Today' },
+        log: { icon: '😋', label: 'Consumed Today' },
         metrics: { icon: '⚕️', label: 'Health Metrics' },
         exercise: { icon: '⏱️', label: 'Exercise' },
         water: { icon: '💧', label: 'Water Intake / Hydration' },
@@ -3401,7 +3401,7 @@
         }
     });
 
-    // Toggles any collapsible section (currently "Eaten Today" and "Quick
+    // Toggles any collapsible section (currently "Consumed Today" and "Quick
     // Recall") open/closed. Collapsed by default (see each wrapper's inline
     // style="display: none"); this just flips visibility and rotates the
     // triangle to match, like a native dropdown disclosure arrow. Each
@@ -3450,7 +3450,7 @@
         document.getElementById('jump-to-today-btn').style.display = isToday ? 'none' : 'inline-block';
 
         const dateLabel = formatDateForDisplay(currentViewDateStr);
-        document.getElementById('log-section-title').innerText = isToday ? '😋 Eaten Today' : `😋 Eaten — ${dateLabel}`;
+        document.getElementById('log-section-title').innerText = isToday ? '😋 Consumed Today' : `😋 Consumed — ${dateLabel}`;
         document.getElementById('dash-cal-label').innerText = isToday ? 'Logged Calories Today' : `Logged Calories — ${dateLabel}`;
         document.getElementById('metrics-section-title').innerText = isToday ? '⚕️ Health Metrics' : `⚕️ Health Metrics — ${dateLabel}`;
         await renderMetricsList();
@@ -3557,7 +3557,7 @@
         const duplicateTitle = viewedIsToday ? 'Duplicate to today' : `Duplicate to ${formatDateForDisplay(currentViewDateStr)}`;
         const onRowClick = `displayFood(${JSON.stringify(item)});${afterClick}`;
 
-        // "Last had" reflects the eaten-at time chosen the last time this
+        // "Last had" reflects the consumed-at time chosen the last time this
         // food was actually logged (set in incrementFoodUseCount) - not the
         // last time it was merely looked up/viewed, which is what
         // item.timestamp tracks instead.
