@@ -1231,7 +1231,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.61" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.62" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1384,10 +1384,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.61"></script>
-<script src="zxing.min.js?v=1.61"></script>
-<script src="db.js?v=1.61"></script>
-<script src="USDA_DB_Access.js?v=1.61"></script>
+<script src="foodEmojis.js?v=1.62"></script>
+<script src="zxing.min.js?v=1.62"></script>
+<script src="db.js?v=1.62"></script>
+<script src="USDA_DB_Access.js?v=1.62"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1397,8 +1397,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.61';
-    const BUILD_DATE_UTC = '2026-08-08T01:45:04Z';
+    const APP_VERSION = '1.56';
+    const BUILD_DATE_UTC = '2026-08-08T10:34:33Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -2915,19 +2915,54 @@
         pendingEatenAtOverrideMs = entry.timestamp; // show its actual original time, not "now"/noon
 
         displayFood(reconstructedFood);
+        
+        // Focus and select the portion-weight field so user can immediately edit it
+        setTimeout(() => {
+            const portionField = document.getElementById('portion-weight');
+            portionField.focus();
+            portionField.select();
+        }, 100);
     }
 
     // ---- Health metrics (weight / blood pressure / custom) ----
-    function openLogMetricOverlay() {
+    async function openLogMetricOverlay() {
         document.getElementById('metric-type-select').value = 'weight';
-        document.getElementById('metric-weight-value').value = '';
         document.getElementById('metric-bp-systolic').value = '';
         document.getElementById('metric-bp-diastolic').value = '';
         document.getElementById('metric-custom-label').value = '';
         document.getElementById('metric-custom-value').value = '';
         document.getElementById('metric-custom-unit').value = '';
+        
+        // Prepopulate weight field with last entered weight
+        const lastWeight = await getLastWeightEntry();
+        if (lastWeight) {
+            document.getElementById('metric-weight-value').value = lastWeight.value;
+            document.getElementById('metric-weight-unit').value = lastWeight.unit || 'lbs';
+        } else {
+            document.getElementById('metric-weight-value').value = '';
+        }
+        
         onMetricTypeChange();
         document.getElementById('log-metric-overlay').style.display = 'flex';
+        
+        // Focus and select the weight field so user can just start typing
+        setTimeout(() => {
+            const weightField = document.getElementById('metric-weight-value');
+            weightField.focus();
+            weightField.select();
+        }, 100);
+    }
+
+    // Gets the most recent weight entry from the database
+    async function getLastWeightEntry() {
+        const allMetrics = await getAllMetrics();
+        const weightEntries = allMetrics.filter(m => m.type === 'weight');
+        
+        if (weightEntries.length === 0) return null;
+        
+        // Sort by timestamp descending to get the most recent
+        weightEntries.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        return weightEntries[0];
     }
 
     function closeLogMetricOverlay() {
