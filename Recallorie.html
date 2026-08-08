@@ -1231,7 +1231,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.60" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.61" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1384,10 +1384,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.60"></script>
-<script src="zxing.min.js?v=1.60"></script>
-<script src="db.js?v=1.60"></script>
-<script src="USDA_DB_Access.js?v=1.60"></script>
+<script src="foodEmojis.js?v=1.61"></script>
+<script src="zxing.min.js?v=1.61"></script>
+<script src="db.js?v=1.61"></script>
+<script src="USDA_DB_Access.js?v=1.61"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1397,8 +1397,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.60_1';
-    const BUILD_DATE_UTC = '2026-08-08T00:01:46Z';
+    const APP_VERSION = '1.56';
+    const BUILD_DATE_UTC = '2026-08-08T01:45:04Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -3469,7 +3469,49 @@
     }
 
     // Core UI Coordinator
-    // Removes cached food records that haven't been accessed/used in the past
+    // Categorizes logged meals into Breakfast/Lunch/Dinner/Snack based on time
+    function categorizeMealsByTime(logs) {
+        const meals = {
+            breakfast: [],  // 5:00 - 10:59:59
+            lunch: [],      // 11:00 - 15:59:59
+            dinner: [],     // 16:00 - 21:59:59
+            snack: []       // 22:00 - 04:59:59
+        };
+
+        for (const log of logs) {
+            const hour = new Date(log.timestamp).getHours();
+            
+            if (hour >= 5 && hour < 11) {
+                meals.breakfast.push(log);
+            } else if (hour >= 11 && hour < 16) {
+                meals.lunch.push(log);
+            } else if (hour >= 16 && hour < 22) {
+                meals.dinner.push(log);
+            } else {
+                // 22:00 - 23:59 and 00:00 - 04:59
+                meals.snack.push(log);
+            }
+        }
+
+        return meals;
+    }
+
+    // Toggle collapse/expand state of a meal section and save preference
+    function toggleMealSection(mealType) {
+        const section = document.getElementById(`meal-section-${mealType}`);
+        const collapsedKey = `meal-collapsed-${mealType}`;
+        const isCurrentlyCollapsed = section.style.display === 'none';
+        
+        if (isCurrentlyCollapsed) {
+            section.style.display = 'block';
+            localStorage.setItem(collapsedKey, 'false');
+        } else {
+            section.style.display = 'none';
+            localStorage.setItem(collapsedKey, 'true');
+        }
+    }
+
+    // Cleanup old cached foods every app refresh
     // 7 days - keeps the Quick Recall list from growing indefinitely with
     // stale foods. Returns the cleaned list.
     async function cleanupOldCachedFoods(foods) {
@@ -3529,36 +3571,62 @@
         if (logs.length === 0) {
             logContainer.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No meals logged ${isToday ? 'yet today' : 'on this date'}.</li>`;
         } else {
-            // getMealsLoggedForDate already sorts ascending by timestamp, so
-            // this is naturally chronological - early morning first, latest
-            // entries (up to just before midnight) last.
-            logContainer.innerHTML = logs.map(item => {
+            // Categorize logs by meal time
+            const meals = categorizeMealsByTime(logs);
+            
+            // Accumulate totals across all meals
+            logs.forEach(item => {
                 totalCals += item.calories;
                 totalProt += item.protein;
                 totalCarbs += item.carbs;
                 totalFat += item.fat;
                 totalFiber += (item.fiber || 0);
+            });
 
-                const timeLabel = new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
+            // Render meal sections with collapsible dropdowns
+            logContainer.innerHTML = Object.keys(meals).map(mealType => {
+                const mealLogs = meals[mealType];
+                if (mealLogs.length === 0) return ''; // Skip empty meal types
+                
+                const mealIcons = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🌙' };
+                const icon = mealIcons[mealType] || '🍽️';
+                const label = mealType.charAt(0).toUpperCase() + mealType.slice(1);
+                const collapsedKey = `meal-collapsed-${mealType}`;
+                const isCollapsed = localStorage.getItem(collapsedKey) === 'true';
+                
                 return `
-                    <li class="item-row logged">
-                        <div class="item-details">
-                            <span class="item-title">${item.emoji ? item.emoji + ' ' : ''}${item.description}</span>
-                            <span class="item-brand">${timeLabel} &middot; ${item.brand}</span>
+                    <li style="margin-bottom: 8px;">
+                        <div style="background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleMealSection('${mealType}')">
+                            <span style="font-size: 1.2rem;">${icon}</span>
+                            <span style="font-weight: 600; flex: 1;">${label}</span>
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">${mealLogs.length} item${mealLogs.length !== 1 ? 's' : ''}</span>
+                            <span style="font-size: 0.9rem; color: var(--text-muted);">${isCollapsed ? '▶️' : '▼'}</span>
                         </div>
-                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                            <div style="display: flex; align-items: center;">
-                                <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
-                                <button class="icon-btn btn-edit" onclick="editLoggedEntry(${item.id})" title="Edit entry">✏️</button>
-                                <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📑</button>
-                                <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
-                            </div>
-                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:<span style="${item.carbs > 5 ? 'color: #d32f2f; font-weight: 600;' : ''}">${Math.round(item.carbs)}g</span>,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
-                        </div>
+                        <ul id="meal-section-${mealType}" style="list-style: none; padding: 0; margin: 4px 0 0 0; display: ${isCollapsed ? 'none' : 'block'};">
+                            ${mealLogs.map(item => {
+                                const timeLabel = new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                                return `
+                                    <li class="item-row logged" style="margin-left: 8px;">
+                                        <div class="item-details">
+                                            <span class="item-title">${item.emoji ? item.emoji + ' ' : ''}${item.description}</span>
+                                            <span class="item-brand">${timeLabel} &middot; ${item.brand}</span>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                                            <div style="display: flex; align-items: center;">
+                                                <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
+                                                <button class="icon-btn btn-edit" onclick="editLoggedEntry(${item.id})" title="Edit entry">✏️</button>
+                                                <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📑</button>
+                                                <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
+                                            </div>
+                                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:<span style="${item.carbs > 5 ? 'color: #d32f2f; font-weight: 600;' : ''}">${Math.round(item.carbs)}g</span>,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
+                                        </div>
+                                    </li>
+                                `;
+                            }).join('')}
+                        </ul>
                     </li>
                 `;
-            }).join('');
+            }).filter(html => html !== '').join('');
         }
 
         // Update dashboard numbers (totals for the viewed date, not always "today")
