@@ -872,6 +872,34 @@
             cursor: pointer;
             border-bottom: 1px solid #eee;
         }
+
+        .sound-switch-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .sound-switch-container:active {
+            background: #e8e8e8;
+            transform: scale(0.98);
+        }
+
+        .sound-switch-container span:first-child {
+            font-weight: 500;
+        }
+
+        .sound-switch-container #sound-switch-indicator {
+            transition: opacity 0.2s ease;
+        }
+
         .profile-menu-item:last-child {
             border-bottom: none;
         }
@@ -911,8 +939,10 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); openImportOverlay();">⬆ Import Data</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
-        <button class="profile-menu-item" id="sound-toggle-btn" onclick="closeProfileMenu(); toggleFoodEntrySound();">🔔 Sound: ON</button>
-        <button class="profile-menu-item" onclick="closeProfileMenu(); toggleFoodEntrySound();" id="sound-toggle-btn">🔔 Sound: ON</button>
+        <div class="profile-menu-item sound-switch-container" onclick="closeProfileMenu(); toggleFoodEntrySound();">
+            <span>Sound</span>
+            <span id="sound-switch-indicator" style="font-size: 1.1em;">⚪→</span>
+        </div>
     </div>
 </div>
 
@@ -1233,7 +1263,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.65" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.66" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1386,10 +1416,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.65"></script>
-<script src="zxing.min.js?v=1.65"></script>
-<script src="db.js?v=1.65"></script>
-<script src="USDA_DB_Access.js?v=1.65"></script>
+<script src="foodEmojis.js?v=1.66"></script>
+<script src="zxing.min.js?v=1.66"></script>
+<script src="db.js?v=1.66"></script>
+<script src="USDA_DB_Access.js?v=1.66"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1399,7 +1429,7 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.56';
+    const APP_VERSION = '1.66';
     const BUILD_DATE_UTC = '2026-08-08T16:06:18Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
@@ -1429,7 +1459,7 @@
         applySectionConfig();
         refreshAppUI();
         // Initialize sound toggle button text
-        document.getElementById('sound-toggle-btn').innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+        const indicator = document.getElementById('sound-switch-indicator'); if (indicator) indicator.innerText = foodEntrySoundEnabled ? '⚪→' : '←⚫';
         await refreshSavedMealsList();
 
         // Ask the browser to mark this site's storage as "persistent," so
@@ -2663,6 +2693,7 @@
         });
         await incrementFoodUseCount(upc, loggedAtMs);
 
+        playFoodEntrySound();
         const dateLabel = formatDateForDisplay(currentViewDateStr || toLocalDateStr(now));
         const isToday = (currentViewDateStr || toLocalDateStr(now)) === toLocalDateStr(new Date());
         alert(`Added "${food.description}" (${grams}g) to ${isToday ? "today's" : dateLabel + "'s"} log.`);
@@ -2832,6 +2863,7 @@
             await logMealToDB({ ...item, loggedAtMs: now });
         }
 
+        playFoodEntrySound();
         closeMealPicker();
         alert(`Logged "${meal.name}" (${meal.items.length} item${meal.items.length === 1 ? '' : 's'}) to today.`);
         refreshAppUI();
@@ -2866,6 +2898,7 @@
             loggedAtMs: Date.now()
         });
 
+        playFoodEntrySound();
         alert(`Added "${item.description}" to today's log.`);
         refreshAppUI();
     }
@@ -3473,8 +3506,10 @@
     function toggleFoodEntrySound() {
         foodEntrySoundEnabled = !foodEntrySoundEnabled;
         localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
-        const btn = document.getElementById('sound-toggle-btn');
-        btn.innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+        const indicator = document.getElementById('sound-switch-indicator');
+        if (indicator) {
+            indicator.innerText = foodEntrySoundEnabled ? '⚪→' : '←⚫';
+        }
     }
 
     function playFoodEntrySound() {
@@ -3908,7 +3943,7 @@
     function toggleFoodEntrySound() {
         foodEntrySoundEnabled = !foodEntrySoundEnabled;
         localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
-        document.getElementById('sound-toggle-btn').innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+        const indicator = document.getElementById('sound-switch-indicator'); if (indicator) indicator.innerText = foodEntrySoundEnabled ? '⚪→' : '←⚫';
     }
 
     function playFoodEntrySound() {
