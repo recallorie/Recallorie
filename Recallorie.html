@@ -872,53 +872,6 @@
             cursor: pointer;
             border-bottom: 1px solid #eee;
         }
-
-        .sound-switch-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 0.5rem;
-            user-select: none;
-        }
-
-        .sound-switch-label span:first-child {
-            font-weight: 500;
-        }
-
-        .sound-slider {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            background: #ddd;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .sound-slider-circle {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            background: #ff4444;
-            transition: left 0.3s ease, background 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sound-slider.on .sound-slider-circle {
-            left: 22px;
-            background: #44aa44;
-        }
-
         .profile-menu-item:last-child {
             border-bottom: none;
         }
@@ -945,6 +898,58 @@
         .portion-row label { font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; }
         .portion-row input { padding: 8px; }
         .serving-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+    
+        .sound-toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin: 0;
+        }
+
+        .sound-toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .sound-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .sound-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .sound-slider {
+            background-color: #44aa44;
+        }
+
+        input:checked + .sound-slider:before {
+            transform: translateX(26px);
+        }
+
+        input:not(:checked) + .sound-slider {
+            background-color: #ff4444;
+        }
+
     </style>
 </head>
 <body>
@@ -958,12 +963,14 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); openImportOverlay();">⬆ Import Data</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
-        <div class="profile-menu-item sound-switch-label">
+        <div class="profile-menu-item" style="display: flex; justify-content: space-between; align-items: center;">
             <span>Sound</span>
-            <div class="sound-slider" onclick="closeProfileMenu(); toggleFoodEntrySound();">
-                <div id="sound-slider-circle" class="sound-slider-circle"></div>
-            </div>
+            <label class="sound-toggle-switch">
+                <input type="checkbox" id="sound-toggle-btn" onchange="closeProfileMenu(); toggleFoodEntrySound();">
+                <span class="sound-slider"></span>
+            </label>
         </div>
+        <button class="profile-menu-item" onclick="closeProfileMenu(); toggleFoodEntrySound();" id="sound-toggle-btn">🔔 Sound: ON</button>
     </div>
 </div>
 
@@ -1284,7 +1291,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.69" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.70" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1437,10 +1444,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.69"></script>
-<script src="zxing.min.js?v=1.69"></script>
-<script src="db.js?v=1.69"></script>
-<script src="USDA_DB_Access.js?v=1.69"></script>
+<script src="foodEmojis.js?v=1.70"></script>
+<script src="zxing.min.js?v=1.70"></script>
+<script src="db.js?v=1.70"></script>
+<script src="USDA_DB_Access.js?v=1.70"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1450,7 +1457,7 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.69';
+    const APP_VERSION = '1.70';
     const BUILD_DATE_UTC = '2026-08-08T16:06:18Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
@@ -1480,9 +1487,9 @@
         applySectionConfig();
         refreshAppUI();
         // Initialize sound toggle button text
-        const slider = document.querySelector('.sound-slider');
-    if (slider && foodEntrySoundEnabled) {
-        slider.classList.add('on');
+        const soundCheckbox = document.getElementById('sound-toggle-btn');
+    if (soundCheckbox) {
+        soundCheckbox.checked = foodEntrySoundEnabled;
     }
         await refreshSavedMealsList();
 
@@ -2717,7 +2724,6 @@
         });
         await incrementFoodUseCount(upc, loggedAtMs);
 
-        playFoodEntrySound();
         const dateLabel = formatDateForDisplay(currentViewDateStr || toLocalDateStr(now));
         const isToday = (currentViewDateStr || toLocalDateStr(now)) === toLocalDateStr(new Date());
         alert(`Added "${food.description}" (${grams}g) to ${isToday ? "today's" : dateLabel + "'s"} log.`);
@@ -2887,7 +2893,6 @@
             await logMealToDB({ ...item, loggedAtMs: now });
         }
 
-        playFoodEntrySound();
         closeMealPicker();
         alert(`Logged "${meal.name}" (${meal.items.length} item${meal.items.length === 1 ? '' : 's'}) to today.`);
         refreshAppUI();
@@ -2922,7 +2927,6 @@
             loggedAtMs: Date.now()
         });
 
-        playFoodEntrySound();
         alert(`Added "${item.description}" to today's log.`);
         refreshAppUI();
     }
@@ -3528,16 +3532,9 @@
     }
 
     function toggleFoodEntrySound() {
-        foodEntrySoundEnabled = !foodEntrySoundEnabled;
+        const checkbox = document.getElementById('sound-toggle-btn');
+        foodEntrySoundEnabled = checkbox.checked;
         localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
-        const slider = document.querySelector('.sound-slider');
-        if (slider) {
-            if (foodEntrySoundEnabled) {
-                slider.classList.add('on');
-            } else {
-                slider.classList.remove('on');
-            }
-        }
     }
 
     function playFoodEntrySound() {
@@ -3971,9 +3968,9 @@
     function toggleFoodEntrySound() {
         foodEntrySoundEnabled = !foodEntrySoundEnabled;
         localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
-        const slider = document.querySelector('.sound-slider');
-    if (slider && foodEntrySoundEnabled) {
-        slider.classList.add('on');
+        const soundCheckbox = document.getElementById('sound-toggle-btn');
+    if (soundCheckbox) {
+        soundCheckbox.checked = foodEntrySoundEnabled;
     }
     }
 
