@@ -854,8 +854,8 @@
             background: var(--card-color);
             border-radius: 12px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-            min-width: 200px;
-            overflow: visible;
+            min-width: 190px;
+            overflow: hidden;
         }
         .profile-menu.open {
             display: block;
@@ -907,13 +907,11 @@
             margin: 0;
             flex-shrink: 0;
         }
-
         .sound-toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-
         .sound-slider {
             position: absolute;
             cursor: pointer;
@@ -924,8 +922,8 @@
             background-color: #ccc;
             transition: .3s;
             border-radius: 13px;
+            overflow: visible;
         }
-
         .sound-slider:before {
             position: absolute;
             content: "";
@@ -938,15 +936,12 @@
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-
         input:checked + .sound-slider {
             background-color: #44aa44;
         }
-
         input:checked + .sound-slider:before {
             transform: translateX(24px);
         }
-
         input:not(:checked) + .sound-slider {
             background-color: #ff4444;
         }
@@ -956,7 +951,6 @@
 <body>
 
 <div class="profile-corner">
-    <button class="profile-icon-btn" onclick="toggleAddGalleryModal(event)" aria-label="Add to gallery" style="margin-right: 8px;">➕</button>
     <button class="profile-icon-btn" onclick="toggleProfileMenu(event)" aria-label="Profile menu" aria-expanded="false">👤</button>
     <div id="profile-menu" class="profile-menu">
         <button class="profile-menu-item" onclick="closeProfileMenu(); exportFoodDatabase();">⬇ Export Foods</button>
@@ -965,15 +959,14 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); openImportOverlay();">⬆ Import Data</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
-        <button class="profile-menu-item" onclick="closeProfileMenu(); openMyGallery();">🎨 My Gallery</button>
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 12px 12px 16px; border-bottom: 1px solid #eee;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 12px 12px 16px; border-bottom: 1px solid #eee; overflow: visible;">
             <span>Sound</span>
             <label class="sound-toggle-switch">
                 <input type="checkbox" id="sound-toggle-btn" onchange="closeProfileMenu(); toggleFoodEntrySound();">
                 <span class="sound-slider"></span>
             </label>
         </div>
-
+        <button class="profile-menu-item" onclick="closeProfileMenu(); toggleFoodEntrySound();" id="sound-toggle-btn">🔔 Sound: ON</button>
     </div>
 </div>
 
@@ -1294,7 +1287,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.79" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.80" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1447,10 +1440,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.79"></script>
-<script src="zxing.min.js?v=1.79"></script>
-<script src="db.js?v=1.79"></script>
-<script src="USDA_DB_Access.js?v=1.79"></script>
+<script src="foodEmojis.js?v=1.80"></script>
+<script src="zxing.min.js?v=1.80"></script>
+<script src="db.js?v=1.80"></script>
+<script src="USDA_DB_Access.js?v=1.80"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1460,7 +1453,7 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.79';
+    const APP_VERSION = '1.80';
     const BUILD_DATE_UTC = '2026-08-08T16:06:18Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
@@ -1490,10 +1483,7 @@
         applySectionConfig();
         refreshAppUI();
         // Initialize sound toggle button text
-        const soundCheckbox = document.getElementById('sound-toggle-btn');
-    if (soundCheckbox) {
-        soundCheckbox.checked = foodEntrySoundEnabled;
-    }
+        document.getElementById('sound-toggle-btn').innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
         await refreshSavedMealsList();
 
         // Ask the browser to mark this site's storage as "persistent," so
@@ -2633,10 +2623,6 @@
                 return;
             }
 
-            // Play sound notification when edit is saved
-            console.log('Edit saved, foodEntrySoundEnabled:', foodEntrySoundEnabled);
-            playFoodEntrySound();
-            console.log('Sound called');
             editingExistingLogId = null;
             document.getElementById('food-display').style.display = 'none';
             document.getElementById('upc-input').value = '';
@@ -2964,42 +2950,21 @@
     // by the portion that was actually used.
     function editLoggedEntry(id) {
         const entry = currentViewLogs.find(l => l.id === id);
-        if (!entry || !entry.portionGrams) return;
+        if (!entry) return;
 
-        const reconstructedFood = {
+        const foodData = {
             description: entry.description,
-            brand: entry.brand,
-            emoji: entry.emoji || null,
-            caloriesPer100g: entry.calories / entry.portionGrams * 100,
-            proteinPer100g: entry.protein / entry.portionGrams * 100,
-            carbsPer100g: entry.carbs / entry.portionGrams * 100,
-            fatPer100g: entry.fat / entry.portionGrams * 100,
-            fiberPer100g: (entry.fiber || 0) / entry.portionGrams * 100,
-            servingSize: null,
-            servingSizeUnit: null,
-            householdServingText: null,
-            unitOverrides: entry.unitOverrides || null,
-            upc: null // not re-caching this reconstruction as a Quick Recall entry
+            calories: entry.calories,
+            caloriesPer: 100,
+            protein: entry.protein,
+            fat: entry.fat,
+            carbs: entry.carbs,
+            fiber: entry.fiber || 0,
+            sugar: entry.sugar || 0,
+            sodium: entry.sodium || 0
         };
 
-        editingExistingLogId = id;
-        editingCachedFoodUpc = null; // mutually exclusive with editing a cached food directly
-        // Entries logged before unit-tracking existed won't have a stored
-        // unit/unitOverrides - fall back to plain grams for those, same as
-        // a food with no special units ever would.
-        pendingPortionUnit = entry.unit || 'g';
-        pendingPortionAmount = entry.portionGrams / gramsPerUnitFor(pendingPortionUnit, entry.unitOverrides || null);
-        pendingUnitOverrides = null; // overrides are already on reconstructedFood.unitOverrides directly
-        pendingEatenAtOverrideMs = entry.timestamp; // show its actual original time, not "now"/noon
-
-        displayFood(reconstructedFood);
-        
-        // Focus and select the portion-weight field so user can immediately edit it
-        setTimeout(() => {
-            const portionField = document.getElementById('portion-weight');
-            portionField.focus();
-            portionField.select();
-        }, 100);
+        openFoodEditModal(foodData, 'consumed', id);
     }
 
     // ---- Health metrics (weight / blood pressure / custom) ----
@@ -3539,9 +3504,10 @@
     }
 
     function toggleFoodEntrySound() {
-        const checkbox = document.getElementById('sound-toggle-btn');
-        foodEntrySoundEnabled = checkbox.checked;
+        foodEntrySoundEnabled = !foodEntrySoundEnabled;
         localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
+        const btn = document.getElementById('sound-toggle-btn');
+        btn.innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
     }
 
     function playFoodEntrySound() {
@@ -3975,10 +3941,7 @@
     function toggleFoodEntrySound() {
         foodEntrySoundEnabled = !foodEntrySoundEnabled;
         localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
-        const soundCheckbox = document.getElementById('sound-toggle-btn');
-    if (soundCheckbox) {
-        soundCheckbox.checked = foodEntrySoundEnabled;
-    }
+        document.getElementById('sound-toggle-btn').innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
     }
 
     function playFoodEntrySound() {
@@ -4024,135 +3987,69 @@
     }
 
 
-    // ===== CUSTOM GALLERY FUNCTIONS =====
-    
-    async function openAddGalleryModal() {
-        const modal = document.getElementById('add-gallery-modal');
-        modal.style.display = 'flex';
+    let currentEditingFood = null;
+    let currentEditingSource = null;
+    let currentEditingLogId = null;
+
+    function openFoodEditModal(food, source = 'consumed', logId = null) {
+        currentEditingFood = JSON.parse(JSON.stringify(food));
+        currentEditingSource = source;
+        currentEditingLogId = logId;
         
-        // Populate category dropdown
-        const categorySelect = document.getElementById('gallery-category');
-        categorySelect.innerHTML = '';
-        FOOD_EMOJI_CATEGORIES.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat.label;
-            option.textContent = cat.icon + ' ' + cat.label;
-            categorySelect.appendChild(option);
-        });
+        document.getElementById('edit-food-description').value = food.description || '';
+        document.getElementById('edit-food-calories').value = food.calories || 0;
+        document.getElementById('edit-food-calories-per').value = food.caloriesPer || 100;
+        document.getElementById('edit-food-protein').value = food.protein || 0;
+        document.getElementById('edit-food-fat').value = food.fat || 0;
+        document.getElementById('edit-food-carbs').value = food.carbs || 0;
+        document.getElementById('edit-food-fiber').value = food.fiber || 0;
+        document.getElementById('edit-food-sugar').value = food.sugar || 0;
+        document.getElementById('edit-food-sodium').value = food.sodium || 0;
         
-        // Reset form
-        document.getElementById('gallery-emoji-value').value = '🍎';
-        document.getElementById('gallery-emoji-btn').textContent = '🍎';
-        document.getElementById('gallery-label').value = '';
-        document.getElementById('gallery-portion-amount').value = '1';
-        document.getElementById('gallery-portion-unit').value = 'each';
+        document.getElementById('edit-modal-title').textContent = 'Edit: ' + (food.description || 'Food');
+        document.getElementById('food-edit-modal').style.display = 'block';
     }
-    
-    function closeAddGalleryModal() {
-        document.getElementById('add-gallery-modal').style.display = 'none';
+
+    function closeFoodEditModal() {
+        document.getElementById('food-edit-modal').style.display = 'none';
+        currentEditingFood = null;
     }
-    
-    function toggleAddGalleryModal(event) {
-        event.stopPropagation();
-        const modal = document.getElementById('add-gallery-modal');
-        if (modal.style.display === 'flex') {
-            closeAddGalleryModal();
-        } else {
-            openAddGalleryModal();
-        }
-    }
-    
-    function openGalleryEmojiPicker() {
-        // Reuse existing emoji picker - redirect to custom gallery mode
-        showEmojiPicker(null, 'gallery');
-    }
-    
-    async function saveGalleryCustom() {
-        const category = document.getElementById('gallery-category').value;
-        const emoji = document.getElementById('gallery-emoji-value').value;
-        const label = document.getElementById('gallery-label').value.trim();
-        const portionAmount = parseFloat(document.getElementById('gallery-portion-amount').value) || 1;
-        const portionUnit = document.getElementById('gallery-portion-unit').value;
+
+    async function saveFoodEditChanges() {
+        if (!currentEditingFood || !currentEditingLogId) return;
         
-        if (!label) {
-            alert('Please enter a label for this food');
-            return;
-        }
-        
-        const customFood = {
-            id: Date.now().toString(),
-            emoji: emoji,
-            name: label,
-            searchOn: label, // Will search by label as fallback
-            portionAmount: portionAmount,
-            portionUnit: portionUnit,
-            descriptors: [],
-            isCustom: true
-        };
+        currentEditingFood.description = document.getElementById('edit-food-description').value;
+        currentEditingFood.calories = parseFloat(document.getElementById('edit-food-calories').value) || 0;
+        currentEditingFood.protein = parseFloat(document.getElementById('edit-food-protein').value) || 0;
+        currentEditingFood.fat = parseFloat(document.getElementById('edit-food-fat').value) || 0;
+        currentEditingFood.carbs = parseFloat(document.getElementById('edit-food-carbs').value) || 0;
+        currentEditingFood.fiber = parseFloat(document.getElementById('edit-food-fiber').value) || 0;
+        currentEditingFood.sugar = parseFloat(document.getElementById('edit-food-sugar').value) || 0;
+        currentEditingFood.sodium = parseFloat(document.getElementById('edit-food-sodium').value) || 0;
         
         try {
             const db = await openDB();
-            const tx = db.transaction('custom-foods', 'readwrite');
-            const store = tx.objectStore('custom-foods');
+            const tx = db.transaction('logged-meals', 'readwrite');
+            const store = tx.objectStore('logged-meals');
+            const existing = await store.get(currentEditingLogId);
             
-            // Get existing customs for this category
-            const allCustoms = await store.getAll();
-            const categoryCustoms = allCustoms.filter(c => c.category === category);
-            
-            // Add the new custom
-            await store.add({
-                category: category,
-                food: customFood,
-                createdAt: Date.now()
-            });
-            
-            alert(`Added "${label}" to ${category}!`);
-            closeAddGalleryModal();
-            refreshAppUI();
-        } catch (error) {
-            console.error('Failed to save custom food:', error);
-            alert('Failed to save: ' + error.message);
-        }
-    }
-    
-    async function getCustomFoodsForCategory(categoryLabel) {
-        try {
-            const db = await openDB();
-            const tx = db.transaction('custom-foods', 'readonly');
-            const store = tx.objectStore('custom-foods');
-            const allCustoms = await store.getAll();
-            return allCustoms
-                .filter(c => c.category === categoryLabel)
-                .map(c => c.food);
-        } catch (error) {
-            console.error('Failed to get custom foods:', error);
-            return [];
-        }
-    }
-    
-    async function deleteCustomFood(foodId, category) {
-        if (!confirm('Delete this custom food?')) return;
-        
-        try {
-            const db = await openDB();
-            const tx = db.transaction('custom-foods', 'readwrite');
-            const store = tx.objectStore('custom-foods');
-            const allCustoms = await store.getAll();
-            const toDelete = allCustoms.find(c => c.category === category && c.food.id === foodId);
-            
-            if (toDelete) {
-                await store.delete(toDelete);
+            if (existing) {
+                existing.description = currentEditingFood.description;
+                existing.calories = currentEditingFood.calories;
+                existing.protein = currentEditingFood.protein;
+                existing.fat = currentEditingFood.fat;
+                existing.carbs = currentEditingFood.carbs;
+                existing.fiber = currentEditingFood.fiber;
+                existing.sugar = currentEditingFood.sugar;
+                existing.sodium = currentEditingFood.sodium;
+                await store.put(existing);
+                playFoodEntrySound();
+                closeFoodEditModal();
                 refreshAppUI();
             }
         } catch (error) {
-            console.error('Failed to delete custom food:', error);
-            alert('Failed to delete: ' + error.message);
+            alert('Error saving: ' + error.message);
         }
-    }
-
-    
-    function openMyGallery() {
-        alert('My Gallery coming soon! You can add customs via the [+] button for now.');
     }
 
     </script>
@@ -4160,54 +4057,63 @@
         <source src="data:audio/mpeg;base64,//OIxAAAAAAAAAAAAFhpbmcAAAAPAAAAJQAACJQABAQYGBghISErKzU1NT4+Pk1NVlZWW1tbYGBgZWVqampzc3N4eH19fYKCgoeHjIyMkJCQmpqan5+pqamtra23t7y8vMHBwcbGz8/P1NTU2dnZ3t7n5+fs7Ozx8fb29vv7+///AAAAOkxBTUUzLjk4cgI4AAAAAC5cAAAUECQF/EIAABAAAAiUbZw7JAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//MYxAAA8AZ4QUAYAjA/+J0ARi0RAM4IoWy27AYAAAYUmP72//NIxBMjWaaOf5rwAPwl++rS9aLRvmACBgbNO+pjkBIGKeQWY6YaZi8mOHlc50Zf4hUuMccJdC8wTwLx4Ad36pg/gXGAABmqUZAEqwFjVzzpKSw6TxSWciN7//tPT26SxhP4X7V6/lzHn9t595//+N7LLu987rf//7z7hhzPl3oJP//cHSRNSgBbBbf/8xIq//MoxAgPUL6MedV4AkBKhRD0QMDCkDJA9A+FBgMXiwEQeIKI5R3g1/DiBzAZhDRbSckFLi4wmJXMs0s//4iPfr/6KgMCAlsA//MoxAULIGp0XgG6Zv6kkEwy1pEEwNDo9ttkBDEsV+gWDb5swr/+j///3/LabrtT/Tpt+XoA8ADf+pMtQKwZXJaIwBAwwIDE//MoxBMPeJpAFC9+aMBx0MVqdM1WR9jAQgKswBkBCKgAah0W40NerZ+WbO/7U7v/T///Qq/2ep9H5bwqV0IDQMJlr0DoBiAY//MoxBAOoL5wCB9ypY077cGAgBQHEALAYDQOAa75BEag4LHNA4ZFV06lNOfT1rG89W9I2kef56UDBbwCrc79Wpaq8xxrWpTY//M4xBAacPpwVO6ZAItZ3ASqIiAIwLEkyR3owJAdrpgWCQwH5hqAJkITZgpmB9YhhmmIxhII54GBzzACGqHIXGEEocBcYssHyaNb1vZ5rLTtHoeCoiBR5IJPJBXAutO07JHrR9QFrTFIf8JW//MYxAUHwJ7EgAZ6p4yGp7GL//K28MC0gCSQYvLC6aOC83XqRoIWYHHAA5bfwGhnjtItb/tkQjCfjf4HHlutPhuCsaP4s2Al//MYxCEIIKKweAZ0pgAKGEYDP2nckREgNITnO//cXbIzt/yz//MYxBcHgKLKYAB0ZskxADtyK70W9UstyU8EGOmUWMIwAS4c//MYxBAI0JJwIAY6h3YkxoGAaYNpqflA6YAgB1X0u0NVYFFq//MYxAMFwJasYAP0o6iAnRL7JucyymSFOPvbWLGoPq9WYGAA//MoxAMIaJ6geAY0oh6WNNZBtDsgX6ov7lMkNcX+02KezSaliXXv////01IgUVk4EqdA9IZzHWUyVd4nprbZk+M1OWuVQFGN//MYxBwGGJ6cYAN0omiJKENmtjUh53UyWOIutrbCYrnET/ID//MYxBoGKJ6cYAaYqh/eZVo6xoqBSaPOI1UiBiBYebkSgKAM//MYxBgI8JpkQAg6DOTgAJVGomzKXzFJfiBRUsagETpga86E//MYxAsE4JakYAUSqxJBRKhEBdBBakBRWUA1MBKg3LWo6DS2//MYxA4FaJqcYAUYqgoNQgQOzij9iHH4A3OPuDIGnRbqN7Y7//MYxA8JWKKcZgY2ovmQJ784dScR/YhDE/ha///////+x/1K//MoxAAJiJqYfgZ0poRQABvwByndwChn/5C4TlrWY5RVHe+KOvY1Xd/////t/9Pb36uKVaTgAOBwBakznkRh8Nyad5/5im0e//MYxBQJYJacfgZ0pmdjrgOvFJQHv///6eFf//+ixaTgBv+A//MoxAUJ+JqYfgY0ogWYebUzgOGIhch//zFMpFfnOvk0+WUldn///Pr34Btt7P/QQEAAtwAGVmXBQYt2vLRYb+eC0mRc8mzb//MYxBgLCJZ4fgY2osjcssf///5Ph3/rItKrOgQ4MFqm1YlR//MYxAIHwIqcZgY0ovgDGtERkR0w8nkOt8viK2Ux732xYf///////+zuYEAEo2AGVWPDBz8il5/8yGHSnK92itjP///T29////MYxB4IKI6IfgYypvo/WolR+AKwlyCGNGjtWdc3kKGSd1Rd//MYxBQHsIqcZgP0oqJ6///////v/9+qiOH4Ayu0CLpkSTOP//MYxAwHWJacZgZSqvPybqTnc88EmEv///////19FQABM1tu//MoxAUIuLaiQAB0gsBUKzYZECODKI7amKO69BF6oqNDVCPr916nd1OXegABIjqae4lLlHQbq/Lu3cvWwTyrX1NFvUk7Mx60//MYxB0HyKKeQABwglUXVc3hwAL0ZwqDKZor//u4SLEfR0JT//MYxBQGuH6oZgPyor///////9QA4AH//pTqdYAznBXQpORw//MYxBAJqIZAFBP4oLooigQMAU49uAml0AAC////o7P1fd9N//MoxAAJaJJ0fgP0omTAABLQBZ6ogD02hl5Z7v7kgrODT1PhK6mwIY/////2f/5Pv+tC1mFYTCC6PcyBrXebqCswt1bAwPW1//MYxBUE+IKoYAPyo9FaZbESD5xRmmKsNAdTOGAChBDFA9gL//MYxBgGiJJ8YAbMqyFzKikoAH2XhMAGFJAo1R0sqpl8GdfH//MYxBQJGIosRgG0hBVg8LfLoqHv//////5XhoQ1AGKcdCWW//MYxAYFAJ2hoABGYaGTWWBgoJ0sBggwMIOWTEFNRTMuOTgu//MYxAkAAANIAAAAADJVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
     </audio>
 
-
-    <!-- Add to Gallery Modal -->
-    <div id="add-gallery-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: var(--card-color); border-radius: 12px; padding: 20px; max-width: 90%; width: 100%; max-height: 80vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin: 0;">Add to Gallery</h2>
-                <button onclick="closeAddGalleryModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Category</label>
-                <select id="gallery-category" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;">
-                </select>
+        <!-- Comprehensive Food Edit Modal -->
+    <div id="food-edit-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; padding: 20px 0;">
+        <div style="background: var(--card-color); border-radius: 12px; margin: 20px auto; padding: 20px; max-width: 95%; width: 100%; max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 id="edit-modal-title" style="margin: 0;">Edit Food</h2>
+                <button onclick="closeFoodEditModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Emoji</label>
-                <button id="gallery-emoji-btn" onclick="openGalleryEmojiPicker()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 2rem; background: #f5f5f5; cursor: pointer;">🍎</button>
-                <input type="hidden" id="gallery-emoji-value" value="🍎">
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Description</label>
+                <input type="text" id="edit-food-description" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Label</label>
-                <input type="text" id="gallery-label" placeholder="e.g., Pink Lemonade" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; box-sizing: border-box;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Calories</label>
+                    <input type="number" id="edit-food-calories" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Per (g)</label>
+                    <input type="number" id="edit-food-calories-per" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Default Portion Amount</label>
-                <input type="number" id="gallery-portion-amount" placeholder="16" value="1" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; box-sizing: border-box;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Protein (g)</label>
+                    <input type="number" id="edit-food-protein" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Fat (g)</label>
+                    <input type="number" id="edit-food-fat" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Carbs (g)</label>
+                    <input type="number" id="edit-food-carbs" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Default Portion Unit</label>
-                <select id="gallery-portion-unit" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;">
-                    <option value="g">grams (g)</option>
-                    <option value="oz">ounces (oz)</option>
-                    <option value="cup">cup</option>
-                    <option value="tbsp">tablespoon (tbsp)</option>
-                    <option value="tsp">teaspoon (tsp)</option>
-                    <option value="ml">milliliters (ml)</option>
-                    <option value="fl oz">fluid ounces (fl oz)</option>
-                    <option value="each">each</option>
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Fiber (g)</label>
+                    <input type="number" id="edit-food-fiber" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Sugar (g)</label>
+                    <input type="number" id="edit-food-sugar" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Sodium (mg)</label>
+                    <input type="number" id="edit-food-sodium" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                </div>
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <button onclick="saveGalleryCustom()" style="flex: 1; padding: 12px; background: #44aa44; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;">Save</button>
-                <button onclick="closeAddGalleryModal()" style="flex: 1; padding: 12px; background: #ddd; color: var(--text-main); border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;">Cancel</button>
+                <button onclick="saveFoodEditChanges()" style="flex: 1; padding: 10px; background: #44aa44; color: white; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 500; cursor: pointer;">Save Changes</button>
+                <button onclick="closeFoodEditModal()" style="flex: 1; padding: 10px; background: #ddd; color: var(--text-main); border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 500; cursor: pointer;">Cancel</button>
             </div>
         </div>
     </div>
