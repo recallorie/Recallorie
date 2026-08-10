@@ -1287,7 +1287,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.80" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.81" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1440,10 +1440,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.80"></script>
-<script src="zxing.min.js?v=1.80"></script>
-<script src="db.js?v=1.80"></script>
-<script src="USDA_DB_Access.js?v=1.80"></script>
+<script src="foodEmojis.js?v=1.81"></script>
+<script src="zxing.min.js?v=1.81"></script>
+<script src="db.js?v=1.81"></script>
+<script src="USDA_DB_Access.js?v=1.81"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1453,7 +1453,7 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.80';
+    const APP_VERSION = '1.81';
     const BUILD_DATE_UTC = '2026-08-08T16:06:18Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
@@ -3799,7 +3799,7 @@
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
                     <div style="display: flex; align-items: center;">
                         <span class="item-badge">${Math.round(item.caloriesPer100g || 0)} Cal/100g</span>
-                        <button class="icon-btn btn-edit" onclick="openCachedFoodEditOverlay('${item.upc}')" title="Edit all fields">✏️</button>
+                        <button class="icon-btn btn-edit" onclick="editQuickRecallItem('${item.upc}')" title="Edit all fields">✏️</button>
                         <button class="icon-btn btn-duplicate" onclick="duplicateCachedFoodToViewedDate('${item.upc}')" title="${duplicateTitle}">📑</button>
                         <button class="icon-btn btn-delete" onclick="deleteCachedFood('${item.upc}')" title="Delete">🗑️</button>
                     </div>
@@ -4028,28 +4028,76 @@
         currentEditingFood.sodium = parseFloat(document.getElementById('edit-food-sodium').value) || 0;
         
         try {
-            const db = await openDB();
-            const tx = db.transaction('logged-meals', 'readwrite');
-            const store = tx.objectStore('logged-meals');
-            const existing = await store.get(currentEditingLogId);
-            
-            if (existing) {
-                existing.description = currentEditingFood.description;
-                existing.calories = currentEditingFood.calories;
-                existing.protein = currentEditingFood.protein;
-                existing.fat = currentEditingFood.fat;
-                existing.carbs = currentEditingFood.carbs;
-                existing.fiber = currentEditingFood.fiber;
-                existing.sugar = currentEditingFood.sugar;
-                existing.sodium = currentEditingFood.sodium;
-                await store.put(existing);
-                playFoodEntrySound();
-                closeFoodEditModal();
-                refreshAppUI();
+            if (currentEditingSource === 'quick-recall') {
+                // Update Quick Recall cached food
+                const db = await openDB();
+                const tx = db.transaction('quick-recall', 'readwrite');
+                const store = tx.objectStore('quick-recall');
+                const existing = await store.get(currentEditingLogId);
+                
+                if (existing) {
+                    existing.description = currentEditingFood.description;
+                    existing.calories = currentEditingFood.calories;
+                    existing.caloriesPer100g = currentEditingFood.calories;
+                    existing.protein = currentEditingFood.protein;
+                    existing.proteinPer100g = currentEditingFood.protein;
+                    existing.fat = currentEditingFood.fat;
+                    existing.fatPer100g = currentEditingFood.fat;
+                    existing.carbs = currentEditingFood.carbs;
+                    existing.carbsPer100g = currentEditingFood.carbs;
+                    existing.fiber = currentEditingFood.fiber;
+                    existing.fiberPer100g = currentEditingFood.fiber;
+                    existing.sugar = currentEditingFood.sugar || 0;
+                    existing.sodium = currentEditingFood.sodium || 0;
+                    await store.put(existing);
+                }
+            } else {
+                // Update logged meal
+                const db = await openDB();
+                const tx = db.transaction('logged-meals', 'readwrite');
+                const store = tx.objectStore('logged-meals');
+                const existing = await store.get(currentEditingLogId);
+                
+                if (existing) {
+                    existing.description = currentEditingFood.description;
+                    existing.calories = currentEditingFood.calories;
+                    existing.protein = currentEditingFood.protein;
+                    existing.fat = currentEditingFood.fat;
+                    existing.carbs = currentEditingFood.carbs;
+                    existing.fiber = currentEditingFood.fiber;
+                    existing.sugar = currentEditingFood.sugar;
+                    existing.sodium = currentEditingFood.sodium;
+                    await store.put(existing);
+                }
             }
+            
+            playFoodEntrySound();
+            closeFoodEditModal();
+            refreshAppUI();
         } catch (error) {
             alert('Error saving: ' + error.message);
         }
+    }
+
+    
+    function editQuickRecallItem(upc) {
+        // Find the Quick Recall item in cache
+        const item = cachedFoods.find(f => f.upc === upc);
+        if (!item) return;
+        
+        const foodData = {
+            description: item.description,
+            calories: item.caloriesPer100g || 0,
+            caloriesPer: 100,
+            protein: item.proteinPer100g || 0,
+            fat: item.fatPer100g || 0,
+            carbs: item.carbsPer100g || 0,
+            fiber: item.fiberPer100g || 0,
+            sugar: item.sugar || 0,
+            sodium: item.sodium || 0
+        };
+        
+        openFoodEditModal(foodData, 'quick-recall', upc);
     }
 
     </script>
@@ -4058,62 +4106,62 @@
     </audio>
 
         <!-- Comprehensive Food Edit Modal -->
-    <div id="food-edit-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; padding: 20px 0;">
-        <div style="background: var(--card-color); border-radius: 12px; margin: 20px auto; padding: 20px; max-width: 95%; width: 100%; max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 id="edit-modal-title" style="margin: 0;">Edit Food</h2>
-                <button onclick="closeFoodEditModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+    <div id="food-edit-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; padding: 10px;">
+        <div style="background: var(--card-color); border-radius: 8px; margin: 20px auto; padding: 12px; max-width: 280px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 id="edit-modal-title" style="margin: 0; font-size: 1rem;">Edit Food</h3>
+                <button onclick="closeFoodEditModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 0;">✕</button>
             </div>
 
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Description</label>
-                <input type="text" id="edit-food-description" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+            <div style="margin-bottom: 8px;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 2px;">Description</label>
+                <input type="text" id="edit-food-description" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.8rem; box-sizing: border-box;">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Calories</label>
-                    <input type="number" id="edit-food-calories" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Cal</label>
+                    <input type="number" id="edit-food-calories" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Per (g)</label>
-                    <input type="number" id="edit-food-calories-per" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Protein (g)</label>
-                    <input type="number" id="edit-food-protein" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Fat (g)</label>
-                    <input type="number" id="edit-food-fat" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Carbs (g)</label>
-                    <input type="number" id="edit-food-carbs" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Per</label>
+                    <input type="number" id="edit-food-calories-per" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Fiber (g)</label>
-                    <input type="number" id="edit-food-fiber" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Pro</label>
+                    <input type="number" id="edit-food-protein" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Sugar (g)</label>
-                    <input type="number" id="edit-food-sugar" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Fat</label>
+                    <input type="number" id="edit-food-fat" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Sodium (mg)</label>
-                    <input type="number" id="edit-food-sodium" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Carb</label>
+                    <input type="number" id="edit-food-carbs" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
                 </div>
             </div>
 
-            <div style="display: flex; gap: 10px;">
-                <button onclick="saveFoodEditChanges()" style="flex: 1; padding: 10px; background: #44aa44; color: white; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 500; cursor: pointer;">Save Changes</button>
-                <button onclick="closeFoodEditModal()" style="flex: 1; padding: 10px; background: #ddd; color: var(--text-main); border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 500; cursor: pointer;">Cancel</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 10px;">
+                <div>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Fiber</label>
+                    <input type="number" id="edit-food-fiber" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Sugar</label>
+                    <input type="number" id="edit-food-sugar" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Na</label>
+                    <input type="number" id="edit-food-sodium" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 6px;">
+                <button onclick="saveFoodEditChanges()" style="flex: 1; padding: 6px; background: #44aa44; color: white; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Save</button>
+                <button onclick="closeFoodEditModal()" style="flex: 1; padding: 6px; background: #ddd; color: var(--text-main); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         </div>
     </div>
