@@ -1287,7 +1287,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.85" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.87" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1376,7 +1376,7 @@
             <div class="macro-box">
                 <span class="macro-val" id="val-sodium" onclick="makeEditable('val-sodium', 'edit-sodium')">0mg</span>
                 <input type="number" id="edit-sodium" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" onblur="finishEditing('val-sodium', 'edit-sodium')" onkeypress="if(event.key==='Enter') finishEditing('val-sodium', 'edit-sodium')">
-                <div style="font-size: 0.7rem; margin-top: 2px;">Na</div>
+                <div style="font-size: 0.7rem; margin-top: 2px;">Sod</div>
             </div>
             <div class="macro-box">
                 <span class="macro-val" id="display-total-cals" style="cursor: default;">0</span>
@@ -1477,10 +1477,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.85"></script>
-<script src="zxing.min.js?v=1.85"></script>
-<script src="db.js?v=1.85"></script>
-<script src="USDA_DB_Access.js?v=1.85"></script>
+<script src="foodEmojis.js?v=1.87"></script>
+<script src="zxing.min.js?v=1.87"></script>
+<script src="db.js?v=1.87"></script>
+<script src="USDA_DB_Access.js?v=1.87"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1490,7 +1490,7 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.85';
+    const APP_VERSION = '1.87';
     const BUILD_DATE_UTC = '2026-08-08T16:06:18Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
@@ -4071,7 +4071,10 @@
             displayText = value + 'mg';
         }
         
+        // Update both display span and hidden input with the rounded value
         display.textContent = displayText;
+        input.value = value;
+        
         display.style.display = 'block';
         input.style.display = 'none';
     }
