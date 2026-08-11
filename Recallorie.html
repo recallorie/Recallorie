@@ -1287,7 +1287,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.81" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.85" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1340,11 +1340,48 @@
         </div>
 
         <div class="macro-grid" style="grid-template-columns: repeat(5, 1fr);">
-            <div class="macro-box"><span class="macro-val" id="val-cals">0</span>Cals</div>
-            <div class="macro-box"><span class="macro-val" id="val-protein">0g</span>Prot</div>
-            <div class="macro-box"><span class="macro-val" id="val-carbs">0g</span>Carb</div>
-            <div class="macro-box"><span class="macro-val" id="val-fat">0g</span>Fat</div>
-            <div class="macro-box"><span class="macro-val" id="val-fiber">0g</span>Fiber</div>
+            <div class="macro-box">
+                <span class="macro-val" id="val-cals" onclick="makeEditable('val-cals', 'edit-cals')">0</span>
+                <input type="number" id="edit-cals" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" step="0.1" onblur="finishEditing('val-cals', 'edit-cals')" onkeypress="if(event.key==='Enter') finishEditing('val-cals', 'edit-cals')">
+                <div style="font-size: 0.7rem; margin-top: 2px;">Cal</div>
+            </div>
+            <div class="macro-box">
+                <span class="macro-val" id="val-protein" onclick="makeEditable('val-protein', 'edit-protein')">0g</span>
+                <input type="number" id="edit-protein" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" step="0.1" onblur="finishEditing('val-protein', 'edit-protein')" onkeypress="if(event.key==='Enter') finishEditing('val-protein', 'edit-protein')">
+                <div style="font-size: 0.7rem; margin-top: 2px;">Pro</div>
+            </div>
+            <div class="macro-box">
+                <span class="macro-val" id="val-carbs" onclick="makeEditable('val-carbs', 'edit-carbs')">0g</span>
+                <input type="number" id="edit-carbs" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" step="0.1" onblur="finishEditing('val-carbs', 'edit-carbs')" onkeypress="if(event.key==='Enter') finishEditing('val-carbs', 'edit-carbs')">
+                <div style="font-size: 0.7rem; margin-top: 2px;">Carb</div>
+            </div>
+            <div class="macro-box">
+                <span class="macro-val" id="val-fat" onclick="makeEditable('val-fat', 'edit-fat')">0g</span>
+                <input type="number" id="edit-fat" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" step="0.1" onblur="finishEditing('val-fat', 'edit-fat')" onkeypress="if(event.key==='Enter') finishEditing('val-fat', 'edit-fat')">
+                <div style="font-size: 0.7rem; margin-top: 2px;">Fat</div>
+            </div>
+            <div class="macro-box">
+                <span class="macro-val" id="val-fiber" onclick="makeEditable('val-fiber', 'edit-fiber')">0g</span>
+                <input type="number" id="edit-fiber" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" step="0.1" onblur="finishEditing('val-fiber', 'edit-fiber')" onkeypress="if(event.key==='Enter') finishEditing('val-fiber', 'edit-fiber')">
+                <div style="font-size: 0.7rem; margin-top: 2px;">Fiber</div>
+            </div>
+        </div>
+
+        <div class="macro-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 8px;">
+            <div class="macro-box">
+                <span class="macro-val" id="val-sugar" onclick="makeEditable('val-sugar', 'edit-sugar')">0g</span>
+                <input type="number" id="edit-sugar" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" step="0.1" onblur="finishEditing('val-sugar', 'edit-sugar')" onkeypress="if(event.key==='Enter') finishEditing('val-sugar', 'edit-sugar')">
+                <div style="font-size: 0.7rem; margin-top: 2px;">Sugar</div>
+            </div>
+            <div class="macro-box">
+                <span class="macro-val" id="val-sodium" onclick="makeEditable('val-sodium', 'edit-sodium')">0mg</span>
+                <input type="number" id="edit-sodium" style="display: none; width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; text-align: center; box-sizing: border-box;" onblur="finishEditing('val-sodium', 'edit-sodium')" onkeypress="if(event.key==='Enter') finishEditing('val-sodium', 'edit-sodium')">
+                <div style="font-size: 0.7rem; margin-top: 2px;">Na</div>
+            </div>
+            <div class="macro-box">
+                <span class="macro-val" id="display-total-cals" style="cursor: default;">0</span>
+                <div style="font-size: 0.7rem; margin-top: 2px;">Total</div>
+            </div>
         </div>
         <button id="log-meal-btn" class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="logCurrentMeal()">Log This Meal</button>
     </div>
@@ -1440,10 +1477,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.81"></script>
-<script src="zxing.min.js?v=1.81"></script>
-<script src="db.js?v=1.81"></script>
-<script src="USDA_DB_Access.js?v=1.81"></script>
+<script src="foodEmojis.js?v=1.85"></script>
+<script src="zxing.min.js?v=1.85"></script>
+<script src="db.js?v=1.85"></script>
+<script src="USDA_DB_Access.js?v=1.85"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1453,7 +1490,7 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.81';
+    const APP_VERSION = '1.85';
     const BUILD_DATE_UTC = '2026-08-08T16:06:18Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
@@ -2074,186 +2111,78 @@
     }
 
     function displayFood(food) {
-        // If this lookup was triggered from the food-emoji picker with
-        // food-specific gram overrides pending (e.g. grapes' cup = 152g),
-        // bake them permanently onto the food record itself (rather than
-        // just applying them once) and re-save to the local cache. That
-        // way the override still applies the next time this exact food is
-        // recalled - from the "recent items" list, a repeat search, etc -
-        // not just on this one initial display.
-        if (pendingUnitOverrides) {
-            food.unitOverrides = { ...(food.unitOverrides || {}), ...pendingUnitOverrides };
-            if (food.upc) {
-                saveFoodToLocalCache(food.upc, food);
-            }
-        }
-
-        currentActiveFood = food;
-        document.getElementById('food-title').value = food.description;
-        document.getElementById('food-brand').innerText = food.brand;
-
-        // If this lookup was triggered from the food-emoji picker (with a
-        // preset portionAmount/portionUnit on that item or descriptor), use
-        // that instead of the usual label-serving-size default - then clear
-        // it so a later unrelated barcode scan or typed search doesn't
-        // accidentally reuse it.
-        let amount, unit;
-        if (food.portionAmount != null && food.portionUnit) {
-            // A previously-saved, user-adjusted portion for this exact food
-            // sticks and takes priority over everything else, including the
-            // emoji picker's built-in preset - once someone's customized how
-            // they log a food, that's what should keep being used, not the
-            // picker's original default.
-            amount = food.portionAmount;
-            unit = food.portionUnit;
-            pendingPortionAmount = null;
-            pendingPortionUnit = null;
-        } else if (pendingPortionAmount !== null && pendingPortionUnit !== null) {
-            amount = pendingPortionAmount;
-            unit = pendingPortionUnit;
-        } else {
-            // Prefer a natural "1 slice" / "1 each" default over a raw gram
-            // number whenever the label's serving text describes one -
-            // "1 slice (28g)" is a more useful starting point than "28g".
-            const parsedUnit = parseHouseholdServingUnit(food.householdServingText, food.servingSize);
-            if (parsedUnit) {
-                unit = parsedUnit.unit;
-                amount = 1;
-                food.unitOverrides = { ...(food.unitOverrides || {}), [parsedUnit.unit]: parsedUnit.gramsPerUnit };
-                if (food.upc) {
-                    saveFoodToLocalCache(food.upc, food); // remember it for next time too
-                }
-            } else {
-                unit = 'g';
-                amount = (food.servingSize && (!food.servingSizeUnit || /g|gram/i.test(food.servingSizeUnit)))
-                    ? Math.round(food.servingSize)
-                    : 100;
-            }
-        }
-        pendingPortionAmount = null;
-        pendingPortionUnit = null;
-        pendingUnitOverrides = null;
-
-        // Rebuild the unit dropdown from scratch every time, reading
-        // overrides straight off the food record (food.unitOverrides) -
-        // not off the one-shot pending flags - so a food's gram overrides
-        // (count-based units like Egg's "each", or density corrections like
-        // Grapes' "cup") apply every time this food is displayed, including
-        // when it's recalled from history rather than freshly looked up.
-        rebuildPortionUnitOptions(food.unitOverrides || null);
-
-        document.getElementById('portion-amount').value = amount;
-        document.getElementById('portion-unit').value = unit;
-        recalcGramsFromUnitAmount();
-
-        const hintEl = document.getElementById('serving-hint');
-        hintEl.innerText = food.householdServingText
-            ? `Label serving: ${food.householdServingText}`
-            : (food.servingSize ? `Label serving: ${food.servingSize}${food.servingSizeUnit || ''}` : '');
-
-        if (pendingEatenAtOverrideMs !== null) {
-            document.getElementById('logged-datetime').value = formatForDatetimeLocal(new Date(pendingEatenAtOverrideMs));
-            pendingEatenAtOverrideMs = null;
-        } else {
-            setLoggedTimeDefault();
-        }
-
-        // Reflect edit vs. add mode on the action button, so it's clear
-        // whether this will update the entry you opened or create a new one.
-        document.getElementById('log-meal-btn').innerText = (editingExistingLogId !== null || editingCachedFoodUpc !== null) ? 'Save Changes' : 'Log This Meal';
-
-        // Ensure UI displays card and scrolls to it
         const card = document.getElementById('food-display');
+        currentActiveFood = JSON.parse(JSON.stringify(food));
+        
+        // Set basic info
+        document.getElementById('food-title').value = food.description || '';
+        if (food.brand) {
+            document.getElementById('food-brand').textContent = food.brand;
+        }
+        
+        // Set nutrition fields - display in spans
+        const cals = Math.round((food.caloriesPer100g || 0) * 10) / 10;
+        const protein = Math.round((food.proteinPer100g || 0) * 10) / 10;
+        const carbs = Math.round((food.carbsPer100g || 0) * 10) / 10;
+        const fat = Math.round((food.fatPer100g || 0) * 10) / 10;
+        const fiber = Math.round((food.fiberPer100g || 0) * 10) / 10;
+        const sugar = Math.round((food.sugar || 0) * 10) / 10;
+        const sodium = Math.round((food.sodium || 0) * 10) / 10;
+        
+        document.getElementById('val-cals').textContent = cals;
+        document.getElementById('val-protein').textContent = protein + 'g';
+        document.getElementById('val-carbs').textContent = carbs + 'g';
+        document.getElementById('val-fat').textContent = fat + 'g';
+        document.getElementById('val-fiber').textContent = fiber + 'g';
+        document.getElementById('val-sugar').textContent = sugar + 'g';
+        document.getElementById('val-sodium').textContent = sodium + 'mg';
+        
+        // Also set hidden inputs for editing
+        document.getElementById('edit-cals').value = cals;
+        document.getElementById('edit-protein').value = protein;
+        document.getElementById('edit-carbs').value = carbs;
+        document.getElementById('edit-fat').value = fat;
+        document.getElementById('edit-fiber').value = fiber;
+        document.getElementById('edit-sugar').value = sugar;
+        document.getElementById('edit-sodium').value = sodium;
+        
+        // Set portion defaults
+        pendingPortionUnit = 'g';
+        pendingPortionAmount = 100;
+        document.getElementById('portion-amount').value = 100;
+        document.getElementById('portion-unit').value = 'g';
+        document.getElementById('portion-weight').value = 100;
+        
+        if (food.unitOverrides) {
+            pendingUnitOverrides = food.unitOverrides;
+        }
+        
+        if (food.servingSize && food.servingSizeUnit) {
+            document.getElementById('portion-amount').value = food.servingSize;
+            document.getElementById('portion-unit').value = food.servingSizeUnit;
+            pendingPortionUnit = food.servingSizeUnit;
+            pendingPortionAmount = food.servingSize;
+            recalcGramsFromUnitAmount();
+        }
+        
+        pendingEatenAtOverrideMs = Date.now();
+        const now = new Date();
+        document.getElementById('logged-datetime').value = now.toISOString().slice(0, 16);
+        
         card.style.display = 'block';
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        updateDisplayMacros();
     }
-
-    // Exports the FULL eating history (every logged meal, every date, all
-    // stored via db.js's LOG_STORE_NAME which nothing ever auto-deletes from)
-    // as a downloadable JSON file - the "how much of food X have I consumed over
-    // time" data.
-    async function exportEatingHistory() {
-        const meals = await getAllLoggedMeals();
-
-        if (meals.length === 0) {
-            alert('No meals have been logged yet - nothing to export.');
-            return;
-        }
-
-        const json = JSON.stringify(meals, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        const dateStr = toLocalDateStr(new Date());
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `recallorie-eating-history-${dateStr}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    
+    function updateDisplayMacros() {
+        const cals = parseFloat(document.getElementById('edit-cals').value) || 0;
+        const protein = parseFloat(document.getElementById('edit-protein').value) || 0;
+        const carbs = parseFloat(document.getElementById('edit-carbs').value) || 0;
+        const fat = parseFloat(document.getElementById('edit-fat').value) || 0;
+        const fiber = parseFloat(document.getElementById('edit-fiber').value) || 0;
+        
+        // Update displayed total (shown in the read-only box)
+        document.getElementById('display-total-cals').textContent = Math.round(cals);
     }
-
-    // Exports every food currently in the local cache (everything under
-    // "Quick Recall" - USDA/Open Food Facts lookups and manual entries alike)
-    // as a downloadable JSON file, using each browser's native download flow.
-    async function exportFoodDatabase() {
-        const foods = await getAllCachedFoods();
-
-        if (foods.length === 0) {
-            alert('No foods are cached locally yet - nothing to export.');
-            return;
-        }
-
-        const json = JSON.stringify(foods, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        const dateStr = toLocalDateStr(new Date());
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `recallorie-foods-${dateStr}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    // Exports every store in one combined file - the recommended way to
-    // back up (and later restore) everything at once, rather than juggling
-    // the two separate Export Foods / Export History files.
-    async function exportAllData() {
-        const [foodHistory, dailyLog, savedMeals, healthMetrics, exerciseLog, waterLog, dailyNotes] = await Promise.all([
-            getAllFromStore('food_history'),
-            getAllFromStore('daily_log'),
-            getAllFromStore('saved_meals'),
-            getAllFromStore('health_metrics'),
-            getAllFromStore('exercise_log'),
-            getAllFromStore('water_log'),
-            getAllFromStore('daily_notes')
-        ]);
-
-        const backup = {
-            recallorieBackup: true,
-            version: 1,
-            exportedAt: new Date().toISOString(),
-            foodHistory, dailyLog, savedMeals, healthMetrics, exerciseLog, waterLog, dailyNotes
-        };
-
-        const json = JSON.stringify(backup, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        const dateStr = toLocalDateStr(new Date());
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `recallorie-full-backup-${dateStr}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
     function openImportOverlay() {
         document.getElementById('import-file-input').value = '';
         document.getElementById('import-data-overlay').style.display = 'flex';
@@ -2951,20 +2880,36 @@
     function editLoggedEntry(id) {
         const entry = currentViewLogs.find(l => l.id === id);
         if (!entry) return;
-
-        const foodData = {
+        
+        editingExistingLogId = id;
+        
+        // Create a food-like object from the logged entry
+        const reconstructedFood = {
             description: entry.description,
-            calories: entry.calories,
-            caloriesPer: 100,
-            protein: entry.protein,
-            fat: entry.fat,
-            carbs: entry.carbs,
-            fiber: entry.fiber || 0,
+            caloriesPer100g: entry.calories / entry.portionGrams * 100,
+            proteinPer100g: entry.protein / entry.portionGrams * 100,
+            carbsPer100g: entry.carbs / entry.portionGrams * 100,
+            fatPer100g: entry.fat / entry.portionGrams * 100,
+            fiberPer100g: (entry.fiber || 0) / entry.portionGrams * 100,
             sugar: entry.sugar || 0,
             sodium: entry.sodium || 0
         };
-
-        openFoodEditModal(foodData, 'consumed', id);
+        
+        displayFood(reconstructedFood);
+        
+        // Set portion to what was logged
+        pendingPortionAmount = entry.portionGrams;
+        pendingPortionUnit = entry.unit || 'g';
+        document.getElementById('portion-amount').value = entry.portionGrams;
+        document.getElementById('portion-unit').value = entry.unit || 'g';
+        document.getElementById('portion-weight').value = entry.portionGrams;
+        
+        // Set timestamp to when it was eaten
+        const eatDate = new Date(entry.timestamp);
+        document.getElementById('logged-datetime').value = eatDate.toISOString().slice(0, 16);
+        
+        // Change button text to "Save Changes"
+        document.getElementById('log-meal-btn').textContent = 'Save Changes';
     }
 
     // ---- Health metrics (weight / blood pressure / custom) ----
@@ -3997,14 +3942,14 @@
         currentEditingLogId = logId;
         
         document.getElementById('edit-food-description').value = food.description || '';
-        document.getElementById('edit-food-calories').value = food.calories || 0;
-        document.getElementById('edit-food-calories-per').value = food.caloriesPer || 100;
-        document.getElementById('edit-food-protein').value = food.protein || 0;
-        document.getElementById('edit-food-fat').value = food.fat || 0;
-        document.getElementById('edit-food-carbs').value = food.carbs || 0;
-        document.getElementById('edit-food-fiber').value = food.fiber || 0;
-        document.getElementById('edit-food-sugar').value = food.sugar || 0;
-        document.getElementById('edit-food-sodium').value = food.sodium || 0;
+        document.getElementById('edit-food-calories').value = Math.round((food.calories || 0) * 10) / 10;
+        document.getElementById('edit-food-calories-per').value = Math.round((food.caloriesPer || 100) * 10) / 10;
+        document.getElementById('edit-food-protein').value = Math.round((food.protein || 0) * 10) / 10;
+        document.getElementById('edit-food-fat').value = Math.round((food.fat || 0) * 10) / 10;
+        document.getElementById('edit-food-carbs').value = Math.round((food.carbs || 0) * 10) / 10;
+        document.getElementById('edit-food-fiber').value = Math.round((food.fiber || 0) * 10) / 10;
+        document.getElementById('edit-food-sugar').value = Math.round((food.sugar || 0) * 10) / 10;
+        document.getElementById('edit-food-sodium').value = Math.round((food.sodium || 0) * 10) / 10;
         
         document.getElementById('edit-modal-title').textContent = 'Edit: ' + (food.description || 'Food');
         document.getElementById('food-edit-modal').style.display = 'block';
@@ -4019,13 +3964,14 @@
         if (!currentEditingFood || !currentEditingLogId) return;
         
         currentEditingFood.description = document.getElementById('edit-food-description').value;
-        currentEditingFood.calories = parseFloat(document.getElementById('edit-food-calories').value) || 0;
-        currentEditingFood.protein = parseFloat(document.getElementById('edit-food-protein').value) || 0;
-        currentEditingFood.fat = parseFloat(document.getElementById('edit-food-fat').value) || 0;
-        currentEditingFood.carbs = parseFloat(document.getElementById('edit-food-carbs').value) || 0;
-        currentEditingFood.fiber = parseFloat(document.getElementById('edit-food-fiber').value) || 0;
-        currentEditingFood.sugar = parseFloat(document.getElementById('edit-food-sugar').value) || 0;
-        currentEditingFood.sodium = parseFloat(document.getElementById('edit-food-sodium').value) || 0;
+        // Round to tenths (1 decimal place)
+        currentEditingFood.calories = Math.round(parseFloat(document.getElementById('edit-food-calories').value) * 10) / 10 || 0;
+        currentEditingFood.protein = Math.round(parseFloat(document.getElementById('edit-food-protein').value) * 10) / 10 || 0;
+        currentEditingFood.fat = Math.round(parseFloat(document.getElementById('edit-food-fat').value) * 10) / 10 || 0;
+        currentEditingFood.carbs = Math.round(parseFloat(document.getElementById('edit-food-carbs').value) * 10) / 10 || 0;
+        currentEditingFood.fiber = Math.round(parseFloat(document.getElementById('edit-food-fiber').value) * 10) / 10 || 0;
+        currentEditingFood.sugar = Math.round(parseFloat(document.getElementById('edit-food-sugar').value) * 10) / 10 || 0;
+        currentEditingFood.sodium = Math.round(parseFloat(document.getElementById('edit-food-sodium').value) * 10) / 10 || 0;
         
         try {
             if (currentEditingSource === 'quick-recall') {
@@ -4047,8 +3993,8 @@
                     existing.carbsPer100g = currentEditingFood.carbs;
                     existing.fiber = currentEditingFood.fiber;
                     existing.fiberPer100g = currentEditingFood.fiber;
-                    existing.sugar = currentEditingFood.sugar || 0;
-                    existing.sodium = currentEditingFood.sodium || 0;
+                    existing.sugar = currentEditingFood.sugar;
+                    existing.sodium = currentEditingFood.sodium;
                     await store.put(existing);
                 }
             } else {
@@ -4085,19 +4031,49 @@
         const item = cachedFoods.find(f => f.upc === upc);
         if (!item) return;
         
-        const foodData = {
-            description: item.description,
-            calories: item.caloriesPer100g || 0,
-            caloriesPer: 100,
-            protein: item.proteinPer100g || 0,
-            fat: item.fatPer100g || 0,
-            carbs: item.carbsPer100g || 0,
-            fiber: item.fiberPer100g || 0,
-            sugar: item.sugar || 0,
-            sodium: item.sodium || 0
-        };
+        editingExistingLogId = null;
+        editingCachedFoodUpc = upc;
+        displayFood(item);
         
-        openFoodEditModal(foodData, 'quick-recall', upc);
+        // Change button text to "Log This Meal" (for new entry)
+        document.getElementById('log-meal-btn').textContent = 'Log This Meal';
+    }
+
+    
+    function makeEditable(displayId, inputId) {
+        const display = document.getElementById(displayId);
+        const input = document.getElementById(inputId);
+        if (!display || !input) return;
+        
+        // Extract numeric value from display text
+        const text = display.textContent.trim();
+        const value = parseFloat(text.replace(/[^0-9.-]/g, '')) || 0;
+        
+        input.value = value;
+        display.style.display = 'none';
+        input.style.display = 'block';
+        input.focus();
+        input.select();
+    }
+    
+    function finishEditing(displayId, inputId) {
+        const display = document.getElementById(displayId);
+        const input = document.getElementById(inputId);
+        if (!display || !input) return;
+        
+        let value = Math.round(parseFloat(input.value) * 10) / 10 || 0;
+        
+        // Format based on field type
+        let displayText = value;
+        if (inputId !== 'edit-cals' && inputId !== 'edit-sodium') {
+            displayText = value + 'g';
+        } else if (inputId === 'edit-sodium') {
+            displayText = value + 'mg';
+        }
+        
+        display.textContent = displayText;
+        display.style.display = 'block';
+        input.style.display = 'none';
     }
 
     </script>
@@ -4107,61 +4083,61 @@
 
         <!-- Comprehensive Food Edit Modal -->
     <div id="food-edit-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; padding: 10px;">
-        <div style="background: var(--card-color); border-radius: 8px; margin: 20px auto; padding: 12px; max-width: 280px; width: 100%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h3 id="edit-modal-title" style="margin: 0; font-size: 1rem;">Edit Food</h3>
-                <button onclick="closeFoodEditModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 0;">✕</button>
+        <div style="background: var(--card-color); border-radius: 8px; margin: 20px auto; padding: 10px; width: fit-content;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 id="edit-modal-title" style="margin: 0; font-size: 0.9rem;">Edit</h3>
+                <button onclick="closeFoodEditModal()" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0;">✕</button>
             </div>
 
-            <div style="margin-bottom: 8px;">
-                <label style="display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 2px;">Description</label>
-                <input type="text" id="edit-food-description" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.8rem; box-sizing: border-box;">
+            <div style="margin-bottom: 6px;">
+                <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Description</label>
+                <input type="text" id="edit-food-description" style="width: 80px; padding: 3px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.75rem; box-sizing: border-box;">
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;">
+            <div style="display: grid; grid-template-columns: 3em 3em; gap: 4px; margin-bottom: 6px;">
                 <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Cal</label>
-                    <input type="number" id="edit-food-calories" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Cal</label>
+                    <input type="number" id="edit-food-calories" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Per</label>
-                    <input type="number" id="edit-food-calories-per" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px;">
-                <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Pro</label>
-                    <input type="number" id="edit-food-protein" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Fat</label>
-                    <input type="number" id="edit-food-fat" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Carb</label>
-                    <input type="number" id="edit-food-carbs" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Per</label>
+                    <input type="number" id="edit-food-calories-per" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: 3em 3em 3em; gap: 3px; margin-bottom: 6px;">
                 <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Fiber</label>
-                    <input type="number" id="edit-food-fiber" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Pro</label>
+                    <input type="number" id="edit-food-protein" step="0.1" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Sugar</label>
-                    <input type="number" id="edit-food-sugar" step="0.1" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Fat</label>
+                    <input type="number" id="edit-food-fat" step="0.1" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 2px;">Na</label>
-                    <input type="number" id="edit-food-sodium" style="width: 100%; padding: 3px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75rem; box-sizing: border-box;" maxlength="4">
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Carb</label>
+                    <input type="number" id="edit-food-carbs" step="0.1" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
                 </div>
             </div>
 
-            <div style="display: flex; gap: 6px;">
-                <button onclick="saveFoodEditChanges()" style="flex: 1; padding: 6px; background: #44aa44; color: white; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Save</button>
-                <button onclick="closeFoodEditModal()" style="flex: 1; padding: 6px; background: #ddd; color: var(--text-main); border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Cancel</button>
+            <div style="display: grid; grid-template-columns: 3em 3em 3em; gap: 3px; margin-bottom: 8px;">
+                <div>
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Fiber</label>
+                    <input type="number" id="edit-food-fiber" step="0.1" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Sugar</label>
+                    <input type="number" id="edit-food-sugar" step="0.1" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.65rem; font-weight: 600; margin-bottom: 1px;">Na</label>
+                    <input type="number" id="edit-food-sodium" style="width: 5.5em; padding: 2px; border: 1px solid #ddd; border-radius: 2px; font-size: 0.7rem; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 4px;">
+                <button onclick="saveFoodEditChanges()" style="padding: 5px 12px; background: #44aa44; color: white; border: none; border-radius: 3px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Save</button>
+                <button onclick="closeFoodEditModal()" style="padding: 5px 12px; background: #ddd; color: var(--text-main); border: none; border-radius: 3px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">Cancel</button>
             </div>
         </div>
     </div>
