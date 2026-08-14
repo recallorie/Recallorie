@@ -370,19 +370,6 @@ function deleteMetricFromDB(id) {
     });
 }
 
-// Retrieves all health metric entries from the database
-function getAllMetrics() {
-    return new Promise((resolve, reject) => {
-        if (!db) return reject('Database not ready');
-        const transaction = db.transaction([METRICS_STORE_NAME], 'readonly');
-        const store = transaction.objectStore(METRICS_STORE_NAME);
-        const request = store.getAll();
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
-
 // Saves an exercise log entry: { activity, emoji, durationMinutes,
 // caloriesBurned (optional), dateStr, timestamp }.
 function saveExerciseToDB(entry) {

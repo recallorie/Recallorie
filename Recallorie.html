@@ -898,54 +898,6 @@
         .portion-row label { font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; }
         .portion-row input { padding: 8px; }
         .serving-hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
-    
-        .sound-toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 26px;
-            margin: 0;
-            flex-shrink: 0;
-        }
-        .sound-toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .sound-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .3s;
-            border-radius: 13px;
-            overflow: visible;
-        }
-        .sound-slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        input:checked + .sound-slider {
-            background-color: #44aa44;
-        }
-        input:checked + .sound-slider:before {
-            transform: translateX(24px);
-        }
-        input:not(:checked) + .sound-slider {
-            background-color: #ff4444;
-        }
-
     </style>
 </head>
 <body>
@@ -959,14 +911,6 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); openImportOverlay();">⬆ Import Data</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 12px 12px 16px; border-bottom: 1px solid #eee; overflow: visible;">
-            <span>Sound</span>
-            <label class="sound-toggle-switch">
-                <input type="checkbox" id="sound-toggle-btn" onchange="closeProfileMenu(); toggleFoodEntrySound();">
-                <span class="sound-slider"></span>
-            </label>
-        </div>
-        <button class="profile-menu-item" onclick="closeProfileMenu(); toggleFoodEntrySound();" id="sound-toggle-btn">🔔 Sound: ON</button>
     </div>
 </div>
 
@@ -1287,7 +1231,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.80" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.60" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1440,10 +1384,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.80"></script>
-<script src="zxing.min.js?v=1.80"></script>
-<script src="db.js?v=1.80"></script>
-<script src="USDA_DB_Access.js?v=1.80"></script>
+<script src="foodEmojis.js?v=1.60"></script>
+<script src="zxing.min.js?v=1.60"></script>
+<script src="db.js?v=1.60"></script>
+<script src="USDA_DB_Access.js?v=1.60"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1453,8 +1397,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.80';
-    const BUILD_DATE_UTC = '2026-08-08T16:06:18Z';
+    const APP_VERSION = '1.60';
+    const BUILD_DATE_UTC = '2026-08-08T00:01:46Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1473,17 +1417,12 @@
     let mealBuilderCandidates = []; // The currently-viewed day's logged foods, available while Manage Meals is open
     let mealBuilderSelectedIds = new Set(); // Which log entry ids are currently checked, tracked separately so it survives filter re-renders
     let exerciseModalData = null; // Holds the exercise being logged (icon, name, intensity) while the duration modal is open
-    let foodEntrySoundEnabled = localStorage.getItem('foodEntrySoundEnabled') !== 'false'; // Default ON
-    // Embedded Yahoo "Classic" notification sound as base64 MP3
-    const foodEntryAudio = new Audio('data:audio/mpeg;base64,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');
 
     window.addEventListener('DOMContentLoaded', async () => {
         await initDB();
         await loadSectionConfig();
         applySectionConfig();
         refreshAppUI();
-        // Initialize sound toggle button text
-        document.getElementById('sound-toggle-btn').innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
         await refreshSavedMealsList();
 
         // Ask the browser to mark this site's storage as "persistent," so
@@ -2652,9 +2591,6 @@
             if (currentActiveFood.upc) {
                 await incrementFoodUseCount(currentActiveFood.upc, loggedAtMs);
             }
-
-            // Play sound notification if enabled
-            playFoodEntrySound();
         } catch (error) {
             // Without this, a failed write here used to fail completely
             // silently - the button just appeared to do nothing, with no
@@ -2950,62 +2886,48 @@
     // by the portion that was actually used.
     function editLoggedEntry(id) {
         const entry = currentViewLogs.find(l => l.id === id);
-        if (!entry) return;
+        if (!entry || !entry.portionGrams) return;
 
-        const foodData = {
+        const reconstructedFood = {
             description: entry.description,
-            calories: entry.calories,
-            caloriesPer: 100,
-            protein: entry.protein,
-            fat: entry.fat,
-            carbs: entry.carbs,
-            fiber: entry.fiber || 0,
-            sugar: entry.sugar || 0,
-            sodium: entry.sodium || 0
+            brand: entry.brand,
+            emoji: entry.emoji || null,
+            caloriesPer100g: entry.calories / entry.portionGrams * 100,
+            proteinPer100g: entry.protein / entry.portionGrams * 100,
+            carbsPer100g: entry.carbs / entry.portionGrams * 100,
+            fatPer100g: entry.fat / entry.portionGrams * 100,
+            fiberPer100g: (entry.fiber || 0) / entry.portionGrams * 100,
+            servingSize: null,
+            servingSizeUnit: null,
+            householdServingText: null,
+            unitOverrides: entry.unitOverrides || null,
+            upc: null // not re-caching this reconstruction as a Quick Recall entry
         };
 
-        openFoodEditModal(foodData, 'consumed', id);
+        editingExistingLogId = id;
+        editingCachedFoodUpc = null; // mutually exclusive with editing a cached food directly
+        // Entries logged before unit-tracking existed won't have a stored
+        // unit/unitOverrides - fall back to plain grams for those, same as
+        // a food with no special units ever would.
+        pendingPortionUnit = entry.unit || 'g';
+        pendingPortionAmount = entry.portionGrams / gramsPerUnitFor(pendingPortionUnit, entry.unitOverrides || null);
+        pendingUnitOverrides = null; // overrides are already on reconstructedFood.unitOverrides directly
+        pendingEatenAtOverrideMs = entry.timestamp; // show its actual original time, not "now"/noon
+
+        displayFood(reconstructedFood);
     }
 
     // ---- Health metrics (weight / blood pressure / custom) ----
-    async function openLogMetricOverlay() {
+    function openLogMetricOverlay() {
         document.getElementById('metric-type-select').value = 'weight';
+        document.getElementById('metric-weight-value').value = '';
         document.getElementById('metric-bp-systolic').value = '';
         document.getElementById('metric-bp-diastolic').value = '';
         document.getElementById('metric-custom-label').value = '';
         document.getElementById('metric-custom-value').value = '';
         document.getElementById('metric-custom-unit').value = '';
-        
-        // Prepopulate weight field with last entered weight
-        const lastWeight = await getLastWeightEntry();
-        if (lastWeight) {
-            document.getElementById('metric-weight-value').value = lastWeight.value;
-            document.getElementById('metric-weight-unit').value = lastWeight.unit || 'lbs';
-        } else {
-            document.getElementById('metric-weight-value').value = '';
-        }
-        
         onMetricTypeChange();
         document.getElementById('log-metric-overlay').style.display = 'flex';
-        
-        // Focus and select the weight field so user can just start typing
-        setTimeout(() => {
-            const weightField = document.getElementById('metric-weight-value');
-            weightField.focus();
-            weightField.select();
-        }, 100);
-    }
-
-    // Gets the most recent weight entry from the database
-    async function getLastWeightEntry() {
-        const allMetrics = await getAllMetrics();
-        const weightEntries = allMetrics.filter(m => m.type === 'weight');
-        
-        if (weightEntries.length === 0) return null;
-        
-        // Sort by timestamp descending to get the most recent
-        weightEntries.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        return weightEntries[0];
     }
 
     function closeLogMetricOverlay() {
@@ -3503,23 +3425,6 @@
         document.querySelector('.profile-icon-btn').setAttribute('aria-expanded', 'false');
     }
 
-    function toggleFoodEntrySound() {
-        foodEntrySoundEnabled = !foodEntrySoundEnabled;
-        localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
-        const btn = document.getElementById('sound-toggle-btn');
-        btn.innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
-    }
-
-    function playFoodEntrySound() {
-        if (!foodEntrySoundEnabled) return;
-        try {
-            foodEntryAudio.currentTime = 0;
-            foodEntryAudio.play().catch(() => {});
-        } catch (error) {
-            // Silently fail if audio can't play
-        }
-    }
-
     // Clicking anywhere outside the profile menu closes it, same as a native dropdown.
     document.addEventListener('click', (event) => {
         const corner = document.querySelector('.profile-corner');
@@ -3564,49 +3469,7 @@
     }
 
     // Core UI Coordinator
-    // Categorizes logged meals into Breakfast/Lunch/Dinner/Snack based on time
-    function categorizeMealsByTime(logs) {
-        const meals = {
-            breakfast: [],  // 5:00 - 10:59:59
-            lunch: [],      // 11:00 - 15:59:59
-            dinner: [],     // 16:00 - 21:59:59
-            snack: []       // 22:00 - 04:59:59
-        };
-
-        for (const log of logs) {
-            const hour = new Date(log.timestamp).getHours();
-            
-            if (hour >= 5 && hour < 11) {
-                meals.breakfast.push(log);
-            } else if (hour >= 11 && hour < 16) {
-                meals.lunch.push(log);
-            } else if (hour >= 16 && hour < 22) {
-                meals.dinner.push(log);
-            } else {
-                // 22:00 - 23:59 and 00:00 - 04:59
-                meals.snack.push(log);
-            }
-        }
-
-        return meals;
-    }
-
-    // Toggle collapse/expand state of a meal section and save preference
-    function toggleMealSection(mealType) {
-        const section = document.getElementById(`meal-section-${mealType}`);
-        const collapsedKey = `meal-collapsed-${mealType}`;
-        const isCurrentlyCollapsed = section.style.display === 'none';
-        
-        if (isCurrentlyCollapsed) {
-            section.style.display = 'block';
-            localStorage.setItem(collapsedKey, 'false');
-        } else {
-            section.style.display = 'none';
-            localStorage.setItem(collapsedKey, 'true');
-        }
-    }
-
-    // Cleanup old cached foods every app refresh
+    // Removes cached food records that haven't been accessed/used in the past
     // 7 days - keeps the Quick Recall list from growing indefinitely with
     // stale foods. Returns the cleaned list.
     async function cleanupOldCachedFoods(foods) {
@@ -3666,62 +3529,36 @@
         if (logs.length === 0) {
             logContainer.innerHTML = `<li style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">No meals logged ${isToday ? 'yet today' : 'on this date'}.</li>`;
         } else {
-            // Categorize logs by meal time
-            const meals = categorizeMealsByTime(logs);
-            
-            // Accumulate totals across all meals
-            logs.forEach(item => {
+            // getMealsLoggedForDate already sorts ascending by timestamp, so
+            // this is naturally chronological - early morning first, latest
+            // entries (up to just before midnight) last.
+            logContainer.innerHTML = logs.map(item => {
                 totalCals += item.calories;
                 totalProt += item.protein;
                 totalCarbs += item.carbs;
                 totalFat += item.fat;
                 totalFiber += (item.fiber || 0);
-            });
 
-            // Render meal sections with collapsible dropdowns
-            logContainer.innerHTML = Object.keys(meals).map(mealType => {
-                const mealLogs = meals[mealType];
-                if (mealLogs.length === 0) return ''; // Skip empty meal types
-                
-                const mealIcons = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🌙' };
-                const icon = mealIcons[mealType] || '🍽️';
-                const label = mealType.charAt(0).toUpperCase() + mealType.slice(1);
-                const collapsedKey = `meal-collapsed-${mealType}`;
-                const isCollapsed = localStorage.getItem(collapsedKey) === 'true';
-                
+                const timeLabel = new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
                 return `
-                    <li style="margin-bottom: 8px;">
-                        <div style="background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;" onclick="toggleMealSection('${mealType}')">
-                            <span style="font-size: 1.2rem;">${icon}</span>
-                            <span style="font-weight: 600; flex: 1;">${label}</span>
-                            <span style="color: var(--text-muted); font-size: 0.85rem;">${mealLogs.length} item${mealLogs.length !== 1 ? 's' : ''}</span>
-                            <span style="font-size: 0.9rem; color: var(--text-muted);">${isCollapsed ? '▶️' : '▼'}</span>
+                    <li class="item-row logged">
+                        <div class="item-details">
+                            <span class="item-title">${item.emoji ? item.emoji + ' ' : ''}${item.description}</span>
+                            <span class="item-brand">${timeLabel} &middot; ${item.brand}</span>
                         </div>
-                        <ul id="meal-section-${mealType}" style="list-style: none; padding: 0; margin: 4px 0 0 0; display: ${isCollapsed ? 'none' : 'block'};">
-                            ${mealLogs.map(item => {
-                                const timeLabel = new Date(item.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-                                return `
-                                    <li class="item-row logged" style="margin-left: 8px;">
-                                        <div class="item-details">
-                                            <span class="item-title">${item.emoji ? item.emoji + ' ' : ''}${item.description}</span>
-                                            <span class="item-brand">${timeLabel} &middot; ${item.brand}</span>
-                                        </div>
-                                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                                            <div style="display: flex; align-items: center;">
-                                                <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
-                                                <button class="icon-btn btn-edit" onclick="editLoggedEntry(${item.id})" title="Edit entry">✏️</button>
-                                                <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📑</button>
-                                                <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
-                                            </div>
-                                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:<span style="${item.carbs > 5 ? 'color: #d32f2f; font-weight: 600;' : ''}">${Math.round(item.carbs)}g</span>,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
-                                        </div>
-                                    </li>
-                                `;
-                            }).join('')}
-                        </ul>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <div style="display: flex; align-items: center;">
+                                <span class="item-badge logged">${Math.round(item.calories)} Cal</span>
+                                <button class="icon-btn btn-edit" onclick="editLoggedEntry(${item.id})" title="Edit entry">✏️</button>
+                                <button class="icon-btn btn-duplicate" onclick="duplicateMealToToday(${item.id})" title="Duplicate to today">📑</button>
+                                <button class="icon-btn btn-delete" onclick="deleteLoggedMeal(${item.id})" title="Delete">🗑️</button>
+                            </div>
+                            <span class="item-macros">Prot:${Math.round(item.protein)}g,Carb:<span style="${item.carbs > 5 ? 'color: #d32f2f; font-weight: 600;' : ''}">${Math.round(item.carbs)}g</span>,Fat:${Math.round(item.fat)}g,Fiber:${Math.round(item.fiber || 0)}g</span>
+                        </div>
                     </li>
                 `;
-            }).filter(html => html !== '').join('');
+            }).join('');
         }
 
         // Update dashboard numbers (totals for the viewed date, not always "today")
@@ -3918,39 +3755,20 @@
 
         // Use the exercise's caloriesPerHour to estimate burned calories
         const caloriesBurned = (exerciseModalData.caloriesPerHour * minutes) / 60;
-        const loggedAtMs = Date.now();
-        const dateStr = toLocalDateStr(new Date(loggedAtMs));
 
         try {
-            await saveExerciseToDB({
-                activity: exerciseModalData.name,
+            await logExerciseToDB({
+                name: exerciseModalData.name,
                 emoji: exerciseModalData.emoji,
-                durationMinutes: minutes,
+                minutes: minutes,
                 caloriesBurned: caloriesBurned,
-                dateStr: dateStr,
-                timestamp: loggedAtMs
+                loggedAtMs: Date.now()
             });
 
             closeExerciseInputModal();
             refreshAppUI();
         } catch (error) {
             alert('Failed to log exercise: ' + error);
-        }
-    }
-
-    function toggleFoodEntrySound() {
-        foodEntrySoundEnabled = !foodEntrySoundEnabled;
-        localStorage.setItem('foodEntrySoundEnabled', foodEntrySoundEnabled);
-        document.getElementById('sound-toggle-btn').innerText = foodEntrySoundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
-    }
-
-    function playFoodEntrySound() {
-        if (!foodEntrySoundEnabled) return;
-        try {
-            foodEntryAudio.currentTime = 0;
-            foodEntryAudio.play().catch(() => {});
-        } catch (error) {
-            // Silently fail if audio can't play
         }
     }
 
@@ -3986,138 +3804,7 @@
         refreshAppUI(); // Re-render Quick Recall and category lists with updated data
     }
 
-
-    let currentEditingFood = null;
-    let currentEditingSource = null;
-    let currentEditingLogId = null;
-
-    function openFoodEditModal(food, source = 'consumed', logId = null) {
-        currentEditingFood = JSON.parse(JSON.stringify(food));
-        currentEditingSource = source;
-        currentEditingLogId = logId;
-        
-        document.getElementById('edit-food-description').value = food.description || '';
-        document.getElementById('edit-food-calories').value = food.calories || 0;
-        document.getElementById('edit-food-calories-per').value = food.caloriesPer || 100;
-        document.getElementById('edit-food-protein').value = food.protein || 0;
-        document.getElementById('edit-food-fat').value = food.fat || 0;
-        document.getElementById('edit-food-carbs').value = food.carbs || 0;
-        document.getElementById('edit-food-fiber').value = food.fiber || 0;
-        document.getElementById('edit-food-sugar').value = food.sugar || 0;
-        document.getElementById('edit-food-sodium').value = food.sodium || 0;
-        
-        document.getElementById('edit-modal-title').textContent = 'Edit: ' + (food.description || 'Food');
-        document.getElementById('food-edit-modal').style.display = 'block';
-    }
-
-    function closeFoodEditModal() {
-        document.getElementById('food-edit-modal').style.display = 'none';
-        currentEditingFood = null;
-    }
-
-    async function saveFoodEditChanges() {
-        if (!currentEditingFood || !currentEditingLogId) return;
-        
-        currentEditingFood.description = document.getElementById('edit-food-description').value;
-        currentEditingFood.calories = parseFloat(document.getElementById('edit-food-calories').value) || 0;
-        currentEditingFood.protein = parseFloat(document.getElementById('edit-food-protein').value) || 0;
-        currentEditingFood.fat = parseFloat(document.getElementById('edit-food-fat').value) || 0;
-        currentEditingFood.carbs = parseFloat(document.getElementById('edit-food-carbs').value) || 0;
-        currentEditingFood.fiber = parseFloat(document.getElementById('edit-food-fiber').value) || 0;
-        currentEditingFood.sugar = parseFloat(document.getElementById('edit-food-sugar').value) || 0;
-        currentEditingFood.sodium = parseFloat(document.getElementById('edit-food-sodium').value) || 0;
-        
-        try {
-            const db = await openDB();
-            const tx = db.transaction('logged-meals', 'readwrite');
-            const store = tx.objectStore('logged-meals');
-            const existing = await store.get(currentEditingLogId);
-            
-            if (existing) {
-                existing.description = currentEditingFood.description;
-                existing.calories = currentEditingFood.calories;
-                existing.protein = currentEditingFood.protein;
-                existing.fat = currentEditingFood.fat;
-                existing.carbs = currentEditingFood.carbs;
-                existing.fiber = currentEditingFood.fiber;
-                existing.sugar = currentEditingFood.sugar;
-                existing.sodium = currentEditingFood.sodium;
-                await store.put(existing);
-                playFoodEntrySound();
-                closeFoodEditModal();
-                refreshAppUI();
-            }
-        } catch (error) {
-            alert('Error saving: ' + error.message);
-        }
-    }
-
-    </script>
-    <audio id="food-entry-sound" preload="auto" style="display: none;">
-        <source src="data:audio/mpeg;base64,//OIxAAAAAAAAAAAAFhpbmcAAAAPAAAAJQAACJQABAQYGBghISErKzU1NT4+Pk1NVlZWW1tbYGBgZWVqampzc3N4eH19fYKCgoeHjIyMkJCQmpqan5+pqamtra23t7y8vMHBwcbGz8/P1NTU2dnZ3t7n5+fs7Ozx8fb29vv7+///AAAAOkxBTUUzLjk4cgI4AAAAAC5cAAAUECQF/EIAABAAAAiUbZw7JAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//MYxAAA8AZ4QUAYAjA/+J0ARi0RAM4IoWy27AYAAAYUmP72//NIxBMjWaaOf5rwAPwl++rS9aLRvmACBgbNO+pjkBIGKeQWY6YaZi8mOHlc50Zf4hUuMccJdC8wTwLx4Ad36pg/gXGAABmqUZAEqwFjVzzpKSw6TxSWciN7//tPT26SxhP4X7V6/lzHn9t595//+N7LLu987rf//7z7hhzPl3oJP//cHSRNSgBbBbf/8xIq//MoxAgPUL6MedV4AkBKhRD0QMDCkDJA9A+FBgMXiwEQeIKI5R3g1/DiBzAZhDRbSckFLi4wmJXMs0s//4iPfr/6KgMCAlsA//MoxAULIGp0XgG6Zv6kkEwy1pEEwNDo9ttkBDEsV+gWDb5swr/+j///3/LabrtT/Tpt+XoA8ADf+pMtQKwZXJaIwBAwwIDE//MoxBMPeJpAFC9+aMBx0MVqdM1WR9jAQgKswBkBCKgAah0W40NerZ+WbO/7U7v/T///Qq/2ep9H5bwqV0IDQMJlr0DoBiAY//MoxBAOoL5wCB9ypY077cGAgBQHEALAYDQOAa75BEag4LHNA4ZFV06lNOfT1rG89W9I2kef56UDBbwCrc79Wpaq8xxrWpTY//M4xBAacPpwVO6ZAItZ3ASqIiAIwLEkyR3owJAdrpgWCQwH5hqAJkITZgpmB9YhhmmIxhII54GBzzACGqHIXGEEocBcYssHyaNb1vZ5rLTtHoeCoiBR5IJPJBXAutO07JHrR9QFrTFIf8JW//MYxAUHwJ7EgAZ6p4yGp7GL//K28MC0gCSQYvLC6aOC83XqRoIWYHHAA5bfwGhnjtItb/tkQjCfjf4HHlutPhuCsaP4s2Al//MYxCEIIKKweAZ0pgAKGEYDP2nckREgNITnO//cXbIzt/yz//MYxBcHgKLKYAB0ZskxADtyK70W9UstyU8EGOmUWMIwAS4c//MYxBAI0JJwIAY6h3YkxoGAaYNpqflA6YAgB1X0u0NVYFFq//MYxAMFwJasYAP0o6iAnRL7JucyymSFOPvbWLGoPq9WYGAA//MoxAMIaJ6geAY0oh6WNNZBtDsgX6ov7lMkNcX+02KezSaliXXv////01IgUVk4EqdA9IZzHWUyVd4nprbZk+M1OWuVQFGN//MYxBwGGJ6cYAN0omiJKENmtjUh53UyWOIutrbCYrnET/ID//MYxBoGKJ6cYAaYqh/eZVo6xoqBSaPOI1UiBiBYebkSgKAM//MYxBgI8JpkQAg6DOTgAJVGomzKXzFJfiBRUsagETpga86E//MYxAsE4JakYAUSqxJBRKhEBdBBakBRWUA1MBKg3LWo6DS2//MYxA4FaJqcYAUYqgoNQgQOzij9iHH4A3OPuDIGnRbqN7Y7//MYxA8JWKKcZgY2ovmQJ784dScR/YhDE/ha///////+x/1K//MoxAAJiJqYfgZ0poRQABvwByndwChn/5C4TlrWY5RVHe+KOvY1Xd/////t/9Pb36uKVaTgAOBwBakznkRh8Nyad5/5im0e//MYxBQJYJacfgZ0pmdjrgOvFJQHv///6eFf//+ixaTgBv+A//MoxAUJ+JqYfgY0ogWYebUzgOGIhch//zFMpFfnOvk0+WUldn///Pr34Btt7P/QQEAAtwAGVmXBQYt2vLRYb+eC0mRc8mzb//MYxBgLCJZ4fgY2osjcssf///5Ph3/rItKrOgQ4MFqm1YlR//MYxAIHwIqcZgY0ovgDGtERkR0w8nkOt8viK2Ux732xYf///////+zuYEAEo2AGVWPDBz8il5/8yGHSnK92itjP///T29////MYxB4IKI6IfgYypvo/WolR+AKwlyCGNGjtWdc3kKGSd1Rd//MYxBQHsIqcZgP0oqJ6///////v/9+qiOH4Ayu0CLpkSTOP//MYxAwHWJacZgZSqvPybqTnc88EmEv///////19FQABM1tu//MoxAUIuLaiQAB0gsBUKzYZECODKI7amKO69BF6oqNDVCPr916nd1OXegABIjqae4lLlHQbq/Lu3cvWwTyrX1NFvUk7Mx60//MYxB0HyKKeQABwglUXVc3hwAL0ZwqDKZor//u4SLEfR0JT//MYxBQGuH6oZgPyor///////9QA4AH//pTqdYAznBXQpORw//MYxBAJqIZAFBP4oLooigQMAU49uAml0AAC////o7P1fd9N//MoxAAJaJJ0fgP0omTAABLQBZ6ogD02hl5Z7v7kgrODT1PhK6mwIY/////2f/5Pv+tC1mFYTCC6PcyBrXebqCswt1bAwPW1//MYxBUE+IKoYAPyo9FaZbESD5xRmmKsNAdTOGAChBDFA9gL//MYxBgGiJJ8YAbMqyFzKikoAH2XhMAGFJAo1R0sqpl8GdfH//MYxBQJGIosRgG0hBVg8LfLoqHv//////5XhoQ1AGKcdCWW//MYxAYFAJ2hoABGYaGTWWBgoJ0sBggwMIOWTEFNRTMuOTgu//MYxAkAAANIAAAAADJVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
-    </audio>
-
-        <!-- Comprehensive Food Edit Modal -->
-    <div id="food-edit-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; padding: 20px 0;">
-        <div style="background: var(--card-color); border-radius: 12px; margin: 20px auto; padding: 20px; max-width: 95%; width: 100%; max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 id="edit-modal-title" style="margin: 0;">Edit Food</h2>
-                <button onclick="closeFoodEditModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
-            </div>
-
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Description</label>
-                <input type="text" id="edit-food-description" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Calories</label>
-                    <input type="number" id="edit-food-calories" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Per (g)</label>
-                    <input type="number" id="edit-food-calories-per" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Protein (g)</label>
-                    <input type="number" id="edit-food-protein" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Fat (g)</label>
-                    <input type="number" id="edit-food-fat" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Carbs (g)</label>
-                    <input type="number" id="edit-food-carbs" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Fiber (g)</label>
-                    <input type="number" id="edit-food-fiber" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Sugar (g)</label>
-                    <input type="number" id="edit-food-sugar" step="0.1" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-                <div>
-                    <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px;">Sodium (mg)</label>
-                    <input type="number" id="edit-food-sodium" style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; box-sizing: border-box;">
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 10px;">
-                <button onclick="saveFoodEditChanges()" style="flex: 1; padding: 10px; background: #44aa44; color: white; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 500; cursor: pointer;">Save Changes</button>
-                <button onclick="closeFoodEditModal()" style="flex: 1; padding: 10px; background: #ddd; color: var(--text-main); border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 500; cursor: pointer;">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    </body>
+</script>
+</body>
 
 </html>
