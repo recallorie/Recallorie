@@ -256,9 +256,6 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🍗", name: "Poultry", searchOn: "Poultry", portionAmount: 100, portionUnit: "g", descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
-            { emoji: "🐟", name: "Fish", searchOn: "Fish", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
             { emoji: "🥩", name: "Steak", searchOn: "Steak", portionAmount: 100, portionUnit: "g", descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
@@ -325,6 +322,9 @@ const FOOD_EMOJI_CATEGORIES = [
         label: "Seafood",
         icon: "🦀",
         items: [
+            { emoji: "🐟", name: "Fish", searchOn: "Fish", portionAmount: 100, portionUnit: "g", descriptors: [
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🦀", name: "Crab", searchOn: "fdc-174202", portionAmount: 100, portionUnit: "g", descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
