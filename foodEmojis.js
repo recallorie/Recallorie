@@ -151,7 +151,7 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Veggies & Nuts",
+        label: "Veggies &Nuts",
         icon: "🥕",
         items: [
             { emoji: "🥔", name: "Potato", searchOn: "fdc-170093", portionAmount: 1, portionUnit: "each", unitGrams: 173, descriptors: [
@@ -298,7 +298,7 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Land & Pasture",
+        label: "Land& Pasture",
         icon: "🥩",
         items: [
             { emoji: "🐄", name: "Beef", searchOn: "Beef", portionAmount: 100, portionUnit: "g", descriptors: [
@@ -433,7 +433,7 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Sweets & Desserts",
+        label: "Sweets& Desserts",
         icon: "🍩",
         items: [
             { emoji: "🍦", name: "Ice Cream", searchOn: "fdc-173465", portionAmount: 100, portionUnit: "g", descriptors: [
