@@ -277,9 +277,6 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🧆", name: "Falafel", searchOn: "Falafel", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
                 ] },
-            { emoji: "🥚", name: "Egg", searchOn: "Eggs, Grade A, Large, egg whole", portionAmount: 1, portionUnit: "each", unitGrams: 50, descriptors: [
-                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-                ] },
             { emoji: "🥘", name: "Stew", searchOn: "Stew", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
                 ] },
@@ -293,9 +290,6 @@ const FOOD_EMOJI_CATEGORIES = [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
                 ] },
             { emoji: "🍿", name: "Popcorn", searchOn: "fdc-167959", portionAmount: 100, portionUnit: "g", descriptors: [
-                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-                ] },
-            { emoji: "🧈", name: "Butter", searchOn: "Butter", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
                 ] },
             { emoji: "🥫", name: "Sauce", searchOn: "Sauce", portionAmount: 100, portionUnit: "g", descriptors: [
@@ -346,6 +340,12 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🥓", name: "Bacon", searchOn: "fdc-168322", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
                 ] },
+            { emoji: "🧈", name: "Butter", searchOn: "Butter", portionAmount: 100, portionUnit: "g", descriptors: [
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
+            { emoji: "🥚", name: "Egg", searchOn: "Eggs, Grade A, Large, egg whole", portionAmount: 1, portionUnit: "each", unitGrams: 50, descriptors: [
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] }
         ]
     },
     {
