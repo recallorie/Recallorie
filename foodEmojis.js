@@ -83,8 +83,8 @@ const UNIT_TO_GRAMS = {
 
 const FOOD_EMOJI_CATEGORIES = [
     {
-        label: "Fruits",
-        icon: "🍎",
+        label: "Fruits, Veggies, &Nuts",
+        icon: "🍅",
         items: [
             { emoji: "🍇", name: "Grapes", searchOn: "fdc-174683", portionAmount: 1, portionUnit: "cup", unitGrams: 152, descriptors: [
                 { label: "Green Grapes", searchOn: "Grapes, green", portionAmount: 1, portionUnit: "cup", unitGrams: 152 },
@@ -147,76 +147,70 @@ const FOOD_EMOJI_CATEGORIES = [
             ] },
             { emoji: "🥑", name: "Avocado", searchOn: "fdc-171705", portionAmount: 1, portionUnit: "each", unitGrams: 201, descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] }
-        ]
-    },
-    {
-        label: "Veggies &Nuts",
-        icon: "🥕",
-        items: [
+            ] },
             { emoji: "🥔", name: "Potato", searchOn: "fdc-170093", portionAmount: 1, portionUnit: "each", unitGrams: 173, descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                ] },
             { emoji: "🫒", name: "Olive", searchOn: "fdc-169094", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🍆", name: "Eggplant", searchOn: "fdc-169228", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🍠", name: "Sweet Potato", searchOn: "fdc-168483", portionAmount: 1, portionUnit: "each", unitGrams: 114, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🥕", name: "Carrot", searchOn: "fdc-170393", portionAmount: 1, portionUnit: "each", unitGrams: 61, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🌽", name: "Corn", searchOn: "fdc-169999", portionAmount: 1, portionUnit: "each", unitGrams: 90, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🌶️", name: "Hot Pepper", searchOn: "fdc-168576", portionAmount: 1, portionUnit: "each", unitGrams: 14, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🫑", name: "Bell Pepper", searchOn: "fdc-170427", portionAmount: 1, portionUnit: "each", unitGrams: 119, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🥒", name: "Cucumber", searchOn: "fdc-168409", portionAmount: 1, portionUnit: "cup", unitGrams: 119, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🥬", name: "Leafy Green", searchOn: "fdc-168462", portionAmount: 1, portionUnit: "cup", unitGrams: 30, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🥦", name: "Broccoli", searchOn: "fdc-170379", portionAmount: 1, portionUnit: "cup", unitGrams: 91, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🧄", name: "Garlic", searchOn: "fdc-169230", portionAmount: 1, portionUnit: "each", unitGrams: 3, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🧅", name: "Onion", searchOn: "fdc-170000", portionAmount: 1, portionUnit: "each", unitGrams: 110, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🫚", name: "Ginger Root", searchOn: "fdc-169231", portionAmount: 1, portionUnit: "tsp", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🫛", name: "Peapod", searchOn: "Peapod", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🍄‍🟫", name: "Mushroom", searchOn: "Mushroom", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🫜", name: "Root Vegetable", searchOn: "Root Vegetable", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🍄", name: "Mushroom", searchOn: "fdc-169251", portionAmount: 1, portionUnit: "cup", unitGrams: 96, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🫘", name: "Beans", searchOn: "fdc-173740", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                ] },
             { emoji: "🥜", name: "Peanut", searchOn: "fdc-172430", portionAmount: 1, portionUnit: "oz", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] },
             { emoji: "🌰", name: "Chestnut", searchOn: "fdc-170168", portionAmount: 100, portionUnit: "g", descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] }
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+                ] }
         ]
     },
     {
@@ -298,14 +292,15 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Land& Pasture",
+        label: "Farm",
         icon: "🥩",
         items: [
-            { emoji: "🐄", name: "Beef", searchOn: "Beef", portionAmount: 100, portionUnit: "g", descriptors: [
+            { emoji: "🐄", name: "Beef", searchOn: "Ground Beef", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
                 ] },
-            { emoji: "🦌", name: "Venison", searchOn: "Venison", portionAmount: 100, portionUnit: "g", descriptors: [
-                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+            { emoji: "🦌", name: "Elk & Deer", searchOn: "Venison", portionAmount: 100, portionUnit: "g", descriptors: [
+                    { label: "Venison", searchOn: "Venison", portionAmount: 8, portionUnit: "oz", unitGrams: 237 },
+                    { label: "elk", searchOn: "Elk", portionAmount: 8, portionUnit: "oz", unitGrams: 237 }
                 ] },
             { emoji: "🦬", name: "Bison", searchOn: "Bison", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
