@@ -428,7 +428,7 @@ const FOOD_EMOJI_CATEGORIES = [
         ]
     },
     {
-        label: "Sweets& Desserts",
+        label: "Sweets & Desserts",
         icon: "🍩",
         items: [
             { emoji: "🍦", name: "Ice Cream", searchOn: "fdc-173465", portionAmount: 100, portionUnit: "g", descriptors: [
