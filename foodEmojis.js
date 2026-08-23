@@ -83,7 +83,7 @@ const UNIT_TO_GRAMS = {
 
 const FOOD_EMOJI_CATEGORIES = [
     {
-        label: "Fruits, Veggies, &Nuts",
+        label: "Fruits, Veggies, & Nuts",
         icon: "🍅",
         items: [
             { emoji: "🍇", name: "Grapes", searchOn: "fdc-174683", portionAmount: 1, portionUnit: "cup", unitGrams: 152, descriptors: [
@@ -142,10 +142,10 @@ const FOOD_EMOJI_CATEGORIES = [
             { emoji: "🥥", name: "Coconut", searchOn: "fdc-170169", portionAmount: 1, portionUnit: "cup", unitGrams: 80, descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
-            { emoji: "🍅", name: "Tomato", searchOn: "fdc-170457", portionAmount: 1, portionUnit: "each", unitGrams: 123, descriptors: [
-               { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
-            ] },
             { emoji: "🥑", name: "Avocado", searchOn: "fdc-171705", portionAmount: 1, portionUnit: "each", unitGrams: 201, descriptors: [
+                    { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
+            ] },
+            { emoji: "🍅", name: "Tomato", searchOn: "fdc-170457", portionAmount: 1, portionUnit: "each", unitGrams: 123, descriptors: [
                { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
             ] },
             { emoji: "🥔", name: "Potato", searchOn: "fdc-170093", portionAmount: 1, portionUnit: "each", unitGrams: 173, descriptors: [
@@ -293,7 +293,7 @@ const FOOD_EMOJI_CATEGORIES = [
     },
     {
         label: "Farm",
-        icon: "🥩",
+        icon: "🚜",
         items: [
             { emoji: "🐄", name: "Beef", searchOn: "Ground Beef", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
