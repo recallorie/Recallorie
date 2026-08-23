@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Recallorie</title>
+    <!-- emoji-picker-element: comprehensive emoji picker used by the
+         "Customize Entry" popup, so any of hundreds of emojis can be picked
+         as a custom food's icon, not just a small curated set. -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <style>
         /* Modern Mobile Skin Styling */
         :root {
@@ -131,6 +135,57 @@
             color: var(--text-main);
             text-align: center;
             line-height: 1.15;
+        }
+        .picker-section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin: 4px 0 8px;
+        }
+        .btn-customize-entry {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        .btn-customize-entry:active {
+            background: var(--primary-color);
+            color: white;
+        }
+        /* Sizing/theming for the emoji-picker-element web component used in
+           the "Customize Entry" popup - keeps it inside the popup card on
+           narrow phone widths and roughly matches the app's palette. */
+        #customize-emoji-picker {
+            width: 100%;
+            height: 320px;
+            --num-columns: 6;
+            --background: var(--card-color);
+            --border-color: #eee;
+            --input-border-color: #ddd;
+            --outline-color: var(--primary-color);
+            --category-font-color: var(--text-muted);
+            --indicator-color: var(--primary-color);
+        }
+        .customize-icon-preview {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .customize-icon-preview .emoji-glyph {
+            font-size: 1.6rem;
         }
 
         .descriptor-picker-overlay {
@@ -1093,14 +1148,51 @@
             </div>
         </div>
     </div>
-    <!-- Tapping a saved meal here logs every food in it to today with one tap. -->
+    <!-- Tapping a saved meal here logs every food in it to today with one tap.
+         Tapping a custom food instead opens the full food card, same as
+         Quick Recall/category recall, so portion/time can be checked before
+         logging (customized foods are just regular cached foods tagged
+         isCustomEntry:true - see saveCustomizeEntry()). -->
     <div id="meal-picker-overlay" class="emoji-picker-overlay">
         <div class="emoji-picker-card">
             <div class="emoji-picker-header">
                 <h3>Custom Foods & Meals</h3>
                 <button class="emoji-picker-close" onclick="closeMealPicker()">✕</button>
             </div>
-            <div id="meal-picker-grid" class="emoji-picker-grid"></div>
+            <div id="meal-picker-meals-section">
+                <div class="picker-section-label">Combination Meals</div>
+                <div id="meal-picker-grid" class="emoji-picker-grid"></div>
+            </div>
+            <div id="meal-picker-custom-section" style="margin-top: 18px;">
+                <div class="picker-section-label">Custom Foods</div>
+                <div id="custom-food-picker-grid" class="emoji-picker-grid"></div>
+            </div>
+            <div id="meal-picker-empty-msg" style="display: none; text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.9rem;">
+                No saved meals or custom foods yet.
+            </div>
+        </div>
+    </div>
+
+    <!-- "Customize Entry" popup, opened from the food card's button - lets
+         the user pick their own icon and type a custom title for whichever
+         food is currently loaded (new lookup, Quick Recall edit, or
+         Consumed Today edit - they all share the same food card), then
+         saves it into the local cache tagged isCustomEntry:true so it shows
+         up under "Custom Foods & Meals" above. -->
+    <div id="customize-entry-overlay" class="emoji-picker-overlay">
+        <div class="emoji-picker-card">
+            <div class="emoji-picker-header">
+                <h3>Customize Entry</h3>
+                <button class="emoji-picker-close" onclick="closeCustomizeEntryPopup()">✕</button>
+            </div>
+            <label for="customize-entry-title" style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Custom title</label>
+            <input type="text" id="customize-entry-title" placeholder="e.g. Protein Shake" style="width: 100%; box-sizing: border-box; padding: 10px; margin-bottom: 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem;">
+            <div class="customize-icon-preview">
+                <span>Icon:</span>
+                <span class="emoji-glyph" id="customize-icon-preview-glyph">—</span>
+            </div>
+            <emoji-picker id="customize-emoji-picker"></emoji-picker>
+            <button class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="saveCustomizeEntry()">Save</button>
         </div>
     </div>
 
@@ -1264,7 +1356,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.76" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.78" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1286,7 +1378,8 @@
     <div id="food-display" class="food-card" style="display: none;">
         <button class="food-card-close" onclick="closeFoodCard()" aria-label="Close">✕</button>
         <input type="text" id="food-title" class="food-title-input" aria-label="Food name">
-        <small id="food-brand" style="color: var(--text-muted); display: block; margin-bottom: 12px;"></small>
+        <small id="food-brand" style="color: var(--text-muted); display: block; margin-bottom: 8px;"></small>
+        <button type="button" class="btn-customize-entry" onclick="openCustomizeEntryPopup()">🎨 Customize Entry</button>
 
         <div class="portion-row">
             <label for="portion-amount">Portion:</label>
@@ -1417,10 +1510,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.76"></script>
-<script src="zxing.min.js?v=1.76"></script>
-<script src="db.js?v=1.76"></script>
-<script src="USDA_DB_Access.js?v=1.76"></script>
+<script src="foodEmojis.js?v=1.78"></script>
+<script src="zxing.min.js?v=1.78"></script>
+<script src="db.js?v=1.78"></script>
+<script src="USDA_DB_Access.js?v=1.78"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1430,8 +1523,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.76';
-    const BUILD_DATE_UTC = '2026-08-21T10:00:00Z';
+    const APP_VERSION = '1.78';
+    const BUILD_DATE_UTC = '2026-08-23T13:00:00Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1450,6 +1543,7 @@
     let mealBuilderCandidates = []; // The currently-viewed day's logged foods, available while Manage Meals is open
     let mealBuilderSelectedIds = new Set(); // Which log entry ids are currently checked, tracked separately so it survives filter re-renders
     let exerciseModalData = null; // Holds the exercise being logged (icon, name, intensity) while the duration modal is open
+    let customizeEntrySelectedIcon = null; // Icon chosen so far in the open "Customize Entry" popup
     let foodEntrySoundEnabled = localStorage.getItem('foodEntrySoundEnabled') !== 'false'; // Default ON
     // Embedded Yahoo "Classic" notification sound as base64 MP3
     const foodEntryAudio = new Audio('data:audio/mpeg;base64,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');
@@ -2871,20 +2965,114 @@
         await renderSavedMealsList();
     }
 
-    // ---- "My Meals" picker (from the main food-icon row) ----
+    // ---- "Custom Foods & Meals" picker (from the main food-icon row) ----
+    // Shows saved combination meals first, then any customized foods
+    // (isCustomEntry:true cached foods, created via the food card's
+    // "Customize Entry" button), each as an icon tile with its custom title.
     function openMealPicker() {
-        const grid = document.getElementById('meal-picker-grid');
-        grid.innerHTML = savedMealsList.map(meal => `
-            <button class="emoji-picker-item" onclick="logSavedMealNow(${meal.id})">
-                <span class="emoji-glyph">🍽️</span>
-                <span class="emoji-picker-label">${meal.name}</span>
-            </button>
-        `).join('');
+        const mealsSection = document.getElementById('meal-picker-meals-section');
+        const mealsGrid = document.getElementById('meal-picker-grid');
+        if (savedMealsList.length === 0) {
+            mealsSection.style.display = 'none';
+        } else {
+            mealsSection.style.display = 'block';
+            mealsGrid.innerHTML = savedMealsList.map(meal => `
+                <button class="emoji-picker-item" onclick="logSavedMealNow(${meal.id})">
+                    <span class="emoji-glyph">🍽️</span>
+                    <span class="emoji-picker-label">${meal.name}</span>
+                </button>
+            `).join('');
+        }
+
+        const customFoods = cachedFoodsList.filter(item => item.isCustomEntry);
+        const customSection = document.getElementById('meal-picker-custom-section');
+        const customGrid = document.getElementById('custom-food-picker-grid');
+        if (customFoods.length === 0) {
+            customSection.style.display = 'none';
+        } else {
+            customSection.style.display = 'block';
+            customGrid.innerHTML = customFoods.map(item => `
+                <button class="emoji-picker-item" onclick='displayFood(${JSON.stringify(item)}); closeMealPicker();'>
+                    <span class="emoji-glyph">${item.emoji || '🍽️'}</span>
+                    <span class="emoji-picker-label">${item.description}</span>
+                </button>
+            `).join('');
+        }
+
+        document.getElementById('meal-picker-empty-msg').style.display =
+            (savedMealsList.length === 0 && customFoods.length === 0) ? 'block' : 'none';
+
         document.getElementById('meal-picker-overlay').style.display = 'flex';
     }
 
     function closeMealPicker() {
         document.getElementById('meal-picker-overlay').style.display = 'none';
+    }
+
+    // ---- "Customize Entry" popup (from the food card) ----
+    // Lets the user pick any icon (via the emoji-picker-element web
+    // component - hundreds of emojis, not just a small curated set) and a
+    // short custom title for whatever food is currently loaded in the food
+    // card - works the same whether that food is a fresh lookup, a Quick
+    // Recall edit, or a Consumed Today edit, since they all share the same
+    // food card/currentActiveFood. Saving tags the food isCustomEntry:true
+    // and gives it a real cache key if it didn't already have one (e.g. a
+    // Consumed Today entry reconstructed by editLoggedEntry(), which
+    // deliberately starts with upc:null), so it becomes a permanent,
+    // reusable entry under the "Custom Foods & Meals" picker.
+    function openCustomizeEntryPopup() {
+        if (!currentActiveFood) return;
+        customizeEntrySelectedIcon = currentActiveFood.emoji || null;
+        document.getElementById('customize-entry-title').value =
+            document.getElementById('food-title').value || currentActiveFood.description || '';
+        document.getElementById('customize-icon-preview-glyph').innerText = customizeEntrySelectedIcon || '—';
+        document.getElementById('customize-entry-overlay').style.display = 'flex';
+    }
+
+    function closeCustomizeEntryPopup() {
+        document.getElementById('customize-entry-overlay').style.display = 'none';
+    }
+
+    // The <emoji-picker> web component fires a plain DOM CustomEvent -
+    // wired up once here (rather than inline in the HTML) since custom
+    // elements' events aren't reachable via an onclick="" attribute. Just
+    // records the tap and updates the small preview glyph; the actual save
+    // still happens via the popup's own Save button.
+    document.getElementById('customize-emoji-picker').addEventListener('emoji-click', event => {
+        customizeEntrySelectedIcon = event.detail.unicode;
+        document.getElementById('customize-icon-preview-glyph').innerText = customizeEntrySelectedIcon;
+    });
+
+    function saveCustomizeEntry() {
+        if (!currentActiveFood) return;
+
+        const title = document.getElementById('customize-entry-title').value.trim();
+        if (!title) {
+            alert('Enter a title for this custom entry.');
+            return;
+        }
+        if (!customizeEntrySelectedIcon) {
+            alert('Pick an icon for this custom entry.');
+            return;
+        }
+
+        currentActiveFood.description = title;
+        currentActiveFood.emoji = customizeEntrySelectedIcon;
+        currentActiveFood.category = 'Custom Foods & Meals';
+        currentActiveFood.isCustomEntry = true;
+
+        // Give it a real cache key if it doesn't have one yet (see comment
+        // above openCustomizeEntryPopup()) so it actually persists.
+        if (!currentActiveFood.upc) {
+            currentActiveFood.upc = `custom-${Date.now()}`;
+        }
+        saveFoodToLocalCache(currentActiveFood.upc, currentActiveFood);
+
+        // Reflect the new title immediately in the food card underneath.
+        document.getElementById('food-title').value = title;
+
+        closeCustomizeEntryPopup();
+        refreshAppUI(); // so it shows up under Custom Foods & Meals right away
     }
 
     // Logs every food in a saved meal to TODAY specifically, all at once,
@@ -3637,6 +3825,11 @@
         const toDelete = [];
 
         for (const food of foods) {
+            // Customized entries (isCustomEntry:true) are meant to be a
+            // permanent library, same as Saved Meals - never auto-expire
+            // them just because they haven't been looked up in a while.
+            if (food.isCustomEntry) continue;
+
             // Use the food's timestamp (when it was last looked up/accessed),
             // not lastLoggedAt (which only updates when actually eaten) - we
             // want to remove foods that haven't even been SEEN in 7 days.
