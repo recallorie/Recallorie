@@ -294,6 +294,16 @@ const FOOD_EMOJI_CATEGORIES = [
     {
         label: "Farm",
         icon: "🚜",
+        // Recolors the category button's tractor glyph to Kubota Orange
+        // (MP01049, #EB603F) via a CSS filter on the rendered emoji, since
+        // there's no separate "orange tractor" Unicode character to swap
+        // in - see renderEmojiCategoryButtons() in Recallorie.html, which
+        // applies this as an inline filter style whenever a category
+        // defines one.
+        iconFilter: "hue-rotate(-35deg) saturate(1.8) brightness(0.95) contrast(1.15)",
+        // Mirrors the glyph horizontally so the tractor faces the opposite
+        // way from its default orientation.
+        iconTransform: "scaleX(-1)",
         items: [
             { emoji: "🐄", name: "Beef", searchOn: "Ground Beef", portionAmount: 100, portionUnit: "g", descriptors: [
                     { label: "", searchOn: "", portionAmount: 1, portionUnit: "oz", unitGrams: 123 }
