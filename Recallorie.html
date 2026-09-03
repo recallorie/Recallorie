@@ -136,6 +136,35 @@
             text-align: center;
             line-height: 1.15;
         }
+        .weight-chart-card {
+            background: var(--card-color);
+            width: 100%;
+            max-width: 640px;
+            max-height: 85vh;
+            border-radius: 16px;
+            padding: 16px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .weight-chart-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .weight-chart-controls label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .weight-chart-controls select {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: var(--card-color);
+            color: var(--text-main);
+        }
         .picker-section-label {
             font-size: 0.75rem;
             font-weight: 700;
@@ -1059,6 +1088,7 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); openImportOverlay();">⬆ Import Data</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageMeals();">🍽️ Manage Meals</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
+        <button class="profile-menu-item" onclick="closeProfileMenu(); openWeightChart();">📈 Weight Chart</button>
         <div class="profile-menu-item" style="display: flex; justify-content: space-between; align-items: center;">
             <span>Sound</span>
             <label class="sound-toggle-switch">
@@ -1195,6 +1225,35 @@
             <button class="btn-primary" style="width: 100%; margin-top: 16px;" onclick="saveCustomizeEntry()">Save</button>
         </div>
     </div>
+
+    <!-- Weight Chart (profile menu): a line chart of logged weight entries
+         over a selectable period. Missing points are simply not in the
+         data - the line just connects whatever points do exist, in
+         chronological order. -->
+    <div id="weight-chart-overlay" class="emoji-picker-overlay">
+        <div class="weight-chart-card">
+            <div class="emoji-picker-header">
+                <h3>Weight Chart</h3>
+                <button class="emoji-picker-close" onclick="closeWeightChart()">✕</button>
+            </div>
+            <div id="weight-chart-svg-container"></div>
+            <div id="weight-chart-empty-msg" style="display: none; text-align: center; padding: 24px 12px; color: var(--text-muted); font-size: 0.9rem;">
+                No weight entries logged for this period.
+            </div>
+            <div class="weight-chart-controls">
+                <label for="weight-chart-period">Period:</label>
+                <select id="weight-chart-period" onchange="renderWeightChart()">
+                    <option value="today">Today</option>
+                    <option value="24h">Last Day (24hrs)</option>
+                    <option value="1w">1 Week</option>
+                    <option value="1m">1 Month</option>
+                    <option value="3m">3 Months</option>
+                    <option value="1y">1 Year</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Reached via the profile menu: build a new saved meal out of today's
          logged entries, and manage (delete) existing saved meals. -->
@@ -1356,7 +1415,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.80" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.81" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1510,10 +1569,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.80"></script>
-<script src="zxing.min.js?v=1.80"></script>
-<script src="db.js?v=1.80"></script>
-<script src="USDA_DB_Access.js?v=1.80"></script>
+<script src="foodEmojis.js?v=1.81"></script>
+<script src="zxing.min.js?v=1.81"></script>
+<script src="db.js?v=1.81"></script>
+<script src="USDA_DB_Access.js?v=1.81"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1523,8 +1582,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.80';
-    const BUILD_DATE_UTC = '2026-08-27T20:30:00Z';
+    const APP_VERSION = '1.81';
+    const BUILD_DATE_UTC = '2026-08-28T14:00:00Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1544,6 +1603,8 @@
     let mealBuilderSelectedIds = new Set(); // Which log entry ids are currently checked, tracked separately so it survives filter re-renders
     let exerciseModalData = null; // Holds the exercise being logged (icon, name, intensity) while the duration modal is open
     let customizeEntrySelectedIcon = null; // Icon chosen so far in the open "Customize Entry" popup
+    let allWeightMetrics = []; // Every logged weight entry, loaded fresh each time the Weight Chart opens
+    let weightChartDisplayUnit = 'lb'; // Fixed per chart-open (most recent entry's unit) so it doesn't flip when switching periods
     let foodEntrySoundEnabled = localStorage.getItem('foodEntrySoundEnabled') !== 'false'; // Default ON
     // Embedded Yahoo "Classic" notification sound as base64 MP3
     const foodEntryAudio = new Audio('data:audio/mpeg;base64,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');
@@ -3082,6 +3143,225 @@
         closeCustomizeEntryPopup();
         refreshAppUI(); // so it shows up under Custom Foods & Meals right away
     }
+
+    // ---- Weight Chart (profile menu) ----
+    // A line chart of every logged weight entry, filtered to a selectable
+    // period. Missing points are simply absent from the data - the line
+    // just connects whichever points DO exist, in chronological order, with
+    // no interpolation or zero-filling for gaps.
+
+    // 1 kg = 2.2046226218 lb - used to normalize entries logged in a mix of
+    // units onto one consistent axis.
+    function convertWeightUnit(value, fromUnit, toUnit) {
+        if (fromUnit === toUnit) return value;
+        if (fromUnit === 'kg' && toUnit === 'lb') return value * 2.2046226218;
+        if (fromUnit === 'lb' && toUnit === 'kg') return value / 2.2046226218;
+        return value;
+    }
+
+    async function openWeightChart() {
+        let all = [];
+        try {
+            all = await getAllMetrics();
+        } catch (error) {
+            console.error('openWeightChart: getAllMetrics failed:', error);
+        }
+        allWeightMetrics = all
+            .filter(m => m.type === 'weight')
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        // Fix the display unit to whatever the most recent weigh-in used,
+        // for the whole time this chart stays open - so switching periods
+        // never causes the y-axis unit to jump between lb/kg mid-review.
+        weightChartDisplayUnit = allWeightMetrics.length
+            ? allWeightMetrics[allWeightMetrics.length - 1].unit
+            : 'lb';
+
+        document.getElementById('weight-chart-period').value = 'today';
+        document.getElementById('weight-chart-overlay').style.display = 'flex';
+        renderWeightChart();
+    }
+
+    function closeWeightChart() {
+        document.getElementById('weight-chart-overlay').style.display = 'none';
+    }
+
+    // Returns the [startMs, endMs] window for a given period, anchored to
+    // "now" - except "today", which is anchored to local midnight so it
+    // always shows the current calendar day rather than a rolling 24h.
+    function getWeightChartPeriodRange(period) {
+        const now = new Date();
+        let start;
+        switch (period) {
+            case 'today':
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+                break;
+            case '24h':
+                start = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                break;
+            case '1w':
+                start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                break;
+            case '1m':
+                start = new Date(now);
+                start.setMonth(start.getMonth() - 1);
+                break;
+            case '3m':
+                start = new Date(now);
+                start.setMonth(start.getMonth() - 3);
+                break;
+            case '1y':
+                start = new Date(now);
+                start.setFullYear(start.getFullYear() - 1);
+                break;
+            default:
+                start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        }
+        return { startMs: start.getTime(), endMs: now.getTime() };
+    }
+
+    // "1 week and less" periods show date+time on the x-axis (per-hour
+    // weigh-ins are meaningful there); longer periods just show the date.
+    function formatWeightChartTick(ms, showTime) {
+        const d = new Date(ms);
+        const datePart = `${d.getMonth() + 1}/${d.getDate()}`;
+        if (!showTime) {
+            return `${datePart}/${String(d.getFullYear()).slice(-2)}`;
+        }
+        let hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        if (hours === 0) hours = 12;
+        return `${datePart} ${hours}:${minutes}${ampm}`;
+    }
+
+    // Full date+time+value for a data point's hover/tap tooltip, regardless
+    // of period (so exact readings are always available on demand).
+    function formatWeightChartTooltip(ms, value, unit) {
+        const d = new Date(ms);
+        const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        let hours = d.getHours();
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        if (hours === 0) hours = 12;
+        return `${dateStr}, ${hours}:${minutes} ${ampm} — ${round1(value)} ${unit}`;
+    }
+
+    function renderWeightChart() {
+        const period = document.getElementById('weight-chart-period').value;
+        const { startMs, endMs } = getWeightChartPeriodRange(period);
+        const showTime = (period === 'today' || period === '24h' || period === '1w');
+
+        const points = allWeightMetrics
+            .filter(m => m.timestamp >= startMs && m.timestamp <= endMs)
+            .map(m => ({
+                timestamp: m.timestamp,
+                value: convertWeightUnit(m.value, m.unit, weightChartDisplayUnit)
+            }));
+
+        const container = document.getElementById('weight-chart-svg-container');
+        const emptyMsg = document.getElementById('weight-chart-empty-msg');
+
+        if (points.length === 0) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+            emptyMsg.style.display = 'block';
+            return;
+        }
+        emptyMsg.style.display = 'none';
+        container.style.display = 'block';
+        container.innerHTML = buildWeightChartSVG(points, startMs, endMs, showTime, weightChartDisplayUnit);
+    }
+
+    // Builds the actual SVG markup - vanilla SVG rather than a charting
+    // library, since this is the only chart in the app so far.
+    function buildWeightChartSVG(points, xMin, xMax, showTime, unit) {
+        const width = 600, height = 320;
+        const marginLeft = 46, marginRight = 15, marginTop = 15, marginBottom = 40;
+        const plotW = width - marginLeft - marginRight;
+        const plotH = height - marginTop - marginBottom;
+
+        // Guard a zero-width time domain (e.g. opening "Today" right at midnight).
+        const xSpan = (xMax - xMin) || 1;
+
+        const values = points.map(p => p.value);
+        let minV = Math.min(...values);
+        let maxV = Math.max(...values);
+        if (minV === maxV) {
+            // Flat line or a single point - pad so the range isn't zero-height.
+            const pad = Math.max(Math.abs(minV) * 0.05, 1);
+            minV -= pad;
+            maxV += pad;
+        } else {
+            const pad = (maxV - minV) * 0.1;
+            minV -= pad;
+            maxV += pad;
+        }
+        const ySpan = maxV - minV;
+
+        const xForT = (t) => marginLeft + ((t - xMin) / xSpan) * plotW;
+        const yForV = (v) => marginTop + plotH - ((v - minV) / ySpan) * plotH;
+
+        // Horizontal gridlines + y-axis value labels.
+        const yTickCount = 4;
+        let yTicksSVG = '';
+        for (let i = 0; i <= yTickCount; i++) {
+            const v = minV + (ySpan * i / yTickCount);
+            const y = yForV(v);
+            yTicksSVG += `
+                <line x1="${marginLeft}" y1="${y.toFixed(1)}" x2="${width - marginRight}" y2="${y.toFixed(1)}" stroke="#eee" stroke-width="1" />
+                <text x="${marginLeft - 8}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="#888">${round1(v)}</text>
+            `;
+        }
+
+        // x-axis date/time labels, evenly spaced across the period.
+        const xTickCount = 4;
+        let xTicksSVG = '';
+        for (let i = 0; i <= xTickCount; i++) {
+            const t = xMin + (xSpan * i / xTickCount);
+            const x = xForT(t);
+            xTicksSVG += `
+                <text x="${x.toFixed(1)}" y="${height - marginBottom + 16}" text-anchor="middle" font-size="9" fill="#888">${formatWeightChartTick(t, showTime)}</text>
+            `;
+        }
+
+        // The connecting line - just walks through whatever points exist in
+        // chronological order, so any gap in logging simply becomes a
+        // longer straight segment to the next real reading.
+        const linePoints = points.map(p => `${xForT(p.timestamp).toFixed(1)},${yForV(p.value).toFixed(1)}`).join(' ');
+        const polylineSVG = points.length > 1
+            ? `<polyline points="${linePoints}" style="fill:none; stroke:var(--primary-color); stroke-width:2;" />`
+            : '';
+
+        // Data point dots, each with a native <title> tooltip (hover on
+        // desktop, long-press on most mobile browsers) showing the exact
+        // date/time/value.
+        let dotsSVG = '';
+        points.forEach(p => {
+            const x = xForT(p.timestamp).toFixed(1);
+            const y = yForV(p.value).toFixed(1);
+            dotsSVG += `
+                <circle cx="${x}" cy="${y}" r="4" style="fill:var(--primary-color); stroke:white; stroke-width:1.5;">
+                    <title>${formatWeightChartTooltip(p.timestamp, p.value, unit)}</title>
+                </circle>
+            `;
+        });
+
+        return `
+            <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; display:block;">
+                ${yTicksSVG}
+                <line x1="${marginLeft}" y1="${marginTop}" x2="${marginLeft}" y2="${height - marginBottom}" stroke="#ccc" stroke-width="1" />
+                <line x1="${marginLeft}" y1="${height - marginBottom}" x2="${width - marginRight}" y2="${height - marginBottom}" stroke="#ccc" stroke-width="1" />
+                ${xTicksSVG}
+                ${polylineSVG}
+                ${dotsSVG}
+            </svg>
+            <div style="text-align:center; font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Weight (${unit})</div>
+        `;
+    }
+
 
     // Logs every food in a saved meal to TODAY specifically, all at once,
     // timestamped "now" - unlike duplicateCachedFoodToViewedDate(), this
