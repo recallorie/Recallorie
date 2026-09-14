@@ -1297,6 +1297,12 @@
                 </select>
             </div>
 
+            <div class="portion-row" style="margin-bottom: 14px;">
+                <label for="metric-datetime">Recorded at:</label>
+                <input type="datetime-local" id="metric-datetime" step="60">
+                <button class="btn-primary" style="padding: 10px 14px;" onclick="setMetricTimeToNow()">Now</button>
+            </div>
+
             <div id="metric-weight-fields">
                 <div class="portion-row">
                     <label for="metric-weight-value">Weight:</label>
@@ -1415,7 +1421,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.82" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.83" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1569,10 +1575,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.82"></script>
-<script src="zxing.min.js?v=1.82"></script>
-<script src="db.js?v=1.82"></script>
-<script src="USDA_DB_Access.js?v=1.82"></script>
+<script src="foodEmojis.js?v=1.83"></script>
+<script src="zxing.min.js?v=1.83"></script>
+<script src="db.js?v=1.83"></script>
+<script src="USDA_DB_Access.js?v=1.83"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1582,8 +1588,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.82';
-    const BUILD_DATE_UTC = '2026-09-13T21:45:00Z';
+    const APP_VERSION = '1.83';
+    const BUILD_DATE_UTC = '2026-09-13T22:15:00Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -3497,6 +3503,13 @@
         document.getElementById('metric-custom-label').value = '';
         document.getElementById('metric-custom-value').value = '';
         document.getElementById('metric-custom-unit').value = '';
+
+        // Default "Recorded at" to right now, on whichever day is currently
+        // selected in the date bar - same convention food entries use.
+        const now = new Date();
+        const [y, m, d] = currentViewDateStr.split('-').map(Number);
+        const combined = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds());
+        document.getElementById('metric-datetime').value = formatForDatetimeLocal(combined);
         
         // Prepopulate weight field with last entered weight
         const lastWeight = await getLastWeightEntry();
@@ -3516,6 +3529,10 @@
             weightField.focus();
             weightField.select();
         }, 100);
+    }
+
+    function setMetricTimeToNow() {
+        document.getElementById('metric-datetime').value = formatForDatetimeLocal(new Date());
     }
 
     // Gets the most recent weight entry from the database
@@ -3543,6 +3560,8 @@
         editingMetricEntry = entry;
         document.getElementById('log-metric-title').innerText = 'Edit Health Metric';
         document.getElementById('log-metric-save-btn').innerText = 'Save Changes';
+
+        document.getElementById('metric-datetime').value = formatForDatetimeLocal(new Date(entry.timestamp));
 
         document.getElementById('metric-type-select').value = entry.type;
         document.getElementById('metric-type-select').disabled = true;
@@ -3578,24 +3597,26 @@
     async function saveMetricEntry() {
         const type = document.getElementById('metric-type-select').value;
 
+        // "Recorded at" is user-editable (both when logging a new entry and
+        // when editing one), so a weight taken a day late can be backdated -
+        // falls back to "now" if somehow left blank.
+        const datetimeVal = document.getElementById('metric-datetime').value;
+        const recordedAt = datetimeVal ? new Date(datetimeVal) : new Date();
+        const timestamp = recordedAt.getTime();
+        const dateStr = toLocalDateStr(recordedAt);
+
         let entry;
         if (editingMetricEntry) {
-            // Editing an existing entry - keep its id/dateStr/timestamp/type
-            // exactly as they were; only the reading itself changes.
+            // Editing an existing entry - keep its id/type, but dateStr/
+            // timestamp now come from the (possibly just-changed) datetime field.
             entry = {
                 id: editingMetricEntry.id,
                 type: editingMetricEntry.type,
-                dateStr: editingMetricEntry.dateStr,
-                timestamp: editingMetricEntry.timestamp
+                dateStr: dateStr,
+                timestamp: timestamp
             };
         } else {
-            // Logged onto whichever day is currently selected in the date bar,
-            // same convention as food entries - timestamped "now" (time-of-day)
-            // combined with that day's date.
-            const now = new Date();
-            const [y, m, d] = currentViewDateStr.split('-').map(Number);
-            const timestamp = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
-            entry = { type, dateStr: currentViewDateStr, timestamp };
+            entry = { type, dateStr: dateStr, timestamp: timestamp };
         }
 
         if (type === 'weight') {
