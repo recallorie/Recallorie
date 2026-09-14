@@ -357,6 +357,20 @@ function getMetricsForDate(dateStr) {
     });
 }
 
+// Updates an existing health metric entry in place (same id, but value
+// fields replaced) - used by the metrics list's Edit button.
+function updateMetricInDB(entry) {
+    return new Promise((resolve, reject) => {
+        if (!db) return reject('Database not ready');
+        const transaction = db.transaction([METRICS_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(METRICS_STORE_NAME);
+        const request = store.put(entry);
+
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
 // Deletes a single health metric entry.
 function deleteMetricFromDB(id) {
     return new Promise((resolve, reject) => {

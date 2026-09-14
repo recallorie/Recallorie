@@ -1284,7 +1284,7 @@
     <div id="log-metric-overlay" class="emoji-picker-overlay">
         <div class="emoji-picker-card">
             <div class="emoji-picker-header">
-                <h3>Log Health Metric</h3>
+                <h3 id="log-metric-title">Log Health Metric</h3>
                 <button class="emoji-picker-close" onclick="closeLogMetricOverlay()">✕</button>
             </div>
 
@@ -1329,7 +1329,7 @@
                 </div>
             </div>
 
-            <button class="btn-primary" style="width: 100%; margin-top: 14px;" onclick="saveMetricEntry()">Save</button>
+            <button class="btn-primary" id="log-metric-save-btn" style="width: 100%; margin-top: 14px;" onclick="saveMetricEntry()">Save</button>
         </div>
     </div>
 
@@ -1415,7 +1415,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.81" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.82" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1569,10 +1569,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.81"></script>
-<script src="zxing.min.js?v=1.81"></script>
-<script src="db.js?v=1.81"></script>
-<script src="USDA_DB_Access.js?v=1.81"></script>
+<script src="foodEmojis.js?v=1.82"></script>
+<script src="zxing.min.js?v=1.82"></script>
+<script src="db.js?v=1.82"></script>
+<script src="USDA_DB_Access.js?v=1.82"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1582,8 +1582,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.81';
-    const BUILD_DATE_UTC = '2026-08-28T14:00:00Z';
+    const APP_VERSION = '1.82';
+    const BUILD_DATE_UTC = '2026-09-13T21:45:00Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1603,6 +1603,8 @@
     let mealBuilderSelectedIds = new Set(); // Which log entry ids are currently checked, tracked separately so it survives filter re-renders
     let exerciseModalData = null; // Holds the exercise being logged (icon, name, intensity) while the duration modal is open
     let customizeEntrySelectedIcon = null; // Icon chosen so far in the open "Customize Entry" popup
+    let currentViewMetrics = []; // Health metric entries for currentViewDateStr, cached so editMetricEntry() can look one up by id without a re-fetch
+    let editingMetricEntry = null; // The full original entry object while the Log Health Metric popup is in "edit" mode (null = logging a new entry)
     let allWeightMetrics = []; // Every logged weight entry, loaded fresh each time the Weight Chart opens
     let weightChartDisplayUnit = 'lb'; // Fixed per chart-open (most recent entry's unit) so it doesn't flip when switching periods
     let foodEntrySoundEnabled = localStorage.getItem('foodEntrySoundEnabled') !== 'false'; // Default ON
@@ -3484,6 +3486,11 @@
 
     // ---- Health metrics (weight / blood pressure / custom) ----
     async function openLogMetricOverlay() {
+        editingMetricEntry = null; // this flow is always for a brand-new entry
+        document.getElementById('metric-type-select').disabled = false;
+        document.getElementById('log-metric-title').innerText = 'Log Health Metric';
+        document.getElementById('log-metric-save-btn').innerText = 'Save';
+
         document.getElementById('metric-type-select').value = 'weight';
         document.getElementById('metric-bp-systolic').value = '';
         document.getElementById('metric-bp-diastolic').value = '';
@@ -3523,8 +3530,41 @@
         return weightEntries[0];
     }
 
+    // Reopens the Log Health Metric popup pre-filled with an existing
+    // weight or blood pressure entry's values, so it can be corrected
+    // without deleting and re-adding it. The type selector is locked while
+    // editing (switching a weight entry into a blood-pressure entry mid-edit
+    // doesn't make sense) and the original date/time is preserved on save -
+    // this only edits the reading itself, same as the request asked for.
+    function editMetricEntry(id) {
+        const entry = currentViewMetrics.find(m => m.id === id);
+        if (!entry) return;
+
+        editingMetricEntry = entry;
+        document.getElementById('log-metric-title').innerText = 'Edit Health Metric';
+        document.getElementById('log-metric-save-btn').innerText = 'Save Changes';
+
+        document.getElementById('metric-type-select').value = entry.type;
+        document.getElementById('metric-type-select').disabled = true;
+        onMetricTypeChange();
+
+        if (entry.type === 'weight') {
+            document.getElementById('metric-weight-value').value = entry.value;
+            document.getElementById('metric-weight-unit').value = entry.unit || 'lb';
+        } else if (entry.type === 'blood_pressure') {
+            document.getElementById('metric-bp-systolic').value = entry.systolic;
+            document.getElementById('metric-bp-diastolic').value = entry.diastolic;
+        }
+
+        document.getElementById('log-metric-overlay').style.display = 'flex';
+    }
+
     function closeLogMetricOverlay() {
         document.getElementById('log-metric-overlay').style.display = 'none';
+        editingMetricEntry = null;
+        document.getElementById('metric-type-select').disabled = false;
+        document.getElementById('log-metric-title').innerText = 'Log Health Metric';
+        document.getElementById('log-metric-save-btn').innerText = 'Save';
     }
 
     // Shows only the field group relevant to the selected metric type.
@@ -3537,14 +3577,26 @@
 
     async function saveMetricEntry() {
         const type = document.getElementById('metric-type-select').value;
-        // Logged onto whichever day is currently selected in the date bar,
-        // same convention as food entries - timestamped "now" (time-of-day)
-        // combined with that day's date.
-        const now = new Date();
-        const [y, m, d] = currentViewDateStr.split('-').map(Number);
-        const timestamp = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
 
-        let entry = { type, dateStr: currentViewDateStr, timestamp };
+        let entry;
+        if (editingMetricEntry) {
+            // Editing an existing entry - keep its id/dateStr/timestamp/type
+            // exactly as they were; only the reading itself changes.
+            entry = {
+                id: editingMetricEntry.id,
+                type: editingMetricEntry.type,
+                dateStr: editingMetricEntry.dateStr,
+                timestamp: editingMetricEntry.timestamp
+            };
+        } else {
+            // Logged onto whichever day is currently selected in the date bar,
+            // same convention as food entries - timestamped "now" (time-of-day)
+            // combined with that day's date.
+            const now = new Date();
+            const [y, m, d] = currentViewDateStr.split('-').map(Number);
+            const timestamp = new Date(y, m - 1, d, now.getHours(), now.getMinutes(), now.getSeconds()).getTime();
+            entry = { type, dateStr: currentViewDateStr, timestamp };
+        }
 
         if (type === 'weight') {
             const value = parseFloat(document.getElementById('metric-weight-value').value);
@@ -3580,7 +3632,11 @@
         }
 
         try {
-            await saveMetricToDB(entry);
+            if (editingMetricEntry) {
+                await updateMetricInDB(entry);
+            } else {
+                await saveMetricToDB(entry);
+            }
         } catch (error) {
             console.error('saveMetricEntry failed:', error);
             alert(`Couldn't save this entry: ${error && error.message ? error.message : error}`);
@@ -3607,6 +3663,7 @@
 
     async function renderMetricsList() {
         const entries = await getMetricsForDate(currentViewDateStr);
+        currentViewMetrics = entries; // so editMetricEntry(id) can look one up without a re-fetch
         const container = document.getElementById('metrics-container');
 
         if (entries.length === 0) {
@@ -3616,12 +3673,17 @@
 
         container.innerHTML = entries.map(entry => {
             const timeLabel = new Date(entry.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            // Editing is currently offered for weight/blood pressure only.
+            const editBtn = (entry.type === 'weight' || entry.type === 'blood_pressure')
+                ? `<button class="icon-btn btn-edit" onclick="editMetricEntry(${entry.id})" title="Edit">✏️</button>`
+                : '';
             return `
                 <li class="item-row logged">
                     <div class="item-details">
                         <span class="item-title">${METRIC_ICONS[entry.type] || '📌'} ${formatMetricValue(entry)}</span>
                         <span class="item-brand">${timeLabel}</span>
                     </div>
+                    ${editBtn}
                     <button class="icon-btn btn-delete" onclick="deleteMetricEntry(${entry.id})" title="Delete">🗑️</button>
                 </li>
             `;
