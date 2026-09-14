@@ -130,6 +130,32 @@
         .emoji-picker-item:active {
             background: var(--primary-light);
         }
+        /* Custom Foods & Meals tiles need a small delete badge in the
+           corner, on top of the tile's own tap-to-open behavior. */
+        .custom-food-tile {
+            position: relative;
+        }
+        .custom-food-tile-delete {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--bg-color);
+            border: 1px solid #eee;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.65rem;
+            line-height: 1;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .custom-food-tile-delete:active {
+            background: #fdd;
+        }
         .emoji-picker-label {
             font-size: 0.68rem;
             color: var(--text-main);
@@ -1421,7 +1447,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.83" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.84" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1575,10 +1601,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.83"></script>
-<script src="zxing.min.js?v=1.83"></script>
-<script src="db.js?v=1.83"></script>
-<script src="USDA_DB_Access.js?v=1.83"></script>
+<script src="foodEmojis.js?v=1.84"></script>
+<script src="zxing.min.js?v=1.84"></script>
+<script src="db.js?v=1.84"></script>
+<script src="USDA_DB_Access.js?v=1.84"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1588,8 +1614,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.83';
-    const BUILD_DATE_UTC = '2026-09-13T22:15:00Z';
+    const APP_VERSION = '1.84';
+    const BUILD_DATE_UTC = '2026-09-14T13:00:00Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -3069,10 +3095,11 @@
         } else {
             customSection.style.display = 'block';
             customGrid.innerHTML = customFoods.map(item => `
-                <button class="emoji-picker-item" onclick='displayFood(${JSON.stringify(item)}); closeMealPicker();'>
+                <div class="emoji-picker-item custom-food-tile" onclick='displayFood(${JSON.stringify(item)}); closeMealPicker();'>
+                    <button type="button" class="custom-food-tile-delete" onclick="deleteCustomFoodTile(event, '${item.upc}')" title="Delete">🗑️</button>
                     <span class="emoji-glyph">${item.emoji || '🍽️'}</span>
                     <span class="emoji-picker-label">${item.description}</span>
-                </button>
+                </div>
             `).join('');
         }
 
@@ -3084,6 +3111,19 @@
 
     function closeMealPicker() {
         document.getElementById('meal-picker-overlay').style.display = 'none';
+    }
+
+    // Deletes a custom food entry straight from its tile in the "Custom
+    // Foods & Meals" picker (reuses the same deleteCachedFood() Quick
+    // Recall already uses - a customized entry is just a regular cached
+    // food tagged isCustomEntry:true). stopPropagation() keeps the tap from
+    // also triggering the tile's own onclick (which opens the food card),
+    // and the picker re-renders in place afterward so it stays open for
+    // deleting more than one entry in a row.
+    async function deleteCustomFoodTile(event, upc) {
+        event.stopPropagation();
+        await deleteCachedFood(upc);
+        openMealPicker();
     }
 
     // ---- "Customize Entry" popup (from the food card) ----
