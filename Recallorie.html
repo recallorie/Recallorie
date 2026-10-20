@@ -1116,6 +1116,16 @@
         <button class="profile-menu-item" onclick="closeProfileMenu(); openManageSections();">⚙️ Manage Sections</button>
         <button class="profile-menu-item" onclick="closeProfileMenu(); openWeightChart();">📈 Weight Chart</button>
         <div class="profile-menu-item" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>Main display</span>
+            <select id="primary-metric-select" onchange="onPrimaryMetricChange()" style="padding: 6px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; background: var(--card-color); color: var(--text-main);">
+                <option value="calories">Calories</option>
+                <option value="protein">Protein</option>
+                <option value="carbs">Carbs</option>
+                <option value="fat">Fat</option>
+                <option value="fiber">Fiber</option>
+            </select>
+        </div>
+        <div class="profile-menu-item" style="display: flex; justify-content: space-between; align-items: center;">
             <span>Sound</span>
             <label class="sound-toggle-switch">
                 <input type="checkbox" id="sound-toggle-btn" onchange="closeProfileMenu(); toggleFoodEntrySound();">
@@ -1141,7 +1151,7 @@
         </div>
         <div id="dash-calories" class="calories-tally">0</div>
         <div class="calories-label" id="dash-cal-label">Logged Calories Today</div>
-        <div class="macro-grid" style="margin-bottom: 0;">
+        <div id="dash-sub-macro-grid" class="macro-grid" style="margin-bottom: 0;">
             <div class="macro-box"><span id="dash-protein" class="macro-val">0g</span>Prot</div>
             <div class="macro-box"><span id="dash-carbs" class="macro-val">0g</span>Carb</div>
             <div class="macro-box"><span id="dash-fat" class="macro-val">0g</span>Fat</div>
@@ -1447,7 +1457,7 @@
         <input type="text" id="upc-input" placeholder="Scan UPC or type a food name..." inputmode="text" onkeydown="if (event.key === 'Enter') { event.preventDefault(); handleScan(); }">
         <button class="btn-primary" onclick="handleScan()">Look Up</button>
         <button class="btn-camera" onclick="openScanner()" aria-label="Scan UPC barcode with camera">
-            <img src="upc-icon.svg?v=1.84" alt="Scan UPC barcode" class="btn-camera-icon">
+            <img src="upc-icon.svg?v=1.85" alt="Scan UPC barcode" class="btn-camera-icon">
         </button>
     </div>
 
@@ -1601,10 +1611,10 @@
     </div>
 </div>
 
-<script src="foodEmojis.js?v=1.84"></script>
-<script src="zxing.min.js?v=1.84"></script>
-<script src="db.js?v=1.84"></script>
-<script src="USDA_DB_Access.js?v=1.84"></script>
+<script src="foodEmojis.js?v=1.85"></script>
+<script src="zxing.min.js?v=1.85"></script>
+<script src="db.js?v=1.85"></script>
+<script src="USDA_DB_Access.js?v=1.85"></script>
 <script>
     // Bump this by 0.01 with every new Recallorie.html revision (also
     // reflected in the ?v= cache-busting suffix on the script/img tags
@@ -1614,8 +1624,8 @@
     // actually viewing the page's own local timezone below, rather than
     // baking in one hardcoded timezone, so the bottom-left stamp always
     // reads correctly regardless of where the page was built vs. viewed.
-    const APP_VERSION = '1.84';
-    const BUILD_DATE_UTC = '2026-09-14T13:00:00Z';
+    const APP_VERSION = '1.85';
+    const BUILD_DATE_UTC = '2026-10-14T15:00:00Z';
     console.log(`Recallorie ${APP_VERSION} (built ${BUILD_DATE_UTC})`);
     document.addEventListener('DOMContentLoaded', () => {
         const d = new Date(BUILD_DATE_UTC);
@@ -1637,6 +1647,22 @@
     let customizeEntrySelectedIcon = null; // Icon chosen so far in the open "Customize Entry" popup
     let currentViewMetrics = []; // Health metric entries for currentViewDateStr, cached so editMetricEntry() can look one up by id without a re-fetch
     let editingMetricEntry = null; // The full original entry object while the Log Health Metric popup is in "edit" mode (null = logging a new entry)
+
+    // ---- Dashboard "main display" metric (profile menu dropdown) ----
+    // Which of the 5 daily tallies gets the big headline treatment at the
+    // top of the dashboard; the other 4 appear underneath it as the usual
+    // small macro boxes, in their normal relative order (so picking "carbs"
+    // simply swaps calories and carbs - calories lands exactly where carbs
+    // used to sit in the sub-row, everything else stays put).
+    const DASHBOARD_METRIC_ORDER = ['calories', 'protein', 'carbs', 'fat', 'fiber'];
+    const DASHBOARD_METRIC_META = {
+        calories: { shortLabel: 'Cals', bigLabel: 'Calories', unit: '' },
+        protein: { shortLabel: 'Prot', bigLabel: 'Protein', unit: 'g' },
+        carbs: { shortLabel: 'Carb', bigLabel: 'Carbs', unit: 'g' },
+        fat: { shortLabel: 'Fat', bigLabel: 'Fat', unit: 'g' },
+        fiber: { shortLabel: 'Fiber', bigLabel: 'Fiber', unit: 'g' }
+    };
+    let primaryDashboardMetric = 'calories'; // overridden at startup by loadPrimaryDashboardMetric()
     let allWeightMetrics = []; // Every logged weight entry, loaded fresh each time the Weight Chart opens
     let weightChartDisplayUnit = 'lb'; // Fixed per chart-open (most recent entry's unit) so it doesn't flip when switching periods
     let foodEntrySoundEnabled = localStorage.getItem('foodEntrySoundEnabled') !== 'false'; // Default ON
@@ -1647,6 +1673,7 @@
         await initDB();
         await loadSectionConfig();
         applySectionConfig();
+        await loadPrimaryDashboardMetric();
         refreshAppUI();
         // Initialize sound toggle button text
         const soundCheckbox = document.getElementById('sound-toggle-btn');
@@ -3999,6 +4026,25 @@
         await renderWaterList();
     }
 
+    // ---- Dashboard "main display" metric setting (profile menu dropdown) ----
+    async function loadPrimaryDashboardMetric() {
+        const saved = await getSetting('primaryDashboardMetric');
+        if (saved && DASHBOARD_METRIC_ORDER.includes(saved)) {
+            primaryDashboardMetric = saved;
+        }
+        document.getElementById('primary-metric-select').value = primaryDashboardMetric;
+    }
+
+    async function onPrimaryMetricChange() {
+        primaryDashboardMetric = document.getElementById('primary-metric-select').value;
+        try {
+            await saveSetting('primaryDashboardMetric', primaryDashboardMetric);
+        } catch (error) {
+            console.error('Failed to save primaryDashboardMetric setting:', error);
+        }
+        await refreshAppUI();
+    }
+
     // ---- Dashboard section settings (Manage Sections, in profile menu) ----
     // Controls both which of these sections show on the main screen at all,
     // and what order they appear in - persisted so it's remembered next time.
@@ -4273,7 +4319,6 @@
 
         const dateLabel = formatDateForDisplay(currentViewDateStr);
         document.getElementById('log-section-title').innerText = isToday ? '😋 Consumed Today' : `😋 Consumed — ${dateLabel}`;
-        document.getElementById('dash-cal-label').innerText = isToday ? 'Logged Calories Today' : `Logged Calories — ${dateLabel}`;
         document.getElementById('metrics-section-title').innerText = isToday ? '⚕️ Health Metrics' : `⚕️ Health Metrics — ${dateLabel}`;
         await renderMetricsList();
         document.getElementById('exercise-section-title').innerText = isToday ? '⏱️ Exercise' : `⏱️ Exercise — ${dateLabel}`;
@@ -4350,12 +4395,28 @@
             }).filter(html => html !== '').join('');
         }
 
-        // Update dashboard numbers (totals for the viewed date, not always "today")
-        document.getElementById('dash-calories').innerText = Math.round(totalCals);
-        document.getElementById('dash-protein').innerText = Math.round(totalProt) + 'g';
-        document.getElementById('dash-carbs').innerText = Math.round(totalCarbs) + 'g';
-        document.getElementById('dash-fat').innerText = Math.round(totalFat) + 'g';
-        document.getElementById('dash-fiber').innerText = Math.round(totalFiber) + 'g';
+        // Update dashboard numbers (totals for the viewed date, not always
+        // "today") - which metric gets the big headline treatment vs. the
+        // small sub-boxes underneath is driven by primaryDashboardMetric
+        // (profile menu's "Main display" dropdown).
+        const dashTotalsByMetric = {
+            calories: totalCals,
+            protein: totalProt,
+            carbs: totalCarbs,
+            fat: totalFat,
+            fiber: totalFiber
+        };
+        const primaryMeta = DASHBOARD_METRIC_META[primaryDashboardMetric];
+        document.getElementById('dash-calories').innerText = Math.round(dashTotalsByMetric[primaryDashboardMetric]) + primaryMeta.unit;
+        document.getElementById('dash-cal-label').innerText = isToday
+            ? `Logged ${primaryMeta.bigLabel} Today`
+            : `Logged ${primaryMeta.bigLabel} — ${dateLabel}`;
+
+        const subMetrics = DASHBOARD_METRIC_ORDER.filter(m => m !== primaryDashboardMetric);
+        document.getElementById('dash-sub-macro-grid').innerHTML = subMetrics.map(m => {
+            const meta = DASHBOARD_METRIC_META[m];
+            return `<div class="macro-box"><span class="macro-val">${Math.round(dashTotalsByMetric[m])}${meta.unit}</span>${meta.shortLabel}</div>`;
+        }).join('');
 
         // 2. Fetch all cached barcode foods for the Quick Recall timeline
         cachedFoodsList = dedupeAndSortCachedFoods(await cleanupOldCachedFoods(await getAllCachedFoods()));
